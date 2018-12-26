@@ -2,11 +2,17 @@ add_subdirectory(dependencies/googletest/googletest)
 
 add_executable(
     test
-    test/SampleTest.cpp)
+    "test/BasicObjectTest.cpp")
     
 target_link_libraries(
     test
-    PRIVATE gtest gtest_main)
+    PRIVATE 
+      gtest gtest_main)
+    
+target_include_directories(
+    test
+    PRIVATE
+      "include/")
 
 set_target_properties(
     test

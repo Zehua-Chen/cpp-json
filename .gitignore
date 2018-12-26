@@ -12,3 +12,6 @@ build/
 
 # Dependencies
 dependencies/
+
+# macOS
+.DS_Store
