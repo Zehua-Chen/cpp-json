@@ -14,7 +14,7 @@ public:
     using Key = typename BasicValue<CharT>::Key;
     using Value = typename BasicValue<CharT>::Value;
     
-    ~BasicObject();
+    virtual ~BasicObject() override;
     
     virtual Value * operator[](const Key &key) override;
     virtual Value * get(const Key &key) override;
