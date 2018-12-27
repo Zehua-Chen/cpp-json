@@ -17,8 +17,12 @@ public:
     virtual ~BasicObject() override;
     
     virtual Value * operator[](const Key &key) override;
+    virtual Value * operator[](const CharT *key) override;
+    
     virtual Value * get(const Key &key) override;
     virtual void set(const Key &key, Value *value) override;
+    
+    operator bool();
 
 private:
     using _ValuePointer = std::unique_ptr<BasicValue<CharT>>;
@@ -31,6 +35,8 @@ private:
 
 namespace json 
 {
+using std::basic_string;
+
 template<class CharT>
 BasicObject<CharT>::~BasicObject()
 {
@@ -43,6 +49,14 @@ typename BasicObject<CharT>::Value * BasicObject<CharT>::operator[](
     auto found = _map.find(key);
     
     return found == _map.end() ? nullptr : found->second.get();
+}
+
+template<class CharT>
+typename BasicObject<CharT>::Value * BasicObject<CharT>::operator[](
+    const CharT *key)
+{
+    basic_string text = key;
+    return (*this)[text];
 }
 
 template<class CharT>
@@ -59,4 +73,7 @@ void BasicObject<CharT>::set(const Key &key, Value *value)
 {
     _map[key].reset(value);
 }
+
+template<class CharT>
+BasicObject<CharT>::operator bool() { return !_map.empty(); }
 }

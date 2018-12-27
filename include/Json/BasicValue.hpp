@@ -15,6 +15,8 @@ public:
     virtual ~BasicValue();
     
     virtual Value * operator[](const Key &key) = 0;
+    virtual Value * operator[](const CharT *key) = 0;
+    
     virtual Value * get(const Key &key) = 0;
     virtual void set(const Key &key, Value *value) = 0;
 };
