@@ -20,3 +20,11 @@ set_target_properties(
     test
     PROPERTIES
       CXX_STANDARD 17)
+      
+# If build test as shared library
+if (BUILD_SHARED_LIBS)
+    target_compile_definitions(
+        test
+        PRIVATE
+          GTEST_LINKED_AS_SHARED_LIBRARY=1)
+endif()
