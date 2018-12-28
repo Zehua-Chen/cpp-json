@@ -32,7 +32,7 @@ public:
      * Construct json value of the specifiec type
      * @param type type of the json value
      */
-    BasicValue(Type type);
+    BasicValue(Type type = Type::object);
     virtual ~BasicValue();
 
     /// Type accessors
@@ -81,7 +81,6 @@ public:
      */
     void set(const Key &key, BasicValue<CharT> &value);
     
-    // TODO: Implement
     /**
      * Have a reference to the value associated with the key.
      * @param key the key associated with the value
@@ -230,6 +229,18 @@ void BasicValue<CharT>::set(const Key &key, BasicValue<CharT> &value)
 {
     ObjectData &data = std::get<ObjectData>(_data);
     data.insert_or_assign(key, value);
+}
+
+/**
+ * Have a reference to the value associated with the key.
+ * @param key the key associated with the value
+ * @returns a reference to the value
+ */
+template<typename CharT>
+BasicValue<CharT> &BasicValue<CharT>::operator[](const Key &key)
+{
+    ObjectData &data = std::get<ObjectData>(_data);
+    return data[key];
 }
 
 /// Object accessors

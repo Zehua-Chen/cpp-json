@@ -15,15 +15,33 @@ TEST(BasicObjectTest, Construction)
 {
     auto object = makeObject();
     EXPECT_EQ(object.type(), Type::object);
+    EXPECT_TRUE(object.isObject());
 }
 
-TEST(BasicObjectTest, ReadWrite)
+TEST(BasicObjectTest, ReadWriteWithMethods)
 {
     auto object = makeObject();
     auto name = makePrimitive();
     
     name.string("jackson");
-    object.set("jackson", name);
+    object.set("name", name);
     
-    EXPECT_EQ(object.get("jackson").string(), name.string());
+    EXPECT_EQ(object.get("name").string(), name.string());
+}
+
+TEST(BasicObjectTest, ReadWriteWithSubscripts)
+{
+    auto object = makeObject();
+    auto name = makePrimitive();
+    
+    name.string("jackson");
+    object["name"] = name;
+    
+    EXPECT_EQ(object.get("name").string(), name.string());
+    
+    auto newName = makePrimitive();
+    name.string("peter");
+    object["name"] = newName;
+    
+    EXPECT_EQ(object.get("name").string(), newName.string());
 }
