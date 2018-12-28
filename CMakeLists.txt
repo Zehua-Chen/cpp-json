@@ -3,7 +3,8 @@ add_subdirectory(dependencies/googletest/googletest)
 add_executable(
     test
     "test/BasicObjectTest.cpp"
-    "test/BasicArrayTest.cpp")
+    "test/BasicArrayTest.cpp"
+    "test/BasicPrimitiveTest.cpp")
     
 target_link_libraries(
     test
