@@ -15,6 +15,7 @@ TEST(BasicPrimitiveTest, Construction)
 {
     auto primitive = makePrimitive();
     EXPECT_EQ(primitive.type(), Type::primitive);
+    EXPECT_TRUE(primitive.isPrimitive());
 }
 
 TEST(BasicPrimitiveTest, ReadWrite)
@@ -22,4 +23,9 @@ TEST(BasicPrimitiveTest, ReadWrite)
     auto primitive = makePrimitive();
     primitive.string("aaa");
     EXPECT_EQ(primitive.string(), "aaa");
+    
+    auto &value = primitive.string();
+    value = "a";
+    
+    EXPECT_EQ(primitive.string(), "a");
 }

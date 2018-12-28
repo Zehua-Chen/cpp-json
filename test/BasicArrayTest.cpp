@@ -9,6 +9,7 @@ using namespace json;
 
 TEST(BasicArrayTest, Construction)
 {
-    auto object = makeArray();
-    EXPECT_EQ(object.type(), Type::array);
+    auto array = makeArray();
+    EXPECT_EQ(array.type(), Type::array);
+    EXPECT_TRUE(array.isArray());
 }

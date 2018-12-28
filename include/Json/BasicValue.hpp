@@ -81,13 +81,6 @@ public:
      */
     void set(const Key &key, BasicValue<CharT> &value);
     
-    /**
-     * Have a reference to the value associated with the key.
-     * @param key the key associated with the value
-     * @returns a reference to the value
-     */
-    BasicValue<CharT> &operator[](const Key &key);
-    
     // TODO: Implement
     /**
      * Erase the value with the key
@@ -96,6 +89,13 @@ public:
     void erase(const Key &key);
     
     /// Object accessors 
+    
+    /**
+     * Have a reference to the value associated with the key.
+     * @param key the key associated with the value
+     * @returns a reference to the value
+     */
+    BasicValue<CharT> &operator[](const Key &key);
     
     const BasicValue<CharT> &get(const Key &key) const;
     BasicValue<CharT> &get(const Key &key);
@@ -231,6 +231,8 @@ void BasicValue<CharT>::set(const Key &key, BasicValue<CharT> &value)
     data.insert_or_assign(key, value);
 }
 
+/// Object accessors
+
 /**
  * Have a reference to the value associated with the key.
  * @param key the key associated with the value
@@ -242,8 +244,6 @@ BasicValue<CharT> &BasicValue<CharT>::operator[](const Key &key)
     ObjectData &data = std::get<ObjectData>(_data);
     return data[key];
 }
-
-/// Object accessors
 
 template<typename CharT>
 const BasicValue<CharT> &BasicValue<CharT>::get(const Key &key) const
