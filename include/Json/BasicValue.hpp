@@ -25,31 +25,82 @@ public:
     using ObjectData = std::unordered_map<Key, BasicValue<CharT>>;
     using ArrayData = std::vector<BasicValue<CharT>>;
     using PrimitiveData = std::basic_string<CharT>;
-
+    
+    /// Constructors, destructors
+    
+    /**
+     * Construct json value of the specifiec type
+     * @param type type of the json value
+     */
     BasicValue(Type type);
     virtual ~BasicValue();
 
-    // Type modifiers
+    /// Type accessors
+    
+    /**
+     * Get the type of object;
+     * @returns the type of the object
+     */
     Type type() const;
-    void type(Type type);
-
+    
+    /**
+     * Determines if the value is an object.
+     * @returns true if value is object
+     */
     bool isObject() const;
+    
+    /**
+     * Determines if the value is an array.
+     * @returns true if value is array
+     */
     bool isArray() const;
+    
+    /**
+     * Determines if the value is a primitive.
+     * @returns true if value is primitive
+     */
     bool isPrimitive() const;
-
-    void becomeObject();
-    void becomeArray();
-    void becomePrimitive();
-    void becomeEmpty();
-
-    // Object modifiers
+    
+    /// Type modifiers
+    
+    // TODO: Implement
+    /**
+     * Set the type of object;
+     * @param type new type of the value
+     */
+    void type(Type type);
+    
+    /// Object modifiers
+    
+    /**
+     * Set the a value using the key
+     * @param value the value
+     * @param key the key used to set the value
+     * @discussions if a value associated with the key already exits,
+     * override the existing value.
+     */
     void set(const Key &key, BasicValue<CharT> &value);
+    
+    // TODO: Implement
+    /**
+     * Have a reference to the value associated with the key.
+     * @param key the key associated with the value
+     * @returns a reference to the value
+     */
+    BasicValue<CharT> &operator[](const Key &key);
+    
+    // TODO: Implement
+    /**
+     * Erase the value with the key
+     * @param key the key associated with the value
+     */
+    void erase(const Key &key);
+    
+    /// Object accessors 
+    
     const BasicValue<CharT> &get(const Key &key) const;
     BasicValue<CharT> &get(const Key &key);
-    void erase(const Key &key);
-
     const BasicValue<CharT> &operator[](const Key &key) const;
-    BasicValue<CharT> &operator[](const Key &key);
 
     // Array modifiers
     void append(const BasicValue &value);
@@ -66,8 +117,10 @@ public:
 
     bool boolean() const;
     const std::basic_string<CharT> &string() const;
-    float number();
+    float number() const;
     bool isNull() const;
+    
+    std::basic_string<CharT> &string();
 
 private:
     Type _type;
@@ -92,35 +145,12 @@ BasicValue<CharT> makeNull();
 
 namespace json
 {
-template<typename CharT>
-BasicValue<CharT> makeObject()
-{
-    return { Type::object };
-}
+/// Constructor and Destructor
 
-template<typename CharT>
-BasicValue<CharT> makeArray()
-{
-    return { Type::array };
-}
-
-template<typename CharT>
-BasicValue<CharT> makePrimitive()
-{
-    return { Type::primitive };
-}
-
-template<typename CharT>
-BasicValue<CharT> makeNull()
-{
-    return { Type::null };
-}
-
-template<typename CharT>
-BasicValue<CharT>::~BasicValue()
-{
-}
-
+/**
+ * Construct json value of the specifiec type
+ * @param type type of the json value
+ */
 template<typename CharT>
 BasicValue<CharT>::BasicValue(Type type)
     : _type(type)
@@ -140,17 +170,69 @@ BasicValue<CharT>::BasicValue(Type type)
 }
 
 template<typename CharT>
+BasicValue<CharT>::~BasicValue()
+{
+}
+
+/// Type modifiers
+
+/**
+ * Get the type of object.
+ * @returns the type of the object
+ */
+template<typename CharT>
 Type BasicValue<CharT>::type() const
 {
     return _type;
 }
 
+/**
+ * Determines if the value is an object.
+ * @returns true if value is object
+ */
+template<typename CharT>
+bool BasicValue<CharT>::isObject() const
+{
+    return _type == Type::object;
+}
+
+/**
+ * Determines if the value is an array.
+ * @returns true if value is array
+ */
+template<typename CharT>
+bool BasicValue<CharT>::isArray() const
+{
+    return _type == Type::array;
+}
+
+/**
+ * Determines if the value is a primitive.
+ * @returns true if value is primitive
+ */
+template<typename CharT>
+bool BasicValue<CharT>::isPrimitive() const
+{
+    return _type == Type::primitive;
+}
+
+/// Object modifiers 
+
+/**
+ * Set the a value using the key
+ * @param value the value
+ * @param key the key used to set the value
+ * @discussions if a value associated with the key already exits,
+ * override the existing value.
+ */
 template<typename CharT>
 void BasicValue<CharT>::set(const Key &key, BasicValue<CharT> &value)
 {
     ObjectData &data = std::get<ObjectData>(_data);
     data.insert_or_assign(key, value);
 }
+
+/// Object accessors
 
 template<typename CharT>
 const BasicValue<CharT> &BasicValue<CharT>::get(const Key &key) const
@@ -177,6 +259,36 @@ template<typename CharT>
 const std::basic_string<CharT> &BasicValue<CharT>::string() const
 {
     return std::get<PrimitiveData>(_data);
+}
+
+template<typename CharT>
+std::basic_string<CharT> &BasicValue<CharT>::string()
+{
+    return std::get<PrimitiveData>(_data);
+}
+
+template<typename CharT>
+BasicValue<CharT> makeObject()
+{
+    return { Type::object };
+}
+
+template<typename CharT>
+BasicValue<CharT> makeArray()
+{
+    return { Type::array };
+}
+
+template<typename CharT>
+BasicValue<CharT> makePrimitive()
+{
+    return { Type::primitive };
+}
+
+template<typename CharT>
+BasicValue<CharT> makeNull()
+{
+    return { Type::null };
 }
 
 } // namespace json
