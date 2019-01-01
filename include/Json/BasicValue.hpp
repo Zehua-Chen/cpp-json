@@ -9,12 +9,17 @@
 
 namespace json
 {
+/**
+ * Type of the value
+ */
 enum class Type
 {
+    // Value is object
     object,
+    // Value is array
     array,
+    // Value is primitive
     primitive,
-    null,
 };
 
 template<typename CharT>
@@ -69,12 +74,12 @@ public:
      * @param type new type of the value
      */
     void type(Type type);
-    
+
     /// Universal Accessor
-    
+
     /**
      * Get the size of the value
-     * @returns type = object: size of unordered map; type = array: size of 
+     * @returns type = object: size of unordered map; type = array: size of
      * vector; type = primitive: size of string.
      */
     size_t size() const;
@@ -129,7 +134,7 @@ public:
     const BasicValue<CharT> &get(const Key &key) const;
 
     /// Array modifiers
-    
+
     /**
      * Add new element to the array.
      * @value the value to add
@@ -339,14 +344,14 @@ bool BasicValue<CharT>::isPrimitive() const
 
 /**
  * Get the size of the value
- * @returns type = object: size of unordered map; type = array: size of 
+ * @returns type = object: size of unordered map; type = array: size of
  * vector; type = primitive: size of string.
  */
 template<typename CharT>
 size_t BasicValue<CharT>::size() const
 {
     using std::get;
-    
+
     switch (_type)
     {
     case Type::object:
