@@ -1,5 +1,7 @@
 #pragma once
 
+namespace json
+{
 /**
  * Type of the value
  */
@@ -12,3 +14,4 @@ enum class Type
     // Value is primitive
     primitive,
 };
+} // namespace json
