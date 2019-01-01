@@ -22,10 +22,13 @@ TEST(BasicPrimitiveTest, ReadWrite)
 {
     auto primitive = makePrimitive();
     primitive.string("aaa");
+    
+    ASSERT_TRUE(primitive.size() == 3);
     EXPECT_EQ(primitive.string(), "aaa");
     
     auto &value = primitive.string();
     value = "a";
     
+    ASSERT_TRUE(primitive.size() == 1);
     EXPECT_EQ(primitive.string(), "a");
 }

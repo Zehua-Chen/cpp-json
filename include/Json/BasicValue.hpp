@@ -69,6 +69,15 @@ public:
      * @param type new type of the value
      */
     void type(Type type);
+    
+    /// Universal Accessor
+    
+    /**
+     * Get the size of the value
+     * @returns type = object: size of unordered map; type = array: size of 
+     * vector; type = primitive: size of string.
+     */
+    size_t size() const;
 
     /// Object modifiers
 
@@ -120,9 +129,7 @@ public:
     const BasicValue<CharT> &get(const Key &key) const;
 
     /// Array modifiers
-
-    // TODO: Implement
-    //
+    
     /**
      * Add new element to the array.
      * @value the value to add
@@ -138,7 +145,6 @@ public:
 
     /// Array accessors
 
-    // TODO: Implement
     /**
      * Retreive a constant reference to an element at the index
      * @index the index of the element
@@ -146,7 +152,6 @@ public:
      */
     const BasicValue<CharT> &operator[](size_t index) const;
 
-    // TODO: Implement
     /**
      * Retreive a reference to an element at the index
      * @index the index of the element
@@ -330,6 +335,40 @@ bool BasicValue<CharT>::isPrimitive() const
     return _type == Type::primitive;
 }
 
+// Universal accessors
+
+/**
+ * Get the size of the value
+ * @returns type = object: size of unordered map; type = array: size of 
+ * vector; type = primitive: size of string.
+ */
+template<typename CharT>
+size_t BasicValue<CharT>::size() const
+{
+    using std::get;
+    
+    switch (_type)
+    {
+    case Type::object:
+    {
+        const ObjectData &data = get<ObjectData>(_data);
+        return data.size();
+    }
+    case Type::array:
+    {
+        const ArrayData &data = get<ArrayData>(_data);
+        return data.size();
+    }
+    case Type::primitive:
+    {
+        const PrimitiveData &data = get<PrimitiveData>(_data);
+        return data.size();
+    }
+    default:
+        return 0;
+    }
+}
+
 /// Object modifiers
 
 /**
@@ -382,6 +421,45 @@ const BasicValue<CharT> &BasicValue<CharT>::get(const Key &key) const
 {
     ObjectData &data = std::get<ObjectData>(_data);
     return data.find(key)->second;
+}
+
+/// Array modifiers
+
+/**
+ * Add new element to the array.
+ * @value the value to add
+ */
+template<typename CharT>
+void BasicValue<CharT>::append(const BasicValue &value)
+{
+    ArrayData &data = std::get<ArrayData>(_data);
+    data.push_back(value);
+}
+
+/// Array accessors
+
+/**
+ * Retreive a constant reference to an element at the index
+ * @index the index of the element
+ * @returns a constant reference to the json object
+ */
+template<typename CharT>
+const BasicValue<CharT> &BasicValue<CharT>::operator[](size_t index) const
+{
+    ArrayData &data = std::get<ArrayData>(_data);
+    return data[index];
+}
+
+/**
+ * Retreive a reference to an element at the index
+ * @index the index of the element
+ * @returns a reference to the json object
+ */
+template<typename CharT>
+BasicValue<CharT> &BasicValue<CharT>::operator[](size_t index)
+{
+    ArrayData &data = std::get<ArrayData>(_data);
+    return data[index];
 }
 
 /// Primitive modifiers
