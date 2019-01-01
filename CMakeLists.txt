@@ -4,7 +4,9 @@ add_executable(
     test
     "test/BasicObjectTest.cpp"
     "test/BasicArrayTest.cpp"
-    "test/BasicPrimitiveTest.cpp")
+    "test/BasicPrimitiveTest.cpp"
+    "test/TokenTest.cpp"
+    "test/TokenizerTest.cpp")
     
 target_link_libraries(
     test
