@@ -25,7 +25,7 @@ TEST(TokenizerTest, Simple)
     };
 
     const auto recorder = [&](const Token<char> &token) {
-        tokens.emplace_back(token);
+        tokens.push_back(token);
     };
 
     tokenizer.tokenize(json.begin(), json.end(), recorder);

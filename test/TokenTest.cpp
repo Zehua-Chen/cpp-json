@@ -3,8 +3,26 @@
 #include <string>
 
 using std::string;
+using namespace std::string_literals;
 
 using namespace json;
+
+TEST(TokenTest, CopyConstructor)
+{
+    Token<char> token1{ "something", TokenType::value };
+    Token<char> token2 = token1;
+    
+    EXPECT_EQ(token2.data, token1.data);
+}
+
+TEST(TokenTest, MoveConstructor)
+{
+    Token<char> token1{ "something", TokenType::value };
+    Token<char> token2 = std::move(token1);
+    
+    EXPECT_TRUE(token1.data.empty());
+    EXPECT_EQ(token2.data, "something"s);
+}
 
 TEST(TokenTest, Same)
 {

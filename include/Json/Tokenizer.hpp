@@ -30,12 +30,14 @@ template<typename CharT>
 template<typename Iter, typename Callback>
 void Tokenizer<CharT>::tokenize(Iter begin, Iter end, Callback callback)
 {
+    
     while (begin != end)
     {
         CharT letter = *begin;
         _token.append(letter);
         
         callback(_token);
+        _token.reset();
         ++begin;
     }
 }
