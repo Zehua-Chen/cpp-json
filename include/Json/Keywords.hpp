@@ -8,49 +8,58 @@ template<typename CharT>
 struct Keywords
 {
     // {
-    constexpr static std::basic_string_view<CharT> beginObject
-        = std::basic_string_view<CharT>{};
+    constexpr static CharT beginObject = CharT{};
     // }
-    constexpr static std::basic_string_view<CharT> endObject
-        = std::basic_string_view<CharT>{};
+    constexpr static CharT endObject = CharT{};
     // [
-    constexpr static std::basic_string_view<CharT> beginArray
-        = std::basic_string_view<CharT>{};
+    constexpr static CharT beginArray = CharT{};
     // ]
-    constexpr static std::basic_string_view<CharT> endArray
-        = std::basic_string_view<CharT>{};
+    constexpr static CharT endArray = CharT{};
     // //
     constexpr static std::basic_string_view<CharT> beginComment
         = std::basic_string_view<CharT>{};
+    // ,
+    constexpr static CharT keyValuesSeparator = CharT{};
+    // ,
+    constexpr static CharT propertiesSeparator = CharT{};
+    // \n
+    constexpr static CharT endline = CharT{};
+    //
+    constexpr static CharT space = CharT{};
+    // \t
+    constexpr static CharT tab = CharT{};
+    // '
+    constexpr static CharT singleQuote = CharT{};
+    // '
+    constexpr static CharT doubleQuote = CharT{};
 };
 
 template<>
 struct Keywords<char>
 {
     // {
-    constexpr static std::basic_string_view<char> beginObject = "{";
+    constexpr static char beginObject = '{';
     // }
-    constexpr static std::basic_string_view<char> endObject = "}";
+    constexpr static char endObject = '}';
     // [
-    constexpr static std::basic_string_view<char> beginArray = "[";
+    constexpr static char beginArray = '[';
     // ]
-    constexpr static std::basic_string_view<char> endArray = "]";
+    constexpr static char endArray = ']';
     // //
     constexpr static std::basic_string_view<char> beginComment = "//";
-};
-
-template<>
-struct Keywords<wchar_t>
-{
-    // {
-    constexpr static std::basic_string_view<wchar_t> beginObject = L"{";
-    // }
-    constexpr static std::basic_string_view<wchar_t> endObject = L"}";
-    // [
-    constexpr static std::basic_string_view<wchar_t> beginArray = L"[";
-    // ]
-    constexpr static std::basic_string_view<wchar_t> endArray = L"]";
-    // //
-    constexpr static std::basic_string_view<wchar_t> beginComment = L"//";
+    // ,
+    constexpr static char keyValuesSeparator = ':';
+    // ,
+    constexpr static char propertiesSeparator = ',';
+    // \n
+    constexpr static char endline = '\n';
+    //
+    constexpr static char space = ' ';
+    //
+    constexpr static char tab = '\t';
+    // '
+    constexpr static char singleQuote = '\'';
+    // '
+    constexpr static char doubleQuote = '\"';
 };
 } // namespace json

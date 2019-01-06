@@ -16,6 +16,7 @@ enum class TokenType
     key,
     value,
     comment,
+    undefined,
 };
 
 template<typename CharT>
@@ -82,7 +83,10 @@ operator<<(std::basic_ostream<CharT> &out, const Token<CharT> &token)
         print("endArray");
         break;
     case TokenType::comment:
-        print("//");
+        print("beginComment");
+        break;
+    case TokenType::undefined:
+        print("?");
         break;
     }
 
@@ -125,7 +129,7 @@ template<typename CharT>
 void Token<CharT>::reset()
 {
     data.clear();
-    type = TokenType::value;
+    type = TokenType::undefined;
 }
 
 template<typename CharT>

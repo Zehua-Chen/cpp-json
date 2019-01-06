@@ -43,7 +43,7 @@ TEST(TokenizerTest, CommentEndingWithUnixEndline)
     ss << "'name': 'a'" << "\n";
     ss << "}";
     
-    string json = "{ 'name': 'a' }";
+    string json = ss.str();
 
     Tokenizer<char> tokenizer;
     vector<Token<char>> tokens;

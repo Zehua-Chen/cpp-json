@@ -1,7 +1,18 @@
 #pragma once
 
+#include "Json/Keywords.hpp"
 #include "Json/Token.hpp"
-#include <iostream>
+
+namespace json::internals
+{
+enum class TokenizerPosition
+{
+    singeLineComment,
+    multiLineComment,
+    string,
+    undefined,
+};
+}
 
 namespace json
 {
@@ -10,11 +21,13 @@ class Tokenizer
 {
 public:
     Tokenizer();
-    
+
     template<typename Iter, typename Callback>
     void tokenize(Iter begin, Iter end, Callback callback);
+
 private:
     Token<CharT> _token;
+    internals::TokenizerPosition _position;
 };
 } // namespace json
 
@@ -22,22 +35,116 @@ namespace json
 {
 template<typename CharT>
 Tokenizer<CharT>::Tokenizer()
+    : _position(internals::TokenizerPosition::undefined)
 {
-    
 }
 
 template<typename CharT>
 template<typename Iter, typename Callback>
 void Tokenizer<CharT>::tokenize(Iter begin, Iter end, Callback callback)
 {
-    
+    using std::cout;
+    using std::endl;
+    using namespace internals;
+
+    const auto send = [&]() {
+        callback(_token);
+        _token.reset();
+    };
+
     while (begin != end)
     {
         CharT letter = *begin;
-        _token.append(letter);
-        
-        callback(_token);
-        _token.reset();
+
+        // Condition that will invoke the callback
+        // \n
+        if (letter == Keywords<CharT>::endline)
+        {
+            if (_position == TokenizerPosition::singeLineComment)
+            {
+                send();
+            }
+        }
+        // {
+        else if (letter == Keywords<CharT>::beginObject)
+        {
+            _token.type = TokenType::beginObject;
+            send();
+        }
+        // }
+        else if (letter == Keywords<CharT>::endObject)
+        {
+            if (!_token.data.empty())
+            {
+                _token.type = TokenType::value;
+                send();
+            }
+
+            _token.type = TokenType::endObject;
+            send();
+        }
+        // [
+        else if (letter == Keywords<CharT>::beginArray)
+        {
+            _token.type = TokenType::beginArray;
+            send();
+        }
+        // ]
+        else if (letter == Keywords<CharT>::endArray)
+        {
+            if (!_token.data.empty())
+            {
+                _token.type = TokenType::value;
+                send();
+            }
+
+            _token.type = TokenType::endArray;
+            send();
+        }
+        // :
+        else if (letter == Keywords<CharT>::keyValuesSeparator)
+        {
+            _token.type = TokenType::key;
+            send();
+        }
+        else if (letter == Keywords<CharT>::propertiesSeparator)
+        {
+            _token.type = TokenType::value;
+            send();
+        }
+        // Condition that will add to the buffer
+        // Ignore space unless recording
+        else if (letter == Keywords<CharT>::space)
+        {
+            if (_position == TokenizerPosition::singeLineComment
+                || _position == TokenizerPosition::multiLineComment
+                || _position == TokenizerPosition::string)
+            {
+                _token.append(letter);
+            }
+        }
+        else if (
+            letter != Keywords<CharT>::tab
+            && letter != Keywords<CharT>::singleQuote
+            && letter != Keywords<CharT>::doubleQuote)
+        {
+            _token.append(letter);
+        }
+        // Others
+        else if (
+            letter == Keywords<CharT>::singleQuote
+            || letter == Keywords<CharT>::doubleQuote)
+        {
+            if (_position == TokenizerPosition::string)
+            {
+                _position = TokenizerPosition::undefined;
+            }
+            else
+            {
+                _position = TokenizerPosition::string;
+            }
+        }
+
         ++begin;
     }
 }
