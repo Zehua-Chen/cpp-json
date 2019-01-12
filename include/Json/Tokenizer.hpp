@@ -55,6 +55,12 @@ void Tokenizer<CharT>::tokenize(Iter begin, Iter end, Callback callback)
     while (begin != end)
     {
         CharT letter = *begin;
+        
+        if (letter == Keywords<CharT>::carriageReturn)
+        {
+            ++begin;
+            continue;
+        }
 
         // Condition that will invoke the callback
         // \n
@@ -146,7 +152,7 @@ void Tokenizer<CharT>::tokenize(Iter begin, Iter end, Callback callback)
         {
             _token.append(letter);
         }
-        // Others
+        // Strings
         else if (
             letter == Keywords<CharT>::singleQuote
             || letter == Keywords<CharT>::doubleQuote)

@@ -24,6 +24,8 @@ struct Keywords
     constexpr static CharT propertiesSeparator = CharT{};
     // \n
     constexpr static CharT endline = CharT{};
+    // \r
+    constexpr static CharT carriageReturn = CharT{};
     //
     constexpr static CharT space = CharT{};
     // \t
@@ -53,6 +55,8 @@ struct Keywords<char>
     constexpr static char propertiesSeparator = ',';
     // \n
     constexpr static char endline = '\n';
+    // \r
+    constexpr static char carriageReturn = '\r';
     //
     constexpr static char space = ' ';
     //

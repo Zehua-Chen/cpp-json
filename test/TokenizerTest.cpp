@@ -51,33 +51,65 @@ TEST(TokenizerTest, Simple)
     }
 }
 
-TEST(TokenizerTest, CommentEndingWithUnixEndline)
+TEST(TokenizerTest, SingleLineComment)
 {
-    stringstream ss;
-    ss << "{"
-       << "\n"
-       << "// I am a philosophor"
-       << "\n"
-       << "'name': 'a'"
-       << "\n"
-       << "}";
+    {
+        stringstream ss;
+        ss << "{"
+           << "\n"
+           << "// I am a philosophor"
+           << "\n"
+           << "'name': 'a'"
+           << "\n"
+           << "}";
 
-    string json = ss.str();
+        string json = ss.str();
 
-    Tokenizer<char> tokenizer;
-    vector<Token<char>> tokens;
-    vector<Token<char>> expectedTokens{
-        { "", TokenType::beginObject },
-        { "I am a philosophor", TokenType::comment },
-        { "name", TokenType::key },
-        { "a", TokenType::value },
-        { "", TokenType::endObject },
-    };
+        Tokenizer<char> tokenizer;
+        vector<Token<char>> tokens;
+        vector<Token<char>> expectedTokens{
+            { "", TokenType::beginObject },
+            { "I am a philosophor", TokenType::comment },
+            { "name", TokenType::key },
+            { "a", TokenType::value },
+            { "", TokenType::endObject },
+        };
 
-    const auto recorder
-        = [&](const Token<char> &token) { tokens.push_back(token); };
+        const auto recorder
+            = [&](const Token<char> &token) { tokens.push_back(token); };
 
-    tokenizer.tokenize(json.begin(), json.end(), recorder);
+        tokenizer.tokenize(json.begin(), json.end(), recorder);
 
-    EXPECT_EQ(tokens, expectedTokens);
+        EXPECT_EQ(tokens, expectedTokens);
+    }
+    
+    {
+        stringstream ss;
+        ss << "{"
+           << "\r\n"
+           << "// I am a philosophor"
+           << "\r\n"
+           << "'name': 'a'"
+           << "\r\n"
+           << "}";
+
+        string json = ss.str();
+
+        Tokenizer<char> tokenizer;
+        vector<Token<char>> tokens;
+        vector<Token<char>> expectedTokens{
+            { "", TokenType::beginObject },
+            { "I am a philosophor", TokenType::comment },
+            { "name", TokenType::key },
+            { "a", TokenType::value },
+            { "", TokenType::endObject },
+        };
+
+        const auto recorder
+            = [&](const Token<char> &token) { tokens.push_back(token); };
+
+        tokenizer.tokenize(json.begin(), json.end(), recorder);
+
+        EXPECT_EQ(tokens, expectedTokens);
+    }
 }
