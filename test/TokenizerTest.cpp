@@ -1,24 +1,20 @@
 #include "Json/Tokenizer.hpp"
 #include "gtest/gtest.h"
-#include <string>
-#include <vector>
 #include <iostream>
 #include <sstream>
+#include <string>
+#include <vector>
 
+using std::cout;
+using std::endl;
 using std::string;
 using std::stringstream;
 using std::vector;
-using std::cout;
-using std::endl;
 
 using namespace json;
 
 TEST(TokenizerTest, Simple)
 {
-    string json = "{ 'name': 'a' }";
-
-    Tokenizer<char> tokenizer;
-    vector<Token<char>> tokens;
     vector<Token<char>> expectedTokens{
         { "", TokenType::beginObject },
         { "name", TokenType::key },
@@ -26,23 +22,46 @@ TEST(TokenizerTest, Simple)
         { "", TokenType::endObject },
     };
 
-    const auto recorder = [&](const Token<char> &token) {
-        tokens.push_back(token);
-    };
+    {
+        string json = "{ 'name': 'a' }";
 
-    tokenizer.tokenize(json.begin(), json.end(), recorder);
+        Tokenizer<char> tokenizer;
+        vector<Token<char>> tokens;
 
-    EXPECT_EQ(tokens, expectedTokens);
+        const auto recorder
+            = [&](const Token<char> &token) { tokens.push_back(token); };
+
+        tokenizer.tokenize(json.begin(), json.end(), recorder);
+
+        EXPECT_EQ(tokens, expectedTokens);
+    }
+
+    {
+        string json = "{ \"name\": \"a\" }";
+
+        Tokenizer<char> tokenizer;
+        vector<Token<char>> tokens;
+
+        const auto recorder
+            = [&](const Token<char> &token) { tokens.push_back(token); };
+
+        tokenizer.tokenize(json.begin(), json.end(), recorder);
+
+        EXPECT_EQ(tokens, expectedTokens);
+    }
 }
 
 TEST(TokenizerTest, CommentEndingWithUnixEndline)
 {
     stringstream ss;
-    ss << "{" << "\n";
-    ss << "// I am a philosophor" << "\n";
-    ss << "'name': 'a'" << "\n";
-    ss << "}";
-    
+    ss << "{"
+       << "\n"
+       << "// I am a philosophor"
+       << "\n"
+       << "'name': 'a'"
+       << "\n"
+       << "}";
+
     string json = ss.str();
 
     Tokenizer<char> tokenizer;
@@ -55,9 +74,8 @@ TEST(TokenizerTest, CommentEndingWithUnixEndline)
         { "", TokenType::endObject },
     };
 
-    const auto recorder = [&](const Token<char> &token) {
-        tokens.push_back(token);
-    };
+    const auto recorder
+        = [&](const Token<char> &token) { tokens.push_back(token); };
 
     tokenizer.tokenize(json.begin(), json.end(), recorder);
 
