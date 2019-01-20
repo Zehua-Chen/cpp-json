@@ -43,10 +43,8 @@ TEST(TokenizerTest, Simple)
         Tokenizer<char> tokenizer;
         vector<Token<char>> tokens;
         vector<Token<char>> expectedTokens{
-            { "", TokenType::beginArray },
-            { "a", TokenType::value },
-            { "b", TokenType::value },
-            { "c", TokenType::value },
+            { "", TokenType::beginArray }, { "a", TokenType::value },
+            { "b", TokenType::value },     { "c", TokenType::value },
             { "", TokenType::endArray },
         };
 
@@ -57,16 +55,14 @@ TEST(TokenizerTest, Simple)
 
         EXPECT_EQ(tokens, expectedTokens);
     }
-    
+
     // Single string
     {
         string json = "'text'";
 
         Tokenizer<char> tokenizer;
         vector<Token<char>> tokens;
-        vector<Token<char>> expectedTokens{
-            { "text", TokenType::value }
-        };
+        vector<Token<char>> expectedTokens{ { "text", TokenType::value } };
 
         const auto recorder
             = [&](const Token<char> &token) { tokens.push_back(token); };
@@ -82,12 +78,9 @@ TEST(TokenizerTest, SingleLineComment)
     // Object with comment using unix endline
     {
         stringstream ss;
-        ss << "{"
-           << "\n"
-           << "// I am a philosophor"
-           << "\n"
-           << "'name': 'a'"
-           << "\n"
+        ss << "{\n"
+           << "  // I am a philosophor\n"
+           << "  'name': 'a'\n"
            << "}";
 
         string json = ss.str();
@@ -109,16 +102,13 @@ TEST(TokenizerTest, SingleLineComment)
 
         EXPECT_EQ(tokens, expectedTokens);
     }
-    
+
     // Object with comment using Windows endline
     {
         stringstream ss;
-        ss << "{"
-           << "\r\n"
-           << "// I am a philosophor"
-           << "\r\n"
-           << "'name': 'a'"
-           << "\r\n"
+        ss << "{\r\n"
+           << "  // I am a philosophor\r\n"
+           << "  'name': 'a'\r\n"
            << "}";
 
         string json = ss.str();
@@ -128,6 +118,40 @@ TEST(TokenizerTest, SingleLineComment)
         vector<Token<char>> expectedTokens{
             { "", TokenType::beginObject },
             { "I am a philosophor", TokenType::comment },
+            { "name", TokenType::key },
+            { "a", TokenType::value },
+            { "", TokenType::endObject },
+        };
+
+        const auto recorder
+            = [&](const Token<char> &token) { tokens.push_back(token); };
+
+        tokenizer.tokenize(json.begin(), json.end(), recorder);
+
+        EXPECT_EQ(tokens, expectedTokens);
+    }
+}
+
+TEST(TokenizerTest, MultiLineComment)
+{
+    // Object with comment using unix endline
+    {
+        stringstream ss;
+        ss << "{\n"
+           << "  /*"
+           << "   * I am a philosophor\n"
+           << "   * Surprize!\n"
+           << "   */\n"
+           << "  'name': 'a'\n"
+           << "}";
+
+        string json = ss.str();
+
+        Tokenizer<char> tokenizer;
+        vector<Token<char>> tokens;
+        vector<Token<char>> expectedTokens{
+            { "", TokenType::beginObject },
+            { "I am a philosophor\nSurprize", TokenType::comment },
             { "name", TokenType::key },
             { "a", TokenType::value },
             { "", TokenType::endObject },

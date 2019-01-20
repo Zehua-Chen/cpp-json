@@ -2,6 +2,7 @@
 
 #include "Json/Keywords.hpp"
 #include "Json/Token.hpp"
+#include <iostream>
 
 namespace json::internals
 {
@@ -29,7 +30,7 @@ private:
     // Tokenizer pipeline
     // 1. Call _inspectCharacter
     // 2. Call _inspectExistingToken if _inspectCharacter returns true
-    
+
     /**
      * Inspect a letter
      * @returns true if further action is needed
@@ -68,12 +69,10 @@ template<typename CharT>
 template<typename Iter, typename Callback>
 void Tokenizer<CharT>::tokenize(Iter begin, Iter end, const Callback &callback)
 {
-    // using std::cout;
-    // using std::endl;
     using std::bitset;
 
     using namespace internals;
-    
+
     bool result = true;
 
     while (begin != end)
@@ -83,15 +82,15 @@ void Tokenizer<CharT>::tokenize(Iter begin, Iter end, const Callback &callback)
             result = result ? _inspectCharacter(*begin, callback) : false;
             result = result ? _inspectExistingToken(callback) : false;
         }
-        else 
+        else
         {
             --_skipCount;
         }
-        
+
         ++begin;
         result = true;
     }
-    
+
     // Handle json text with a single string
     //   _token is not empty after loop is done
     if (!_token.data.empty())
@@ -103,8 +102,7 @@ void Tokenizer<CharT>::tokenize(Iter begin, Iter end, const Callback &callback)
 
 template<typename CharT>
 template<typename Callback>
-bool Tokenizer<CharT>::_inspectCharacter(
-    CharT letter, Callback &callback)
+bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
 {
     using namespace internals;
 
@@ -116,10 +114,16 @@ bool Tokenizer<CharT>::_inspectCharacter(
     }
     case Keywords<CharT>::endline:
     {
+        // \n represnets the end of a single line comment
         if (_position == TokenizerPosition::singeLineComment)
         {
             callback(_token);
             _reset();
+        }
+        // \n does not mean the end of a multiline comment
+        if (_position == TokenizerPosition::multiLineComment)
+        {
+            _token.append(letter);
         }
 
         return false;
@@ -259,6 +263,27 @@ bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
         _token.type = TokenType::comment;
         _position = TokenizerPosition::singeLineComment;
         _skip();
+
+        return false;
+    }
+    else if (_token.data == Keywords<CharT>::beginMultilineComment)
+    {
+        _position = TokenizerPosition::multiLineComment;
+        _token.reset();
+        _token.type = TokenType::comment;
+
+        return false;
+    }
+
+    if (_position == TokenizerPosition::multiLineComment)
+    {
+        // If ends with */
+        if (_token.data.rfind(Keywords<CharT>::endMultilineComment.data())
+            != std::basic_string_view<CharT>::npos)
+        {
+            callback(_token);
+            _reset();
+        }
     }
 
     return false;
