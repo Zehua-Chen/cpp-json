@@ -2,7 +2,6 @@
 
 #include "Json/Keywords.hpp"
 #include "Json/Token.hpp"
-#include <bitset>
 
 namespace json::internals
 {
@@ -31,20 +30,22 @@ private:
      * Inspect a letter
      * @returns true if further action is needed
      */
-    template<typename Iter, typename Callback>
-    bool _inspectCharacter(CharT letter, Iter &iter, Callback &callback);
+    template<typename Callback>
+    bool _inspectCharacter(CharT letter, Callback &callback);
 
     /**
      * Inspect existing token
      * @returns true if further action is needed
      */
-    template<typename Iter, typename Callback>
-    bool _inspectExistingToken(Iter &iter, Callback &callback);
+    template<typename Callback>
+    bool _inspectExistingToken(Callback &callback);
 
     void _reset();
+    void _skip(int count = 1);
 
     Token<CharT> _token;
     internals::TokenizerPosition _position;
+    int _skipCount;
 };
 } // namespace json
 
@@ -55,6 +56,7 @@ namespace json
 template<typename CharT>
 Tokenizer<CharT>::Tokenizer()
     : _position(internals::TokenizerPosition::undefined)
+    , _skipCount(0)
 {
 }
 
@@ -64,18 +66,24 @@ void Tokenizer<CharT>::tokenize(Iter begin, Iter end, const Callback &callback)
 {
     using std::cout;
     using std::endl;
+    using std::bitset;
 
     using namespace internals;
 
     while (begin != end)
     {
-        CharT letter = *begin;
-
-        if (_inspectCharacter(*begin, begin, callback))
+        if (_skipCount == 0)
         {
-            _inspectExistingToken(begin, callback);
+            if (_inspectCharacter(*begin, callback))
+            {
+                _inspectExistingToken(callback);
+            }
         }
-
+        else 
+        {
+            --_skipCount;
+        }
+        
         ++begin;
     }
     
@@ -89,9 +97,9 @@ void Tokenizer<CharT>::tokenize(Iter begin, Iter end, const Callback &callback)
 }
 
 template<typename CharT>
-template<typename Iter, typename Callback>
+template<typename Callback>
 bool Tokenizer<CharT>::_inspectCharacter(
-    CharT letter, Iter &iter, Callback &callback)
+    CharT letter, Callback &callback)
 {
     using namespace internals;
 
@@ -235,8 +243,8 @@ bool Tokenizer<CharT>::_inspectCharacter(
 }
 
 template<typename CharT>
-template<typename Iter, typename Callback>
-bool Tokenizer<CharT>::_inspectExistingToken(Iter &iter, Callback &callback)
+template<typename Callback>
+bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
 {
     using namespace internals;
 
@@ -245,7 +253,7 @@ bool Tokenizer<CharT>::_inspectExistingToken(Iter &iter, Callback &callback)
         _token.reset();
         _token.type = TokenType::comment;
         _position = TokenizerPosition::singeLineComment;
-        ++iter;
+        _skip();
     }
 
     return false;
@@ -258,5 +266,11 @@ void Tokenizer<CharT>::_reset()
 
     _token.reset();
     _position = TokenizerPosition::undefined;
+}
+
+template<typename CharT>
+void Tokenizer<CharT>::_skip(int count)
+{
+    _skipCount += count;
 }
 } // namespace json
