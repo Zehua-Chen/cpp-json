@@ -26,6 +26,10 @@ public:
     void tokenize(Iter begin, Iter end, const Callback &callback);
 
 private:
+    // Tokenizer pipeline
+    // 1. Call _inspectCharacter
+    // 2. Call _inspectExistingToken if _inspectCharacter returns true
+    
     /**
      * Inspect a letter
      * @returns true if further action is needed
@@ -64,20 +68,20 @@ template<typename CharT>
 template<typename Iter, typename Callback>
 void Tokenizer<CharT>::tokenize(Iter begin, Iter end, const Callback &callback)
 {
-    using std::cout;
-    using std::endl;
+    // using std::cout;
+    // using std::endl;
     using std::bitset;
 
     using namespace internals;
+    
+    bool result = true;
 
     while (begin != end)
     {
         if (_skipCount == 0)
         {
-            if (_inspectCharacter(*begin, callback))
-            {
-                _inspectExistingToken(callback);
-            }
+            result = result ? _inspectCharacter(*begin, callback) : false;
+            result = result ? _inspectExistingToken(callback) : false;
         }
         else 
         {
@@ -85,6 +89,7 @@ void Tokenizer<CharT>::tokenize(Iter begin, Iter end, const Callback &callback)
         }
         
         ++begin;
+        result = true;
     }
     
     // Handle json text with a single string

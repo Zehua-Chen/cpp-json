@@ -15,9 +15,9 @@ using namespace json;
 
 TEST(TokenizerTest, Simple)
 {
-
+    // Simple object
     {
-        string json = "{ 'name': 'a' }";
+        string json = "{ 'name': \"a\" }";
 
         Tokenizer<char> tokenizer;
         vector<Token<char>> tokens;
@@ -36,26 +36,7 @@ TEST(TokenizerTest, Simple)
         EXPECT_EQ(tokens, expectedTokens);
     }
 
-    {
-        string json = "{ \"name\": \"a\" }";
-
-        Tokenizer<char> tokenizer;
-        vector<Token<char>> tokens;
-        vector<Token<char>> expectedTokens{
-            { "", TokenType::beginObject },
-            { "name", TokenType::key },
-            { "a", TokenType::value },
-            { "", TokenType::endObject },
-        };
-
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
-
-        tokenizer.tokenize(json.begin(), json.end(), recorder);
-
-        EXPECT_EQ(tokens, expectedTokens);
-    }
-
+    // Simple array
     {
         string json = "[ 'a', 'b', 'c' ]";
 
@@ -77,6 +58,7 @@ TEST(TokenizerTest, Simple)
         EXPECT_EQ(tokens, expectedTokens);
     }
     
+    // Single string
     {
         string json = "'text'";
 
@@ -97,6 +79,7 @@ TEST(TokenizerTest, Simple)
 
 TEST(TokenizerTest, SingleLineComment)
 {
+    // Object with comment using unix endline
     {
         stringstream ss;
         ss << "{"
@@ -126,7 +109,8 @@ TEST(TokenizerTest, SingleLineComment)
 
         EXPECT_EQ(tokens, expectedTokens);
     }
-
+    
+    // Object with comment using Windows endline
     {
         stringstream ss;
         ss << "{"
