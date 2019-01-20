@@ -32,7 +32,7 @@ TEST(TokenizerTest, Simple)
             = [&](const Token<char> &token) { tokens.push_back(token); };
 
         tokenizer.tokenize(json.begin(), json.end(), recorder);
-
+        
         EXPECT_EQ(tokens, expectedTokens);
     }
 

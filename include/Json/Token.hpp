@@ -83,7 +83,7 @@ operator<<(std::basic_ostream<CharT> &out, const Token<CharT> &token)
         print("endArray");
         break;
     case TokenType::comment:
-        print("beginComment");
+        print("comment");
         break;
     case TokenType::undefined:
         print("?");

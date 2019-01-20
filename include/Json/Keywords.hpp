@@ -7,63 +7,76 @@ namespace json
 template<typename CharT>
 struct Keywords
 {
+    using Letter = CharT;
+    using String = std::basic_string<CharT>;
+
     // {
-    constexpr static CharT beginObject = CharT{};
+    constexpr static Letter beginObject = Letter{};
     // }
-    constexpr static CharT endObject = CharT{};
+    constexpr static Letter endObject = Letter{};
     // [
-    constexpr static CharT beginArray = CharT{};
+    constexpr static Letter beginArray = Letter{};
     // ]
-    constexpr static CharT endArray = CharT{};
+    constexpr static Letter endArray = Letter{};
     // //
-    constexpr static std::basic_string_view<CharT> beginComment
-        = std::basic_string_view<CharT>{};
+    constexpr static String singleLineComment = String{};
+    // /*
+    constexpr static String beginMultilineComment = String{};
+    // */
+    constexpr static String endMultilineComment = String{};
     // ,
-    constexpr static CharT keyValuesSeparator = CharT{};
+    constexpr static Letter keyValuesSeparator = Letter{};
     // ,
-    constexpr static CharT propertiesSeparator = CharT{};
+    constexpr static Letter propertiesSeparator = Letter{};
     // \n
-    constexpr static CharT endline = CharT{};
+    constexpr static Letter endline = Letter{};
     // \r
-    constexpr static CharT carriageReturn = CharT{};
+    constexpr static Letter carriageReturn = Letter{};
     //
-    constexpr static CharT space = CharT{};
+    constexpr static Letter space = Letter{};
     // \t
-    constexpr static CharT tab = CharT{};
+    constexpr static Letter tab = Letter{};
     // '
-    constexpr static CharT singleQuote = CharT{};
+    constexpr static Letter singleQuote = Letter{};
     // '
-    constexpr static CharT doubleQuote = CharT{};
+    constexpr static Letter doubleQuote = Letter{};
 };
 
 template<>
 struct Keywords<char>
 {
+    using Letter = char;
+    using String = std::basic_string_view<char>;
+
     // {
-    constexpr static char beginObject = '{';
+    constexpr static Letter beginObject = '{';
     // }
-    constexpr static char endObject = '}';
+    constexpr static Letter endObject = '}';
     // [
-    constexpr static char beginArray = '[';
+    constexpr static Letter beginArray = '[';
     // ]
-    constexpr static char endArray = ']';
+    constexpr static Letter endArray = ']';
     // //
-    constexpr static std::basic_string_view<char> beginComment = "//";
+    constexpr static String singleLineComment = "//";
+    // /*
+    constexpr static String beginMultilineComment = "/*";
+    // */
+    constexpr static String endMultilineComment = "*/";
     // ,
-    constexpr static char keyValuesSeparator = ':';
+    constexpr static Letter keyValuesSeparator = ':';
     // ,
-    constexpr static char propertiesSeparator = ',';
+    constexpr static Letter propertiesSeparator = ',';
     // \n
-    constexpr static char endline = '\n';
+    constexpr static Letter endline = '\n';
     // \r
-    constexpr static char carriageReturn = '\r';
+    constexpr static Letter carriageReturn = '\r';
     //
-    constexpr static char space = ' ';
+    constexpr static Letter space = ' ';
     //
-    constexpr static char tab = '\t';
+    constexpr static Letter tab = '\t';
     // '
-    constexpr static char singleQuote = '\'';
+    constexpr static Letter singleQuote = '\'';
     // '
-    constexpr static char doubleQuote = '\"';
+    constexpr static Letter doubleQuote = '\"';
 };
 } // namespace json
