@@ -2,6 +2,7 @@
 
 #include "Json/Keywords.hpp"
 #include "Json/Token.hpp"
+#include <bitset>
 
 namespace json::internals
 {
@@ -77,6 +78,14 @@ void Tokenizer<CharT>::tokenize(Iter begin, Iter end, const Callback &callback)
 
         ++begin;
     }
+    
+    // Handle json text with a single string
+    //   _token is not empty after loop is done
+    if (!_token.data.empty())
+    {
+        _token.type = TokenType::value;
+        callback(_token);
+    }
 }
 
 template<typename CharT>
@@ -131,7 +140,7 @@ bool Tokenizer<CharT>::_inspectCharacter(
         {
             _token.type = TokenType::value;
             callback(_token);
-            
+
             _reset();
         }
 
@@ -155,7 +164,7 @@ bool Tokenizer<CharT>::_inspectCharacter(
         {
             _token.type = TokenType::value;
             callback(_token);
-            
+
             _reset();
         }
 
