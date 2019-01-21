@@ -1,3 +1,11 @@
+//
+//  TokenizerTest.cpp
+//  CPP
+//
+//  Created by Zehua Chen on 12/31/18.
+//  Copyright © 2018 Zehua Chen. All rights reserved.
+//
+
 #include "Json/Tokenizer.hpp"
 #include "gtest/gtest.h"
 #include <iostream>
@@ -165,7 +173,7 @@ TEST(TokenizerTest, Nested)
             // root
             { "", TokenType::beginArray },
             // Nested 1-1
-            { "", TokenType::beginArray},
+            { "", TokenType::beginArray },
             // Netsed 2-1
             { "", TokenType::beginArray },
             { "a", TokenType::value },
@@ -180,7 +188,7 @@ TEST(TokenizerTest, Nested)
             // End Nested 2-2
             { "", TokenType::endArray },
             // Nested 1-2
-            { "", TokenType::beginArray},
+            { "", TokenType::beginArray },
             // Netsed 2-1
             { "", TokenType::beginArray },
             { "a", TokenType::value },

@@ -1,3 +1,11 @@
+//
+//  setup-dev.js
+//  JS
+//
+//  Created by Zehua Chen on 12/26/18.
+//  Copyright © 2018 Zehua Chen. All rights reserved.
+//
+
 const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
