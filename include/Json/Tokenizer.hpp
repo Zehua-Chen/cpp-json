@@ -201,9 +201,12 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case Keywords<CharT>::propertiesSeparator:
     {
-        _token.type = TokenType::value;
-        callback(_token);
-        _reset();
+        if (!_token.data.empty())
+        {
+            _token.type = TokenType::value;
+            callback(_token);
+            _reset();
+        }
 
         return false;
     }
