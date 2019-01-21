@@ -138,11 +138,11 @@ TEST(TokenizerTest, MultiLineComment)
     {
         stringstream ss;
         ss << "{\n"
-           << "  /*"
-           << "   * I am a philosophor\n"
-           << "   * Surprize!\n"
-           << "   */\n"
-           << "  'name': 'a'\n"
+           << "/*"
+           << "I am a philosophor\n"
+           << "Surprize!\n"
+           << "*/\n"
+           << "'name': 'a'\n"
            << "}";
 
         string json = ss.str();
@@ -151,7 +151,7 @@ TEST(TokenizerTest, MultiLineComment)
         vector<Token<char>> tokens;
         vector<Token<char>> expectedTokens{
             { "", TokenType::beginObject },
-            { "I am a philosophor\nSurprize", TokenType::comment },
+            { "I am a philosophor\nSurprize!\n", TokenType::comment },
             { "name", TokenType::key },
             { "a", TokenType::value },
             { "", TokenType::endObject },

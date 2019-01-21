@@ -6,7 +6,7 @@
 
 namespace json::internals
 {
-enum class TokenizerPosition
+enum class Context
 {
     singeLineComment,
     multiLineComment,
@@ -49,7 +49,7 @@ private:
     void _skip(int count = 1);
 
     Token<CharT> _token;
-    internals::TokenizerPosition _position;
+    internals::Context _context;
     int _skipCount;
 };
 } // namespace json
@@ -60,7 +60,7 @@ namespace json
 {
 template<typename CharT>
 Tokenizer<CharT>::Tokenizer()
-    : _position(internals::TokenizerPosition::undefined)
+    : _context(internals::Context::undefined)
     , _skipCount(0)
 {
 }
@@ -115,13 +115,13 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     case Keywords<CharT>::endline:
     {
         // \n represnets the end of a single line comment
-        if (_position == TokenizerPosition::singeLineComment)
+        if (_context == Context::singeLineComment)
         {
             callback(_token);
             _reset();
         }
         // \n does not mean the end of a multiline comment
-        if (_position == TokenizerPosition::multiLineComment)
+        if (_context == Context::multiLineComment)
         {
             _token.append(letter);
         }
@@ -130,9 +130,9 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case Keywords<CharT>::space:
     {
-        if (_position == TokenizerPosition::singeLineComment
-            || _position == TokenizerPosition::multiLineComment
-            || _position == TokenizerPosition::string)
+        if (_context == Context::singeLineComment
+            || _context == Context::multiLineComment
+            || _context == Context::string)
         {
             _token.append(letter);
         }
@@ -209,21 +209,21 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case Keywords<CharT>::singleQuote:
     {
-        // if (_position == TokenizerPosition::string)
+        // if (_context == Context::string)
         // {
-        //     _position = TokenizerPosition::undefined;
+        //     _context = Context::undefined;
         // }
         // else
         // {
-        //     _position = TokenizerPosition::string;
+        //     _context = Context::string;
         // }
-        switch (_position)
+        switch (_context)
         {
-        case TokenizerPosition::string:
-            _position = TokenizerPosition::undefined;
+        case Context::string:
+            _context = Context::undefined;
             break;
         default:
-            _position = TokenizerPosition::string;
+            _context = Context::string;
             break;
         }
 
@@ -231,13 +231,13 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case Keywords<CharT>::doubleQuote:
     {
-        if (_position == TokenizerPosition::string)
+        if (_context == Context::string)
         {
-            _position = TokenizerPosition::undefined;
+            _context = Context::undefined;
         }
         else
         {
-            _position = TokenizerPosition::string;
+            _context = Context::string;
         }
 
         return false;
@@ -261,26 +261,29 @@ bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
     {
         _token.reset();
         _token.type = TokenType::comment;
-        _position = TokenizerPosition::singeLineComment;
+        _context = Context::singeLineComment;
         _skip();
 
         return false;
     }
     else if (_token.data == Keywords<CharT>::beginMultilineComment)
     {
-        _position = TokenizerPosition::multiLineComment;
+        _context = Context::multiLineComment;
         _token.reset();
         _token.type = TokenType::comment;
 
         return false;
     }
 
-    if (_position == TokenizerPosition::multiLineComment)
+    if (_context == Context::multiLineComment)
     {
+        auto found
+            = _token.data.rfind(Keywords<CharT>::endMultilineComment.data());
         // If ends with */
-        if (_token.data.rfind(Keywords<CharT>::endMultilineComment.data())
-            != std::basic_string_view<CharT>::npos)
+        if (found != std::basic_string_view<CharT>::npos)
         {
+            // remove trailing */
+            _token.data.erase(found);
             callback(_token);
             _reset();
         }
@@ -295,7 +298,7 @@ void Tokenizer<CharT>::_reset()
     using namespace internals;
 
     _token.reset();
-    _position = TokenizerPosition::undefined;
+    _context = Context::undefined;
 }
 
 template<typename CharT>
