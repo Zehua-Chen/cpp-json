@@ -32,14 +32,15 @@ TEST(TokenizerTest, Simple)
         Tokenizer<char> tokenizer;
         vector<Token<char>> tokens;
         vector<Token<char>> expectedTokens{
-            { "", TokenType::beginObject },
-            { "name", TokenType::key },
-            { "a", TokenType::value },
-            { "", TokenType::endObject },
+            { TokenType::beginObject },
+            { TokenType::key, "name" },
+            { TokenType::value, "a" },
+            { TokenType::endObject },
         };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        const auto recorder = [&](const Token<char> &token) { 
+            tokens.push_back(token); 
+        };
 
         tokenizer.tokenize(json.begin(), json.end(), recorder);
 
@@ -53,13 +54,14 @@ TEST(TokenizerTest, Simple)
         Tokenizer<char> tokenizer;
         vector<Token<char>> tokens;
         vector<Token<char>> expectedTokens{
-            { "", TokenType::beginArray }, { "a", TokenType::value },
-            { "b", TokenType::value },     { "c", TokenType::value },
-            { "", TokenType::endArray },
+            { TokenType::beginArray }, { TokenType::value, "a" },
+            { TokenType::value, "b" },     { TokenType::value, "c" },
+            { TokenType::endArray },
         };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        const auto recorder = [&](const Token<char> &token) { 
+            tokens.push_back(token); 
+        };
 
         tokenizer.tokenize(json.begin(), json.end(), recorder);
 
@@ -72,10 +74,11 @@ TEST(TokenizerTest, Simple)
 
         Tokenizer<char> tokenizer;
         vector<Token<char>> tokens;
-        vector<Token<char>> expectedTokens{ { "text", TokenType::value } };
+        vector<Token<char>> expectedTokens{ { TokenType::value, "text" } };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        const auto recorder = [&](const Token<char> &token) { 
+            tokens.push_back(token); 
+        };
 
         tokenizer.tokenize(json.begin(), json.end(), recorder);
 
@@ -109,41 +112,42 @@ TEST(TokenizerTest, Nested)
         vector<Token<char>> tokens;
         vector<Token<char>> expectedTokens{
             // level 1
-            { "", TokenType::beginObject },
-            { "name", TokenType::key },
-            { "philosophor", TokenType::value },
-            { "a", TokenType::key },
+            { TokenType::beginObject },
+            { TokenType::key, "name" },
+            { TokenType::value, "philosophor" },
+            { TokenType::key, "a" },
             // level 2
-            { "", TokenType::beginObject },
-            { "age", TokenType::key },
-            { "12", TokenType::value },
-            { "b", TokenType::key },
+            { TokenType::beginObject },
+            { TokenType::key, "age" },
+            { TokenType::value, "12" },
+            { TokenType::key, "b" },
             // level 3
-            { "", TokenType::beginObject },
-            { "gender", TokenType::key },
-            { "male", TokenType::value },
-            { "c", TokenType::key },
+            { TokenType::beginObject },
+            { TokenType::key, "gender" },
+            { TokenType::value, "male" },
+            { TokenType::key, "c" },
             // level 4
-            { "", TokenType::beginObject },
-            { "d", TokenType::key },
+            { TokenType::beginObject },
+            { TokenType::key, "d" },
             // level 5
-            { "", TokenType::beginObject },
-            { "", TokenType::endObject },
+            { TokenType::beginObject },
+            { TokenType::endObject },
             // end level 5
-            { "alive", TokenType::key },
-            { "true", TokenType::value },
+            { TokenType::key, "alive" },
+            { TokenType::value, "true" },
             // end level 4
-            { "", TokenType::endObject },
+            { TokenType::endObject },
             // end level 3
-            { "", TokenType::endObject },
+            { TokenType::endObject },
             // end level 2
-            { "", TokenType::endObject },
+            { TokenType::endObject },
             // end level 1
-            { "", TokenType::endObject },
+            { TokenType::endObject },
         };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        const auto recorder = [&](const Token<char> &token) { 
+            tokens.push_back(token); 
+        };
 
         tokenizer.tokenize(begin, end, recorder);
 
@@ -171,46 +175,74 @@ TEST(TokenizerTest, Nested)
         vector<Token<char>> tokens;
         vector<Token<char>> expectedTokens{
             // root
-            { "", TokenType::beginArray },
+            { TokenType::beginArray },
             // Nested 1-1
-            { "", TokenType::beginArray },
+            { TokenType::beginArray },
             // Netsed 2-1
-            { "", TokenType::beginArray },
-            { "a", TokenType::value },
-            { "b", TokenType::value },
+            { TokenType::beginArray },
+            { TokenType::value, "a" },
+            { TokenType::value, "b" },
             // End Nested 2-1
-            { "", TokenType::endArray },
+            { TokenType::endArray },
             // Netsed 2-2
-            { "", TokenType::beginArray },
-            { "a", TokenType::value },
-            { "b", TokenType::value },
-            { "", TokenType::endArray },
+            { TokenType::beginArray },
+            { TokenType::value, "a" },
+            { TokenType::value, "b" },
+            { TokenType::endArray },
             // End Nested 2-2
-            { "", TokenType::endArray },
+            { TokenType::endArray },
             // Nested 1-2
-            { "", TokenType::beginArray },
+            { TokenType::beginArray },
             // Netsed 2-1
-            { "", TokenType::beginArray },
-            { "a", TokenType::value },
-            { "b", TokenType::value },
+            { TokenType::beginArray },
+            { TokenType::value, "a" },
+            { TokenType::value, "b" },
             // End Nested 2-1
-            { "", TokenType::endArray },
+            { TokenType::endArray },
             // Netsed 2-2
-            { "", TokenType::beginArray },
-            { "a", TokenType::value },
-            { "b", TokenType::value },
-            { "", TokenType::endArray },
+            { TokenType::beginArray },
+            { TokenType::value, "a" },
+            { TokenType::value, "b" },
+            { TokenType::endArray },
             // End Nested 2-2
-            { "", TokenType::endArray },
+            { TokenType::endArray },
             // End root
-            { "", TokenType::endArray },
+            { TokenType::endArray },
         };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        const auto recorder = [&](const Token<char> &token) { 
+            tokens.push_back(token); 
+        };
 
         tokenizer.tokenize(begin, end, recorder);
 
+        EXPECT_EQ(tokens, expectedTokens);
+    }
+}
+
+TEST(TokenizerTest, Complex)
+{
+    {
+        stringstream ss;
+        ss << "{\n"
+           << "  'a': 'a value', 'b': 'b value',\n"
+           << "  'collection': ['a', 'b'],\n"
+           << "  'nested': { 'collection': ['a', 'b'] }\n"
+           << "}";
+        
+        istreambuf_iterator<char> begin{ ss };
+        istreambuf_iterator<char> end{};
+        
+        vector<Token<char>> tokens;
+        vector<Token<char>> expectedTokens {};
+        
+        Tokenizer<char> tokenizer;
+        
+        const auto recorder = [&](const Token<char> &token){
+            tokens.push_back(token);
+        };
+        
+        tokenizer.tokenize(begin, end, recorder);
         EXPECT_EQ(tokens, expectedTokens);
     }
 }
@@ -231,15 +263,16 @@ TEST(TokenizerTest, SingleLineComment)
         Tokenizer<char> tokenizer;
         vector<Token<char>> tokens;
         vector<Token<char>> expectedTokens{
-            { "", TokenType::beginObject },
-            { "I am a philosophor", TokenType::comment },
-            { "name", TokenType::key },
-            { "a", TokenType::value },
-            { "", TokenType::endObject },
+            { TokenType::beginObject },
+            { TokenType::comment, "I am a philosophor" },
+            { TokenType::key, "name" },
+            { TokenType::value, "a" },
+            { TokenType::endObject },
         };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        const auto recorder = [&](const Token<char> &token) { 
+            tokens.push_back(token); 
+        };
 
         tokenizer.tokenize(begin, end, recorder);
 
@@ -260,15 +293,16 @@ TEST(TokenizerTest, SingleLineComment)
         Tokenizer<char> tokenizer;
         vector<Token<char>> tokens;
         vector<Token<char>> expectedTokens{
-            { "", TokenType::beginObject },
-            { "I am a philosophor", TokenType::comment },
-            { "name", TokenType::key },
-            { "a", TokenType::value },
-            { "", TokenType::endObject },
+            { TokenType::beginObject },
+            { TokenType::comment, "I am a philosophor" },
+            { TokenType::key, "name" },
+            { TokenType::value, "a" },
+            { TokenType::endObject },
         };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        const auto recorder = [&](const Token<char> &token) { 
+            tokens.push_back(token); 
+        };
 
         tokenizer.tokenize(begin, end, recorder);
 
@@ -295,15 +329,16 @@ TEST(TokenizerTest, MultiLineComment)
         Tokenizer<char> tokenizer;
         vector<Token<char>> tokens;
         vector<Token<char>> expectedTokens{
-            { "", TokenType::beginObject },
-            { "I am a philosophor\nSurprize!\n", TokenType::comment },
-            { "name", TokenType::key },
-            { "a", TokenType::value },
-            { "", TokenType::endObject },
+            { TokenType::beginObject },
+            { TokenType::comment, "I am a philosophor\nSurprize!\n" },
+            { TokenType::key, "name" },
+            { TokenType::value, "a" },
+            { TokenType::endObject },
         };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        const auto recorder = [&](const Token<char> &token) { 
+            tokens.push_back(token); 
+        };
 
         tokenizer.tokenize(begin, end, recorder);
 

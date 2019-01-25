@@ -31,9 +31,12 @@ template<typename CharT>
 struct Token
 {
     Token();
+    Token(
+        TokenType type,
+        std::basic_string<CharT> data = std::basic_string<CharT>{});
+
     Token(const Token<CharT> &other);
     Token(Token<CharT> &&other);
-    Token(std::basic_string<CharT> data, TokenType type);
 
     void append(CharT letter);
     void reset();
@@ -41,8 +44,8 @@ struct Token
     bool operator==(const Token<CharT> &other) const;
     bool operator!=(const Token<CharT> &other) const;
 
-    std::basic_string<CharT> data;
     TokenType type;
+    std::basic_string<CharT> data;
 };
 
 template<typename CharT>
@@ -107,6 +110,13 @@ Token<CharT>::Token()
 }
 
 template<typename CharT>
+Token<CharT>::Token(TokenType type, std::basic_string<CharT> data)
+    : type(type)
+    , data(data)
+{
+}
+
+template<typename CharT>
 Token<CharT>::Token(const Token<CharT> &other)
     : data(other.data)
     , type(other.type)
@@ -117,13 +127,6 @@ template<typename CharT>
 Token<CharT>::Token(Token<CharT> &&other)
     : data(std::move(other.data))
     , type(other.type)
-{
-}
-
-template<typename CharT>
-Token<CharT>::Token(std::basic_string<CharT> data, TokenType type)
-    : data(data)
-    , type(type)
 {
 }
 
