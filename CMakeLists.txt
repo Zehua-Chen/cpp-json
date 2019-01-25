@@ -1,18 +1,35 @@
+cmake_minimum_required(VERSION 3.0)
+
+project("json-cpp")
+
 add_subdirectory(dependencies/googletest/googletest)
+
+set(
+    HEADERS
+    "include/Json/BasicValue.hpp"
+    "include/Json/Json.hpp"
+    "include/Json/Keywords.hpp"
+    "include/Json/Parse.hpp"
+    "include/Json/Token.hpp"
+    "include/Json/Tokenizer.hpp"
+    "include/Json/Type.hpp")
 
 add_executable(
     test
+    "test/main.cpp"
     "test/BasicObjectTest.cpp"
     "test/BasicArrayTest.cpp"
     "test/BasicPrimitiveTest.cpp"
     "test/TokenTest.cpp"
-    "test/TokenizerTest.cpp")
+    "test/TokenizerTest.cpp"
+    ${HEADERS})
     
 target_link_libraries(
     test
     PRIVATE 
-      gtest gtest_main)
+      gtest)
     
+# Gtest's include already added through linking with gtest
 target_include_directories(
     test
     PRIVATE

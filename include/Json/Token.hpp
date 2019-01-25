@@ -118,15 +118,15 @@ Token<CharT>::Token(TokenType type, std::basic_string<CharT> data)
 
 template<typename CharT>
 Token<CharT>::Token(const Token<CharT> &other)
-    : data(other.data)
-    , type(other.type)
+    : type(other.type)
+    , data(other.data)
 {
 }
 
 template<typename CharT>
 Token<CharT>::Token(Token<CharT> &&other)
-    : data(std::move(other.data))
-    , type(other.type)
+    : type(other.type)
+    , data(std::move(other.data))
 {
 }
 
