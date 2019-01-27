@@ -270,20 +270,19 @@ bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
 
     if (_token.data == Keywords<CharT>::singleLineComment)
     {
-        _token.reset();
-        _token.type = TokenType::comment;
-        _context = Context::singeLineComment;
-        _skip();
-
-        return false;
+        if (_context != Context::string)
+        {
+            _token.reset();
+            _token.type = TokenType::comment;
+            _context = Context::singeLineComment;
+            _skip();
+        }
     }
     else if (_token.data == Keywords<CharT>::beginMultilineComment)
     {
         _context = Context::multiLineComment;
         _token.reset();
         _token.type = TokenType::comment;
-
-        return false;
     }
 
     if (_context == Context::multiLineComment)
