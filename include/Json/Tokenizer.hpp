@@ -113,14 +113,15 @@ template<typename Callback>
 bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
 {
     using namespace internals;
+    using namespace json;
 
     switch (letter)
     {
-    case Keywords<CharT>::carriageReturn:
+    case keywords::carriageReturn<CharT>:
     {
         return false;
     }
-    case Keywords<CharT>::endline:
+    case keywords::endline<CharT>:
     {
         // \n represnets the end of a single line comment
         if (_context == Context::singeLineComment)
@@ -136,7 +137,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
 
         return false;
     }
-    case Keywords<CharT>::space:
+    case keywords::space<CharT>:
     {
         if (_context == Context::singeLineComment
             || _context == Context::multiLineComment
@@ -147,11 +148,16 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
 
         return false;
     }
-    case Keywords<CharT>::tab:
+    case keywords::tab<CharT>:
     {
+        if (_context == Context::string)
+        {
+            _token.append(letter);
+        }
+        
         return false;
     }
-    case Keywords<CharT>::beginObject:
+    case keywords::beginObject<CharT>:
     {
         _token.type = TokenType::beginObject;
         callback(_token);
@@ -159,7 +165,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
 
         return false;
     }
-    case Keywords<CharT>::endObject:
+    case keywords::endObject<CharT>:
     {
         if (!_token.data.empty())
         {
@@ -175,7 +181,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
 
         return false;
     }
-    case Keywords<CharT>::beginArray:
+    case keywords::beginArray<CharT>:
     {
         _token.type = TokenType::beginArray;
         callback(_token);
@@ -183,7 +189,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
 
         return false;
     }
-    case Keywords<CharT>::endArray:
+    case keywords::endArray<CharT>:
     {
         if (!_token.data.empty())
         {
@@ -199,7 +205,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
 
         return false;
     }
-    case Keywords<CharT>::keyValuesSeparator:
+    case keywords::colon<CharT>:
     {
         _token.type = TokenType::key;
         callback(_token);
@@ -207,7 +213,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
 
         return false;
     }
-    case Keywords<CharT>::propertiesSeparator:
+    case keywords::comma<CharT>:
     {
         if (!_token.data.empty())
         {
@@ -218,7 +224,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
 
         return false;
     }
-    case Keywords<CharT>::singleQuote:
+    case keywords::singleQuote<CharT>:
     {
         // if (_context == Context::string)
         // {
@@ -240,7 +246,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
 
         return false;
     }
-    case Keywords<CharT>::doubleQuote:
+    case keywords::doubleQuote<CharT>:
     {
         if (_context == Context::string)
         {
@@ -267,8 +273,9 @@ template<typename Callback>
 bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
 {
     using namespace internals;
+    using namespace json;
 
-    if (_token.data == Keywords<CharT>::singleLineComment)
+    if (_token.data == keywords::singleLineComment<CharT>)
     {
         if (_context != Context::string)
         {
@@ -278,7 +285,7 @@ bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
             _skip();
         }
     }
-    else if (_token.data == Keywords<CharT>::beginMultilineComment)
+    else if (_token.data == keywords::beginMultiLineComment<CharT>)
     {
         _context = Context::multiLineComment;
         _token.reset();
@@ -288,7 +295,7 @@ bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
     if (_context == Context::multiLineComment)
     {
         auto found
-            = _token.data.rfind(Keywords<CharT>::endMultilineComment.data());
+            = _token.data.rfind(keywords::endMultiLineComment<CharT>.data());
         // If ends with */
         if (found != std::basic_string_view<CharT>::npos)
         {
