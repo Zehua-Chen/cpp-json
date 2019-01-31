@@ -6,16 +6,17 @@ add_subdirectory(dependencies/googletest/googletest)
 
 set(
     HEADERS
+    "include/Json/Assembler.hpp"
     "include/Json/BasicValue.hpp"
     "include/Json/Json.hpp"
     "include/Json/Keywords.hpp"
     "include/Json/Parse.hpp"
     "include/Json/Token.hpp"
-    "include/Json/Tokenizer.hpp"
-    "include/Json/Type.hpp")
+    "include/Json/Tokenizer.hpp")
 
 add_executable(
     test
+    "test/AssemblerTest.cpp"
     "test/main.cpp"
     "test/BasicObjectTest.cpp"
     "test/BasicArrayTest.cpp"
