@@ -18,7 +18,7 @@ using namespace json;
 TEST(BasicArrayTest, Construction)
 {
     auto array = makeArray();
-    EXPECT_EQ(array.type(), Type::array);
+    EXPECT_EQ(array.type(), BasicValue<char>::Type::array);
     EXPECT_TRUE(array.isArray());
 }
 

@@ -22,7 +22,7 @@ using namespace json;
 TEST(BasicObjectTest, Construction)
 {
     auto object = makeObject();
-    EXPECT_EQ(object.type(), Type::object);
+    EXPECT_EQ(object.type(), BasicValue<char>::Type::object);
     EXPECT_TRUE(object.isObject());
 }
 

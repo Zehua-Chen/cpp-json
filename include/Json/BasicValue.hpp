@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "Json/Type.hpp"
 #include <iostream>
 #include <optional>
 #include <string>
@@ -22,6 +21,21 @@ template<typename CharT>
 class BasicValue
 {
 public:
+    /**
+     * Type of the value
+     */
+    enum class Type
+    {
+        // Value is object
+        object,
+        // Value is array
+        array,
+        // Value is primitive
+        primitive,
+    };
+
+    /// Aliases
+
     using Key = std::basic_string<CharT>;
     using ObjectData = std::unordered_map<Key, BasicValue<CharT>>;
     using ArrayData = std::vector<BasicValue<CharT>>;
@@ -301,7 +315,7 @@ BasicValue<CharT>::~BasicValue()
  * @returns the type of the object
  */
 template<typename CharT>
-Type BasicValue<CharT>::type() const
+typename BasicValue<CharT>::Type BasicValue<CharT>::type() const
 {
     return _type;
 }
@@ -507,7 +521,7 @@ std::basic_string<CharT> &BasicValue<CharT>::string()
 template<typename CharT>
 BasicValue<CharT> makeObject()
 {
-    return { Type::object };
+    return { BasicValue<CharT>::Type::object };
 }
 
 /**
@@ -517,7 +531,7 @@ BasicValue<CharT> makeObject()
 template<typename CharT>
 BasicValue<CharT> makeArray()
 {
-    return { Type::array };
+    return { BasicValue<CharT>::Type::array };
 }
 
 /**
@@ -527,7 +541,7 @@ BasicValue<CharT> makeArray()
 template<typename CharT>
 BasicValue<CharT> makePrimitive()
 {
-    return { Type::primitive };
+    return { BasicValue<CharT>::Type::primitive };
 }
 
 /**
@@ -537,7 +551,7 @@ BasicValue<CharT> makePrimitive()
 template<typename CharT>
 BasicValue<CharT> makeNull()
 {
-    return { Type::primitive };
+    return { BasicValue<CharT>::Type::primitive };
 }
 
 } // namespace json

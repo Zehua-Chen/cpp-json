@@ -13,7 +13,7 @@
 using std::string;
 using namespace std::string_literals;
 
-using namespace json;
+using namespace json::token;
 
 TEST(TokenTest, CopyConstructor)
 {

@@ -13,7 +13,7 @@
 #include <string_view>
 #include <utility>
 
-namespace json
+namespace json::token
 {
 enum class TokenType
 {
@@ -56,7 +56,7 @@ operator<<(std::basic_ostream<CharT> &out, const Token<CharT> &token);
 
 // Implementation
 
-namespace json
+namespace json::token
 {
 template<typename CharT>
 std::basic_ostream<CharT> &

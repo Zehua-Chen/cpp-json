@@ -22,7 +22,7 @@ using namespace json;
 TEST(BasicPrimitiveTest, Construction)
 {
     auto primitive = makePrimitive();
-    EXPECT_EQ(primitive.type(), Type::primitive);
+    EXPECT_EQ(primitive.type(), BasicValue<char>::Type::primitive);
     EXPECT_TRUE(primitive.isPrimitive());
 }
 

@@ -22,6 +22,7 @@ using std::stringstream;
 using std::vector;
 
 using namespace json;
+using namespace json::token;
 
 TEST(TokenizerTest, Simple)
 {

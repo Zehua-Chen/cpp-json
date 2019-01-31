@@ -23,7 +23,7 @@ enum class Context
 };
 }
 
-namespace json
+namespace json::token
 {
 template<typename CharT>
 class Tokenizer
@@ -64,7 +64,7 @@ private:
 
 // Implementation
 
-namespace json
+namespace json::token
 {
 template<typename CharT>
 Tokenizer<CharT>::Tokenizer()
