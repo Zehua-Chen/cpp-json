@@ -1,5 +1,14 @@
+//
+//  BasicValue.hpp
+//  CPP
+//
+//  Created by Zehua Chen on 12/31/18.
+//  Copyright © 2018 Zehua Chen. All rights reserved.
+//
+
 #pragma once
 
+#include "Json/Type.hpp"
 #include <iostream>
 #include <optional>
 #include <string>
@@ -9,19 +18,6 @@
 
 namespace json
 {
-/**
- * Type of the value
- */
-enum class Type
-{
-    // Value is object
-    object,
-    // Value is array
-    array,
-    // Value is primitive
-    primitive,
-};
-
 template<typename CharT>
 class BasicValue
 {
@@ -541,7 +537,7 @@ BasicValue<CharT> makePrimitive()
 template<typename CharT>
 BasicValue<CharT> makeNull()
 {
-    return { Type::null };
+    return { Type::primitive };
 }
 
 } // namespace json

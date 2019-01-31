@@ -1,7 +1,15 @@
-#include "Json/Json.hpp"
+//
+//  BasicObjectTest.cpp
+//  CPP
+//
+//  Created by Zehua Chen on 12/31/18.
+//  Copyright © 2018 Zehua Chen. All rights reserved.
+//
+
+#include "Json/BasicValue.hpp"
 #include "gtest/gtest.h"
-#include <string>
 #include <iostream>
+#include <string>
 
 using std::string;
 using std::string_view;
@@ -22,10 +30,10 @@ TEST(BasicObjectTest, ReadWriteWithMethods)
 {
     auto object = makeObject();
     auto name = makePrimitive();
-    
+
     name.string("jackson");
     object.set("name", name);
-    
+
     ASSERT_TRUE(object.size() == 1);
     EXPECT_EQ(object.get("name").string(), name.string());
 }
@@ -34,17 +42,17 @@ TEST(BasicObjectTest, ReadWriteWithSubscripts)
 {
     auto object = makeObject();
     auto name = makePrimitive();
-    
+
     name.string("jackson");
     object["name"] = name;
-    
+
     ASSERT_TRUE(object.size() == 1);
     EXPECT_EQ(object.get("name").string(), name.string());
-    
+
     auto newName = makePrimitive();
     name.string("peter");
     object["name"] = newName;
-    
+
     ASSERT_TRUE(object.size() == 1);
     EXPECT_EQ(object.get("name").string(), newName.string());
 }
