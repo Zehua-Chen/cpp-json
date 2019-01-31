@@ -15,24 +15,24 @@
 
 namespace json::token
 {
-enum class TokenType
-{
-    beginObject,
-    endObject,
-    beginArray,
-    endArray,
-    key,
-    value,
-    comment,
-    undefined,
-};
-
 template<typename CharT>
 struct Token
 {
+    enum class Type
+    {
+        beginObject,
+        endObject,
+        beginArray,
+        endArray,
+        key,
+        value,
+        comment,
+        undefined,
+    };
+
     Token();
     Token(
-        TokenType type,
+        Type type,
         std::basic_string<CharT> data = std::basic_string<CharT>{});
 
     Token(const Token<CharT> &other);
@@ -44,7 +44,7 @@ struct Token
     bool operator==(const Token<CharT> &other) const;
     bool operator!=(const Token<CharT> &other) const;
 
-    TokenType type;
+    Type type;
     std::basic_string<CharT> data;
 };
 
@@ -52,7 +52,7 @@ template<typename CharT>
 std::basic_ostream<CharT> &
 operator<<(std::basic_ostream<CharT> &out, const Token<CharT> &token);
 
-} // namespace json
+} // namespace json::token
 
 // Implementation
 
@@ -73,30 +73,30 @@ operator<<(std::basic_ostream<CharT> &out, const Token<CharT> &token)
 
     switch (token.type)
     {
-    case TokenType::key:
+    case Token<CharT>::Type::key:
         print("key=");
         out << token.data;
         break;
-    case TokenType::value:
+    case Token<CharT>::Type::value:
         print("value=");
         out << token.data;
         break;
-    case TokenType::beginObject:
+    case Token<CharT>::Type::beginObject:
         print("beginObject");
         break;
-    case TokenType::endObject:
+    case Token<CharT>::Type::endObject:
         print("endObject");
         break;
-    case TokenType::beginArray:
+    case Token<CharT>::Type::beginArray:
         print("beginArray");
         break;
-    case TokenType::endArray:
+    case Token<CharT>::Type::endArray:
         print("endArray");
         break;
-    case TokenType::comment:
+    case Token<CharT>::Type::comment:
         print("comment");
         break;
-    case TokenType::undefined:
+    case Token<CharT>::Type::undefined:
         print("?");
         break;
     }
@@ -110,7 +110,7 @@ Token<CharT>::Token()
 }
 
 template<typename CharT>
-Token<CharT>::Token(TokenType type, std::basic_string<CharT> data)
+Token<CharT>::Token(Type type, std::basic_string<CharT> data)
     : type(type)
     , data(data)
 {
@@ -140,7 +140,7 @@ template<typename CharT>
 void Token<CharT>::reset()
 {
     data.clear();
-    type = TokenType::undefined;
+    type = Type::undefined;
 }
 
 template<typename CharT>
@@ -174,4 +174,4 @@ bool Token<CharT>::operator!=(const Token<CharT> &other) const
 
     return false;
 }
-} // namespace json
+} // namespace json::token

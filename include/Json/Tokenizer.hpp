@@ -96,7 +96,7 @@ void Tokenizer<CharT>::tokenize(Iter begin, Iter end, const Callback &callback)
     //   _token is not empty after loop is done
     if (!_token.data.empty())
     {
-        _token.type = TokenType::value;
+        _token.type = Token<CharT>::Type::value;
         callback(_token);
     }
 }
@@ -151,7 +151,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case keywords::beginObject<CharT>:
     {
-        _token.type = TokenType::beginObject;
+        _token.type = Token<CharT>::Type::beginObject;
         callback(_token);
         _reset();
 
@@ -161,13 +161,13 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     {
         if (!_token.data.empty())
         {
-            _token.type = TokenType::value;
+            _token.type = Token<CharT>::Type::value;
             callback(_token);
 
             _reset();
         }
 
-        _token.type = TokenType::endObject;
+        _token.type = Token<CharT>::Type::endObject;
         callback(_token);
         _reset();
 
@@ -175,7 +175,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case keywords::beginArray<CharT>:
     {
-        _token.type = TokenType::beginArray;
+        _token.type = Token<CharT>::Type::beginArray;
         callback(_token);
         _reset();
 
@@ -185,13 +185,13 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     {
         if (!_token.data.empty())
         {
-            _token.type = TokenType::value;
+            _token.type = Token<CharT>::Type::value;
             callback(_token);
 
             _reset();
         }
 
-        _token.type = TokenType::endArray;
+        _token.type = Token<CharT>::Type::endArray;
         callback(_token);
         _reset();
 
@@ -199,7 +199,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case keywords::colon<CharT>:
     {
-        _token.type = TokenType::key;
+        _token.type = Token<CharT>::Type::key;
         callback(_token);
         _reset();
 
@@ -209,7 +209,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     {
         if (!_token.data.empty())
         {
-            _token.type = TokenType::value;
+            _token.type = Token<CharT>::Type::value;
             callback(_token);
             _reset();
         }
@@ -263,7 +263,7 @@ bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
         if (_context != _Context::string)
         {
             _token.reset();
-            _token.type = TokenType::comment;
+            _token.type = Token<CharT>::Type::comment;
             _context = _Context::singeLineComment;
             _skip();
         }
@@ -272,7 +272,7 @@ bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
     {
         _context = _Context::multiLineComment;
         _token.reset();
-        _token.type = TokenType::comment;
+        _token.type = Token<CharT>::Type::comment;
     }
 
     if (_context == _Context::multiLineComment)
