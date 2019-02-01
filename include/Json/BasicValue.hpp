@@ -48,6 +48,19 @@ public:
      * @param type type of the json value
      */
     BasicValue(Type type = Type::object);
+
+    /**
+     * Copy constructor
+     * @other the other value to copy data from
+     */
+    BasicValue(const BasicValue<CharT> &other);
+
+    /**
+     * Move constructor
+     * @other the other value to transfer data from
+     */
+    BasicValue(BasicValue<CharT> &&other);
+
     virtual ~BasicValue();
 
     /// Type accessors
@@ -93,6 +106,22 @@ public:
      * vector; type = primitive: size of string.
      */
     size_t size() const;
+
+    /// Universal Operators
+
+    /**
+     * Copy value from other value
+     * @other the value to copy from
+     * @returns a reference to this object
+     */
+    BasicValue<CharT> &operator=(const BasicValue<CharT> &other);
+
+    /**
+     * Move value from other value
+     * @other the value to move from
+     * @returns a reference to this object
+     */
+    BasicValue<CharT> &operator=(BasicValue<CharT> &&other);
 
     /// Object modifiers
 
@@ -311,6 +340,24 @@ BasicValue<CharT>::BasicValue(Type type)
     }
 }
 
+/**
+ * Copy constructor
+ * @other the other value to copy data from
+ */
+template<typename CharT>
+BasicValue<CharT>::BasicValue(const BasicValue<CharT> &other)
+{
+}
+
+/**
+ * Move constructor
+ * @other the other value to transfer data from
+ */
+template<typename CharT>
+BasicValue<CharT>::BasicValue(BasicValue<CharT> &&other)
+{
+}
+
 template<typename CharT>
 BasicValue<CharT>::~BasicValue()
 {
@@ -390,6 +437,30 @@ size_t BasicValue<CharT>::size() const
     default:
         return 0;
     }
+}
+
+/// Universal Operators
+
+/**
+ * Copy value from other value
+ * @other the value to copy from
+ * @returns a reference to this object
+ */
+template<typename CharT>
+BasicValue<CharT> &BasicValue<CharT>::operator=(const BasicValue<CharT> &other)
+{
+    return *this;
+}
+
+/**
+ * Move value from other value
+ * @other the value to move from
+ * @returns a reference to this object
+ */
+template<typename CharT>
+BasicValue<CharT> &BasicValue<CharT>::operator=(BasicValue<CharT> &&other) 
+{
+    return *this;
 }
 
 /// Object modifiers

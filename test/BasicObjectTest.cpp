@@ -26,6 +26,33 @@ TEST(BasicObjectTest, Construction)
     EXPECT_TRUE(object.isObject());
 }
 
+TEST(BasicObjectTest, CopyConstruction)
+{
+    auto object = makeObject();
+    auto name = makePrimitive();
+    
+    name.string("jackson");
+    object["name"] = name;
+    
+    BasicValue<char> copy = object;
+    
+    EXPECT_EQ(object["name"].string(), copy["name"].string());
+}
+
+TEST(BasicObjectTest, MoveConstruction)
+{
+    auto object = makeObject();
+    auto name = makePrimitive();
+    
+    name.string("jackson");
+    object["name"] = name;
+    
+    BasicValue<char> moved = object;
+    
+    EXPECT_EQ(moved["name"].string(), "jackson");
+    EXPECT_TRUE(object.size() == 0);
+}
+
 TEST(BasicObjectTest, ReadWriteWithMethods)
 {
     auto object = makeObject();

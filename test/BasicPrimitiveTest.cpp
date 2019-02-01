@@ -26,6 +26,25 @@ TEST(BasicPrimitiveTest, Construction)
     EXPECT_TRUE(primitive.isPrimitive());
 }
 
+TEST(BasicPrimitiveTest, CopyConstruction)
+{
+    auto primitive = makePrimitive();
+    primitive.string("a");
+    
+    BasicValue<char> copy = primitive;
+    EXPECT_EQ(copy.string(), primitive.string());
+}
+
+TEST(BasicPrimitiveTest, MoveConstruction)
+{
+    auto primitive = makePrimitive();
+    primitive.string("a");
+    
+    BasicValue<char> moved = primitive;
+    EXPECT_EQ(moved.string(), "a");
+    EXPECT_TRUE(primitive.string().empty());
+}
+
 TEST(BasicPrimitiveTest, ReadWrite)
 {
     auto primitive = makePrimitive();
