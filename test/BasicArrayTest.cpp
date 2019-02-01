@@ -50,6 +50,38 @@ TEST(BasicArrayTest, MoveConstruction)
     EXPECT_EQ(array.size(), size_t(0));
 }
 
+TEST(BasicArrayTest, CopyAssignment)
+{
+    auto array = makeArray();
+    auto element = makePrimitive();
+    element.string("element 1");
+    
+    array.append(element);
+    
+    auto copy = makeArray();
+    copy.append(makePrimitive());
+    copy = array;
+    
+    EXPECT_EQ(copy[0].string(), array[0].string());
+    EXPECT_EQ(copy.size(), array.size());
+}
+
+TEST(BasicArrayTest, MoveAssignment)
+{
+    auto array = makeArray();
+    auto element = makePrimitive();
+    element.string("element 1");
+    
+    array.append(element);
+    
+    auto moved = makeArray();
+    moved.append(makePrimitive());
+    moved = std::move(array);
+    
+    EXPECT_EQ(moved[0].string(), "element 1");
+    EXPECT_EQ(array.size(), size_t(0));
+}
+
 TEST(BasicArrayTest, ReadWrite)
 {
     auto array = makeArray();

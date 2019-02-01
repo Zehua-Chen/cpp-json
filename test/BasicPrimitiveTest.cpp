@@ -45,6 +45,32 @@ TEST(BasicPrimitiveTest, MoveConstruction)
     EXPECT_TRUE(primitive.string().empty());
 }
 
+TEST(BasicPrimitiveTest, CopyAssignment)
+{
+    auto primitive = makePrimitive();
+    primitive.string("a");
+    
+    auto copy = makePrimitive();
+    copy.string("random");
+    copy = primitive;
+    
+    EXPECT_EQ(copy.string(), primitive.string());
+}
+
+TEST(BasicPrimitiveTest, MoveAssignment)
+{
+    auto primitive = makePrimitive();
+    primitive.string("a");
+    
+    auto moved = makePrimitive();
+    moved.string("random");
+    moved = std::move(primitive);
+    
+    
+    EXPECT_EQ(moved.string(), "a");
+    EXPECT_TRUE(primitive.string().empty());
+}
+
 TEST(BasicPrimitiveTest, ReadWrite)
 {
     auto primitive = makePrimitive();

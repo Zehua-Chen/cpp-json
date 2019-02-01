@@ -53,6 +53,38 @@ TEST(BasicObjectTest, MoveConstruction)
     EXPECT_EQ(object.size(), size_t(0));
 }
 
+TEST(BasicObjectTest, CopyAssignment)
+{
+    auto object = makeObject();
+    auto name = makePrimitive();
+    
+    name.string("jackson");
+    object["name"] = name;
+    
+    auto copy = makeObject();
+    copy["random data"] = makePrimitive();
+    
+    copy = object;
+    
+    EXPECT_EQ(object["name"].string(), copy["name"].string());
+}
+
+TEST(BasicObjectTest, MoveAssignment)
+{
+    auto object = makeObject();
+    auto name = makePrimitive();
+    
+    name.string("jackson");
+    object["name"] = name;
+    
+    auto moved = makeObject();
+    moved["random data"] = makePrimitive();
+    moved = std::move(object);
+    
+    EXPECT_EQ(moved["name"].string(), "jackson");
+    EXPECT_EQ(object.size(), size_t(0));
+}
+
 TEST(BasicObjectTest, ReadWriteWithMethods)
 {
     auto object = makeObject();
