@@ -142,10 +142,12 @@ public:
      * @returns a reference to the value
      */
     const BasicValue<CharT> &get(const Key &key) const;
-    
+
     /**
      * See if the object contains the key
      * @key the key to lookup
+     * @returns true if there is an eleemnt associated with the key in
+     * the object.
      */
     bool contains(const Key &key) const;
 
@@ -444,12 +446,18 @@ const BasicValue<CharT> &BasicValue<CharT>::get(const Key &key) const
     return data.find(key)->second;
 }
 
+/**
+ * See if the object contains the key
+ * @key the key to lookup
+ * @returns true if there is an eleemnt associated with the key in
+ * the object.
+ */
 template<typename CharT>
 bool BasicValue<CharT>::contains(const Key &key) const
 {
     const ObjectData &data = std::get<ObjectData>(_data);
     auto found = data.find(key);
-    
+
     return found != data.end();
 }
 
