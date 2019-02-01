@@ -40,7 +40,7 @@ TEST(BasicPrimitiveTest, MoveConstruction)
     auto primitive = makePrimitive();
     primitive.string("a");
     
-    BasicValue<char> moved = primitive;
+    BasicValue<char> moved = std::move(primitive);
     EXPECT_EQ(moved.string(), "a");
     EXPECT_TRUE(primitive.string().empty());
 }

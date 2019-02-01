@@ -44,10 +44,10 @@ TEST(BasicArrayTest, MoveConstruction)
     
     array.append(element);
     
-    BasicValue<char> moved = array;
+    BasicValue<char> moved = std::move(array);
     
     EXPECT_EQ(moved[0].string(), "element 1");
-    EXPECT_TRUE(array.size() == 0);
+    EXPECT_EQ(array.size(), size_t(0));
 }
 
 TEST(BasicArrayTest, ReadWrite)

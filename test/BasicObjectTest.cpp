@@ -47,10 +47,10 @@ TEST(BasicObjectTest, MoveConstruction)
     name.string("jackson");
     object["name"] = name;
     
-    BasicValue<char> moved = object;
+    BasicValue<char> moved = std::move(object);
     
     EXPECT_EQ(moved["name"].string(), "jackson");
-    EXPECT_TRUE(object.size() == 0);
+    EXPECT_EQ(object.size(), size_t(0));
 }
 
 TEST(BasicObjectTest, ReadWriteWithMethods)

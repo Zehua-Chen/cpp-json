@@ -345,7 +345,9 @@ BasicValue<CharT>::BasicValue(Type type)
  * @other the other value to copy data from
  */
 template<typename CharT>
-BasicValue<CharT>::BasicValue(const BasicValue<CharT> &other)
+BasicValue<CharT>::BasicValue(const BasicValue<CharT> &other) 
+    : _type(other._type)
+    , _data(other._data)
 {
 }
 
@@ -355,6 +357,8 @@ BasicValue<CharT>::BasicValue(const BasicValue<CharT> &other)
  */
 template<typename CharT>
 BasicValue<CharT>::BasicValue(BasicValue<CharT> &&other)
+    : _type(other._type)
+    , _data(std::move(other._data))
 {
 }
 
@@ -449,6 +453,12 @@ size_t BasicValue<CharT>::size() const
 template<typename CharT>
 BasicValue<CharT> &BasicValue<CharT>::operator=(const BasicValue<CharT> &other)
 {
+    if (&other != this)
+    {
+        _type = other._type;
+        _data = other._data;
+    }
+    
     return *this;
 }
 
@@ -460,6 +470,12 @@ BasicValue<CharT> &BasicValue<CharT>::operator=(const BasicValue<CharT> &other)
 template<typename CharT>
 BasicValue<CharT> &BasicValue<CharT>::operator=(BasicValue<CharT> &&other) 
 {
+    if (&other != this)
+    {
+        _type = other._type;
+        _data = std::move(other._data);
+    }
+    
     return *this;
 }
 
