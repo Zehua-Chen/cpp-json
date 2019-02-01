@@ -35,6 +35,8 @@ TEST(BasicObjectTest, ReadWriteWithMethods)
     object.set("name", name);
 
     ASSERT_TRUE(object.size() == 1);
+    ASSERT_TRUE(object.contains("name"));
+
     EXPECT_EQ(object.get("name").string(), name.string());
 }
 
@@ -47,6 +49,8 @@ TEST(BasicObjectTest, ReadWriteWithSubscripts)
     object["name"] = name;
 
     ASSERT_TRUE(object.size() == 1);
+    ASSERT_TRUE(object.contains("name"));
+
     EXPECT_EQ(object.get("name").string(), name.string());
 
     auto newName = makePrimitive();
@@ -54,5 +58,7 @@ TEST(BasicObjectTest, ReadWriteWithSubscripts)
     object["name"] = newName;
 
     ASSERT_TRUE(object.size() == 1);
+    ASSERT_TRUE(object.contains("name"));
+
     EXPECT_EQ(object.get("name").string(), newName.string());
 }
