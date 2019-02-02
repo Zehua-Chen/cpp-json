@@ -8,9 +8,9 @@
 
 #include "Json/BasicValue.hpp"
 #include "Json/Token.hpp"
+#include <iostream>
 #include <stack>
 #include <utility>
-#include <iostream>
 
 // Delcarations
 
@@ -35,7 +35,10 @@ private:
         std::basic_string<CharT> name;
 
         _Scope(_VType type, std::basic_string<CharT> &&name);
+        _Scope(BasicValue<CharT> &&value, std::basic_string<CharT> &&name);
         
+        _Scope(_Scope &&other);
+
         bool isAnonymous() const;
     };
 
@@ -49,10 +52,25 @@ private:
 namespace json::assemble
 {
 template<typename CharT>
-Assembler<CharT>::_Scope::_Scope(
-    _VType type, std::basic_string<CharT> &&name)
+Assembler<CharT>::_Scope::_Scope(_VType type, std::basic_string<CharT> &&name)
     : value(type)
     , name(std::move(name))
+{
+}
+
+template<typename CharT>
+Assembler<CharT>::_Scope::_Scope(
+    BasicValue<CharT> &&value, std::basic_string<CharT> &&name)
+    : value(std::move(value))
+    , name(std::move(name))
+{
+}
+
+
+template<typename CharT>
+Assembler<CharT>::_Scope::_Scope(_Scope &&other)
+    : value(std::move(other.value))
+    , name(std::move(other.name))
 {
 }
 
@@ -77,46 +95,88 @@ void Assembler<CharT>::operator()(const json::token::Token<CharT> &token)
     case TType::beginObject:
         _stack.emplace(_VType::object, std::move(_key));
         break;
-    case TType::endObject:
-    {
-        // Cannot touch the last one, needs it to return the root
-        std::cout << static_cast<int>(_stack.top().value.type()) << std::endl;
-        if (_stack.size() > size_t(1))
-        {
-            
-        }
-        
-        break;
-    }
     case TType::beginArray:
         _stack.emplace(_VType::array, std::move(_key));
         break;
-    case TType::endArray:
+    case TType::endObject:
+    {
+        // Cannot touch the last one, needs it to return the root
+        if (_stack.size() > size_t{ 1 })
+        {
+            _Scope current = std::move(_stack.top());
+            _stack.pop();
+            
+            _Scope &next = _stack.top();
+            BasicValue<CharT> &nextValue = next.value;
+            
+            switch (nextValue.type())
+            {
+            case _VType::object:
+                nextValue[current.name] = current.value;
+                break;
+            case _VType::array:
+                nextValue.append(current.value);
+                break;
+            default:
+                break;
+            }
+        }
+
         break;
+    }
+    case TType::endArray:
+    {
+        // Cannot touch the last one, needs it to return the root
+        if (_stack.size() > size_t{ 1 })
+        {
+        }
+
+        break;
+    }
     case TType::key:
         _key = token.data;
         break;
     case TType::value:
     {
-        _Scope &top = _stack.top();
-        BasicValue<CharT> &topValue = top.value;
-        
-        switch (topValue.type())
+        // If stack is empty, and we have an array, we have a single primitive
+        if (_stack.empty())
         {
-        case _VType::object:
-        {
-            BasicValue<CharT> value = makePrimitive();
-            value.string(token.data);
+            BasicValue<char> primtive = makePrimitive();
+            primtive.string(token.data);
             
-            topValue[_key] = value;
-            _key.clear();
-            break;
+            _stack.emplace(std::move(primtive), std::move(_key));
         }
-        default:
-            break;
+        else
+        {
+            _Scope &top = _stack.top();
+            BasicValue<CharT> &topValue = top.value;
+
+            switch (topValue.type())
+            {
+            case _VType::object:
+            {
+                // Assign values to corresponding pairs
+                BasicValue<CharT> value = makePrimitive();
+                value.string(token.data);
+
+                topValue[_key] = value;
+                _key.clear();
+                break;
+            }
+            case _VType::array:
+            {
+                BasicValue<CharT> value = makePrimitive();
+                value.string(token.data);
+
+                topValue.append(value);
+                break;
+            }
+            default:
+                break;
+            }
         }
-        
-        break;   
+
+        break;
     }
     case TType::comment:
         break;

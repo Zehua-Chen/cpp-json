@@ -24,7 +24,7 @@ public:
     /**
      * Type of the value
      */
-    enum class Type
+    enum class Type : char
     {
         // Value is object
         object,
@@ -157,7 +157,6 @@ public:
      */
     BasicValue<CharT> &get(const Key &key);
 
-    // TODO: Implement
     /**
      * Have a constant reference to the value associated with the key.
      * @param key the key associated with the value
@@ -345,7 +344,7 @@ BasicValue<CharT>::BasicValue(Type type)
  * @other the other value to copy data from
  */
 template<typename CharT>
-BasicValue<CharT>::BasicValue(const BasicValue<CharT> &other) 
+BasicValue<CharT>::BasicValue(const BasicValue<CharT> &other)
     : _type(other._type)
     , _data(other._data)
 {
@@ -458,7 +457,7 @@ BasicValue<CharT> &BasicValue<CharT>::operator=(const BasicValue<CharT> &other)
         _type = other._type;
         _data = other._data;
     }
-    
+
     return *this;
 }
 
@@ -468,14 +467,14 @@ BasicValue<CharT> &BasicValue<CharT>::operator=(const BasicValue<CharT> &other)
  * @returns a reference to this object
  */
 template<typename CharT>
-BasicValue<CharT> &BasicValue<CharT>::operator=(BasicValue<CharT> &&other) 
+BasicValue<CharT> &BasicValue<CharT>::operator=(BasicValue<CharT> &&other)
 {
     if (&other != this)
     {
         _type = other._type;
         _data = std::move(other._data);
     }
-    
+
     return *this;
 }
 
@@ -518,6 +517,13 @@ template<typename CharT>
 BasicValue<CharT> &BasicValue<CharT>::get(const Key &key)
 {
     ObjectData &data = std::get<ObjectData>(_data);
+    return data.find(key)->second;
+}
+
+template<typename CharT>
+const BasicValue<CharT> &BasicValue<CharT>::operator[](const Key &key) const
+{
+    const ObjectData &data = std::get<ObjectData>(_data);
     return data.find(key)->second;
 }
 
