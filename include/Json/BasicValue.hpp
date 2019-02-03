@@ -186,6 +186,12 @@ public:
      * @value the value to add
      */
     void append(const BasicValue &value);
+    
+    /**
+     * Add new element to the array.
+     * @value the value to add
+     */
+    void append(BasicValue &&value);
 
     // TODO: Implement
     /**
@@ -565,6 +571,17 @@ void BasicValue<CharT>::append(const BasicValue &value)
 {
     ArrayData &data = std::get<ArrayData>(_data);
     data.push_back(value);
+}
+
+/**
+ * Add new element to the array.
+ * @value the value to add
+ */
+template<typename CharT>
+void BasicValue<CharT>::append(BasicValue &&value)
+{
+    ArrayData &data = std::get<ArrayData>(_data);
+    data.push_back(std::move(value));
 }
 
 /// Array accessors

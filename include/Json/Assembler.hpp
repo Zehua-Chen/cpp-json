@@ -112,10 +112,10 @@ void Assembler<CharT>::operator()(const json::token::Token<CharT> &token)
             switch (nextValue.type())
             {
             case _VType::object:
-                nextValue[current.name] = current.value;
+                nextValue[current.name] = std::move(current.value);
                 break;
             case _VType::array:
-                nextValue.append(current.value);
+                nextValue.append(std::move(current.value));
                 break;
             default:
                 break;
@@ -159,7 +159,7 @@ void Assembler<CharT>::operator()(const json::token::Token<CharT> &token)
                 BasicValue<CharT> value = makePrimitive();
                 value.string(token.data);
 
-                topValue[_key] = value;
+                topValue[_key] = std::move(value);
                 _key.clear();
                 break;
             }
@@ -168,7 +168,7 @@ void Assembler<CharT>::operator()(const json::token::Token<CharT> &token)
                 BasicValue<CharT> value = makePrimitive();
                 value.string(token.data);
 
-                topValue.append(value);
+                topValue.append(std::move(value));
                 break;
             }
             default:
