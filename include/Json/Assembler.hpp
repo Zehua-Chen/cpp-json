@@ -6,6 +6,8 @@
 //  Copyright © 2019 Zehua Chen. All rights reserved.
 //
 
+#pragma once
+
 #include "Json/BasicValue.hpp"
 #include "Json/Token.hpp"
 #include <iostream>
@@ -21,7 +23,10 @@ class Assembler
 {
 public:
     void operator()(const json::token::Token<CharT> &token);
-    BasicValue<CharT> &&root();
+    void takeToken(const json::token::Token<CharT> &token);
+    
+    BasicValue<CharT> &root();
+    const BasicValue<CharT> &root() const;
 
 private:
     /**
@@ -36,7 +41,7 @@ private:
 
         _Scope(_VType type, std::basic_string<CharT> &&name);
         _Scope(BasicValue<CharT> &&value, std::basic_string<CharT> &&name);
-        
+
         _Scope(_Scope &&other);
 
         bool isAnonymous() const;
@@ -66,7 +71,6 @@ Assembler<CharT>::_Scope::_Scope(
 {
 }
 
-
 template<typename CharT>
 Assembler<CharT>::_Scope::_Scope(_Scope &&other)
     : value(std::move(other.value))
@@ -84,6 +88,12 @@ bool Assembler<CharT>::_Scope::isAnonymous() const
 
 template<typename CharT>
 void Assembler<CharT>::operator()(const json::token::Token<CharT> &token)
+{
+    takeToken(token);
+}
+
+template<typename CharT>
+void Assembler<CharT>::takeToken(const json::token::Token<CharT> &token)
 {
     using namespace json::token;
 
@@ -105,10 +115,10 @@ void Assembler<CharT>::operator()(const json::token::Token<CharT> &token)
         {
             _Scope current = std::move(_stack.top());
             _stack.pop();
-            
+
             _Scope &next = _stack.top();
             BasicValue<CharT> &nextValue = next.value;
-            
+
             switch (nextValue.type())
             {
             case _VType::object:
@@ -131,10 +141,10 @@ void Assembler<CharT>::operator()(const json::token::Token<CharT> &token)
         {
             _Scope current = std::move(_stack.top());
             _stack.pop();
-            
+
             _Scope &next = _stack.top();
             BasicValue<CharT> &nextValue = next.value;
-            
+
             switch (nextValue.type())
             {
             case _VType::object:
@@ -159,7 +169,7 @@ void Assembler<CharT>::operator()(const json::token::Token<CharT> &token)
         {
             BasicValue<char> primtive = makePrimitive();
             primtive.string(token.data);
-            
+
             _stack.emplace(std::move(primtive), std::move(_key));
         }
         else
@@ -202,8 +212,14 @@ void Assembler<CharT>::operator()(const json::token::Token<CharT> &token)
 }
 
 template<typename CharT>
-json::BasicValue<CharT> &&Assembler<CharT>::root()
+json::BasicValue<CharT> &Assembler<CharT>::root()
 {
-    return std::move(_stack.top().value);
+    return _stack.top().value;
+}
+
+template<typename CharT>
+const json::BasicValue<CharT> &Assembler<CharT>::root() const
+{
+    return _stack.top().value;
 }
 } // namespace json::assemble

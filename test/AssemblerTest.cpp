@@ -9,10 +9,12 @@
 #include "gtest/gtest.h"
 #include "Json/Assembler.hpp"
 #include <vector>
+#include <utility>
 
 using std::vector;
 using std::cout;
 using std::endl;
+using std::move;
 
 using namespace std::string_literals;
 
@@ -41,10 +43,10 @@ TEST(AssemblerTest, Simple)
         
         for (const auto &token: tokens)
         {
-            assembler(token);
+            assembler.takeToken(token);
         }
         
-        auto object = assembler.root();
+        auto object = move(assembler.root());
         
         ASSERT_EQ(VType::object, object.type());
         
@@ -71,7 +73,7 @@ TEST(AssemblerTest, Simple)
             assembler(token);
         }
         
-        BasicValue<char> array = assembler.root();
+        BasicValue<char> array = move(assembler.root());
         
         ASSERT_EQ(array.type(), VType::array);
         ASSERT_EQ(array.size(), size_t{ 2 });
@@ -85,9 +87,9 @@ TEST(AssemblerTest, Simple)
         Token<char> token{ TType::value, "value" };
         Assembler<char> assembler;
         
-        assembler(token);
+        assembler.takeToken(token);
         
-        BasicValue<char> primitive = assembler.root();
+        BasicValue<char> primitive = move(assembler.root());
         
         ASSERT_EQ(primitive.type(), VType::primitive);
         EXPECT_EQ(primitive.string(), "value");
@@ -131,11 +133,11 @@ TEST(AssemblerTest, Nested)
         
         for (const auto &token: tokens)
         {
-            assembler(token);
+            assembler.takeToken(token);
         }
         
         // Test root
-        BasicValue<char> object = assembler.root();
+        BasicValue<char> object = move(assembler.root());
         ASSERT_EQ(object.type(), VType::object);
         
         // Test person
@@ -190,10 +192,10 @@ TEST(AssemblerTest, Nested)
         
         for (const auto &token: tokens)
         {
-            assembler(token);
+            assembler.takeToken(token);
         }
         
-        BasicValue<char> root = assembler.root();
+        BasicValue<char> root = move(assembler.root());
         ASSERT_EQ(root.type(), VType::array);
         ASSERT_EQ(root.size(), size_t{ 2 });
         
