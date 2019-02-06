@@ -129,6 +129,22 @@ void Assembler<CharT>::operator()(const json::token::Token<CharT> &token)
         // Cannot touch the last one, needs it to return the root
         if (_stack.size() > size_t{ 1 })
         {
+            _Scope current = std::move(_stack.top());
+            _stack.pop();
+            
+            _Scope &next = _stack.top();
+            BasicValue<CharT> &nextValue = next.value;
+            
+            switch (nextValue.type())
+            {
+            case _VType::object:
+                nextValue[current.name] = std::move(current.value);
+                break;
+            case _VType::array:
+                nextValue.append(std::move(current.value));
+            default:
+                break;
+            }
         }
 
         break;

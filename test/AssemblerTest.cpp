@@ -150,4 +150,63 @@ TEST(AssemblerTest, Nested)
         EXPECT_EQ(name["firstName"].string(), "Billy");
         EXPECT_EQ(name["lastName"].string(), "Herrington");
     }
+    
+    // Nested array
+    {
+        vector<Token<char>> tokens {
+            // root array
+            { TType::beginArray },
+            // nested array 1
+            { TType::beginArray },
+            { TType::value, "a" },
+            { TType::value, "b" },
+            { TType::value, "c" },
+            { TType::endArray },
+            // nested array 1
+            { TType::beginArray },
+            // item 1
+            { TType::value, "d" },
+            // item 2
+            { TType::beginObject },
+            { TType::key, "data" },
+            { TType::value, "12" },
+            { TType::endObject },
+            // item 3
+            { TType::value, "e" },
+            { TType::endArray },
+            // end root array
+            { TType::endArray },
+        };
+        
+        Assembler<char> assembler;
+        
+        for (const auto &token: tokens)
+        {
+            assembler(token);
+        }
+        
+        BasicValue<char> root = assembler.root();
+        ASSERT_EQ(root.type(), VType::array);
+        ASSERT_EQ(root.size(), size_t{ 2 });
+        
+        BasicValue<char> &nestedArray1 = root[0];
+        ASSERT_EQ(nestedArray1.type(), VType::array);
+        ASSERT_EQ(nestedArray1.size(), size_t{ 3 });
+        
+        EXPECT_EQ(nestedArray1[0].string(), "a");
+        EXPECT_EQ(nestedArray1[1].string(), "b");
+        EXPECT_EQ(nestedArray1[2].string(), "c");
+        
+        BasicValue<char> &nestedArray2 = root[1];
+        ASSERT_EQ(nestedArray2.type(), VType::array);
+        ASSERT_EQ(nestedArray2.size(), size_t{ 3 });
+        
+        EXPECT_EQ(nestedArray2[0].string(), "d");
+        EXPECT_EQ(nestedArray2[2].string(), "e");
+        
+        BasicValue<char> &object = nestedArray2[1];
+        ASSERT_EQ(object.type(), VType::object);
+        ASSERT_TRUE(object.contains("data"));
+        EXPECT_EQ(object["data"].string(), "12");
+    }
 }
