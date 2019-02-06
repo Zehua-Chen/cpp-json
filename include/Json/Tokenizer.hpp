@@ -21,7 +21,7 @@ public:
     Tokenizer();
 
     template<typename Iter, typename Callback>
-    void tokenize(Iter begin, Iter end, const Callback &callback);
+    void tokenize(Iter begin, Iter end, Callback &callback);
 
 private:
     // Tokenizer pipeline
@@ -72,7 +72,7 @@ Tokenizer<CharT>::Tokenizer()
 
 template<typename CharT>
 template<typename Iter, typename Callback>
-void Tokenizer<CharT>::tokenize(Iter begin, Iter end, const Callback &callback)
+void Tokenizer<CharT>::tokenize(Iter begin, Iter end, Callback &callback)
 {
     bool result = true;
 
