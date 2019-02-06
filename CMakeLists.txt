@@ -17,7 +17,7 @@ set(
 add_executable(
     test
     "test/AssemblerTest.cpp"
-    "test/main.cpp"
+    "test/testmain.cpp"
     "test/BasicObjectTest.cpp"
     "test/BasicArrayTest.cpp"
     "test/BasicPrimitiveTest.cpp"
