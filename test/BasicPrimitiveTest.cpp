@@ -22,8 +22,53 @@ using namespace json;
 TEST(BasicPrimitiveTest, Construction)
 {
     auto primitive = makePrimitive();
-    EXPECT_EQ(primitive.type(), Type::primitive);
+    EXPECT_EQ(primitive.type(), BasicValue<char>::Type::primitive);
     EXPECT_TRUE(primitive.isPrimitive());
+}
+
+TEST(BasicPrimitiveTest, CopyConstruction)
+{
+    auto primitive = makePrimitive();
+    primitive.string("a");
+    
+    BasicValue<char> copy = primitive;
+    EXPECT_EQ(copy.string(), primitive.string());
+}
+
+TEST(BasicPrimitiveTest, MoveConstruction)
+{
+    auto primitive = makePrimitive();
+    primitive.string("a");
+    
+    BasicValue<char> moved = std::move(primitive);
+    EXPECT_EQ(moved.string(), "a");
+    EXPECT_TRUE(primitive.string().empty());
+}
+
+TEST(BasicPrimitiveTest, CopyAssignment)
+{
+    auto primitive = makePrimitive();
+    primitive.string("a");
+    
+    auto copy = makePrimitive();
+    copy.string("random");
+    copy = primitive;
+    
+    EXPECT_EQ(copy.string(), primitive.string());
+}
+
+TEST(BasicPrimitiveTest, MoveAssignment)
+{
+    auto primitive = makePrimitive();
+    primitive.string("a");
+    
+    auto moved = makePrimitive();
+    moved.string("random");
+    moved = std::move(primitive);
+    
+    
+    EXPECT_EQ(moved.string(), "a");
+    EXPECT_TRUE(primitive.string().empty());
 }
 
 TEST(BasicPrimitiveTest, ReadWrite)

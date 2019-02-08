@@ -22,8 +22,67 @@ using namespace json;
 TEST(BasicObjectTest, Construction)
 {
     auto object = makeObject();
-    EXPECT_EQ(object.type(), Type::object);
+    EXPECT_EQ(object.type(), BasicValue<char>::Type::object);
     EXPECT_TRUE(object.isObject());
+}
+
+TEST(BasicObjectTest, CopyConstruction)
+{
+    auto object = makeObject();
+    auto name = makePrimitive();
+    
+    name.string("jackson");
+    object["name"] = name;
+    
+    BasicValue<char> copy = object;
+    
+    EXPECT_EQ(object["name"].string(), copy["name"].string());
+}
+
+TEST(BasicObjectTest, MoveConstruction)
+{
+    auto object = makeObject();
+    auto name = makePrimitive();
+    
+    name.string("jackson");
+    object["name"] = name;
+    
+    BasicValue<char> moved = std::move(object);
+    
+    EXPECT_EQ(moved["name"].string(), "jackson");
+    EXPECT_EQ(object.size(), size_t(0));
+}
+
+TEST(BasicObjectTest, CopyAssignment)
+{
+    auto object = makeObject();
+    auto name = makePrimitive();
+    
+    name.string("jackson");
+    object["name"] = name;
+    
+    auto copy = makeObject();
+    copy["random data"] = makePrimitive();
+    
+    copy = object;
+    
+    EXPECT_EQ(object["name"].string(), copy["name"].string());
+}
+
+TEST(BasicObjectTest, MoveAssignment)
+{
+    auto object = makeObject();
+    auto name = makePrimitive();
+    
+    name.string("jackson");
+    object["name"] = name;
+    
+    auto moved = makeObject();
+    moved["random data"] = makePrimitive();
+    moved = std::move(object);
+    
+    EXPECT_EQ(moved["name"].string(), "jackson");
+    EXPECT_EQ(object.size(), size_t(0));
 }
 
 TEST(BasicObjectTest, ReadWriteWithMethods)
@@ -35,6 +94,8 @@ TEST(BasicObjectTest, ReadWriteWithMethods)
     object.set("name", name);
 
     ASSERT_TRUE(object.size() == 1);
+    ASSERT_TRUE(object.contains("name"));
+
     EXPECT_EQ(object.get("name").string(), name.string());
 }
 
@@ -47,6 +108,8 @@ TEST(BasicObjectTest, ReadWriteWithSubscripts)
     object["name"] = name;
 
     ASSERT_TRUE(object.size() == 1);
+    ASSERT_TRUE(object.contains("name"));
+
     EXPECT_EQ(object.get("name").string(), name.string());
 
     auto newName = makePrimitive();
@@ -54,5 +117,7 @@ TEST(BasicObjectTest, ReadWriteWithSubscripts)
     object["name"] = newName;
 
     ASSERT_TRUE(object.size() == 1);
+    ASSERT_TRUE(object.contains("name"));
+
     EXPECT_EQ(object.get("name").string(), newName.string());
 }

@@ -12,18 +12,7 @@
 #include "Json/Token.hpp"
 #include <iostream>
 
-namespace json::internals
-{
-enum class Context
-{
-    singeLineComment,
-    multiLineComment,
-    string,
-    undefined,
-};
-}
-
-namespace json
+namespace json::token
 {
 template<typename CharT>
 class Tokenizer
@@ -32,12 +21,20 @@ public:
     Tokenizer();
 
     template<typename Iter, typename Callback>
-    void tokenize(Iter begin, Iter end, const Callback &callback);
+    void tokenize(Iter begin, Iter end, Callback &callback);
 
 private:
     // Tokenizer pipeline
     // 1. Call _inspectCharacter
     // 2. Call _inspectExistingToken if _inspectCharacter returns true
+
+    enum class _Context
+    {
+        singeLineComment,
+        multiLineComment,
+        string,
+        undefined,
+    };
 
     /**
      * Inspect a letter
@@ -57,30 +54,26 @@ private:
     void _skip(int count = 1);
 
     Token<CharT> _token;
-    internals::Context _context;
+    _Context _context;
     int _skipCount;
 };
-} // namespace json
+} // namespace json::token
 
 // Implementation
 
-namespace json
+namespace json::token
 {
 template<typename CharT>
 Tokenizer<CharT>::Tokenizer()
-    : _context(internals::Context::undefined)
+    : _context(_Context::undefined)
     , _skipCount(0)
 {
 }
 
 template<typename CharT>
 template<typename Iter, typename Callback>
-void Tokenizer<CharT>::tokenize(Iter begin, Iter end, const Callback &callback)
+void Tokenizer<CharT>::tokenize(Iter begin, Iter end, Callback &callback)
 {
-    using std::bitset;
-
-    using namespace internals;
-
     bool result = true;
 
     while (begin != end)
@@ -103,7 +96,7 @@ void Tokenizer<CharT>::tokenize(Iter begin, Iter end, const Callback &callback)
     //   _token is not empty after loop is done
     if (!_token.data.empty())
     {
-        _token.type = TokenType::value;
+        _token.type = Token<CharT>::Type::value;
         callback(_token);
     }
 }
@@ -112,7 +105,6 @@ template<typename CharT>
 template<typename Callback>
 bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
 {
-    using namespace internals;
     using namespace json;
 
     switch (letter)
@@ -124,13 +116,13 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     case keywords::endline<CharT>:
     {
         // \n represnets the end of a single line comment
-        if (_context == Context::singeLineComment)
+        if (_context == _Context::singeLineComment)
         {
             callback(_token);
             _reset();
         }
         // \n does not mean the end of a multiline comment
-        if (_context == Context::multiLineComment)
+        if (_context == _Context::multiLineComment)
         {
             _token.append(letter);
         }
@@ -139,9 +131,9 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case keywords::space<CharT>:
     {
-        if (_context == Context::singeLineComment
-            || _context == Context::multiLineComment
-            || _context == Context::string)
+        if (_context == _Context::singeLineComment
+            || _context == _Context::multiLineComment
+            || _context == _Context::string)
         {
             _token.append(letter);
         }
@@ -150,16 +142,16 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case keywords::tab<CharT>:
     {
-        if (_context == Context::string)
+        if (_context == _Context::string)
         {
             _token.append(letter);
         }
-        
+
         return false;
     }
     case keywords::beginObject<CharT>:
     {
-        _token.type = TokenType::beginObject;
+        _token.type = Token<CharT>::Type::beginObject;
         callback(_token);
         _reset();
 
@@ -169,13 +161,13 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     {
         if (!_token.data.empty())
         {
-            _token.type = TokenType::value;
+            _token.type = Token<CharT>::Type::value;
             callback(_token);
 
             _reset();
         }
 
-        _token.type = TokenType::endObject;
+        _token.type = Token<CharT>::Type::endObject;
         callback(_token);
         _reset();
 
@@ -183,7 +175,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case keywords::beginArray<CharT>:
     {
-        _token.type = TokenType::beginArray;
+        _token.type = Token<CharT>::Type::beginArray;
         callback(_token);
         _reset();
 
@@ -193,13 +185,13 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     {
         if (!_token.data.empty())
         {
-            _token.type = TokenType::value;
+            _token.type = Token<CharT>::Type::value;
             callback(_token);
 
             _reset();
         }
 
-        _token.type = TokenType::endArray;
+        _token.type = Token<CharT>::Type::endArray;
         callback(_token);
         _reset();
 
@@ -207,7 +199,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case keywords::colon<CharT>:
     {
-        _token.type = TokenType::key;
+        _token.type = Token<CharT>::Type::key;
         callback(_token);
         _reset();
 
@@ -217,7 +209,7 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     {
         if (!_token.data.empty())
         {
-            _token.type = TokenType::value;
+            _token.type = Token<CharT>::Type::value;
             callback(_token);
             _reset();
         }
@@ -226,21 +218,13 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case keywords::singleQuote<CharT>:
     {
-        // if (_context == Context::string)
-        // {
-        //     _context = Context::undefined;
-        // }
-        // else
-        // {
-        //     _context = Context::string;
-        // }
         switch (_context)
         {
-        case Context::string:
-            _context = Context::undefined;
+        case _Context::string:
+            _context = _Context::undefined;
             break;
         default:
-            _context = Context::string;
+            _context = _Context::string;
             break;
         }
 
@@ -248,13 +232,13 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case keywords::doubleQuote<CharT>:
     {
-        if (_context == Context::string)
+        if (_context == _Context::string)
         {
-            _context = Context::undefined;
+            _context = _Context::undefined;
         }
         else
         {
-            _context = Context::string;
+            _context = _Context::string;
         }
 
         return false;
@@ -272,27 +256,26 @@ template<typename CharT>
 template<typename Callback>
 bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
 {
-    using namespace internals;
     using namespace json;
 
     if (_token.data == keywords::singleLineComment<CharT>)
     {
-        if (_context != Context::string)
+        if (_context != _Context::string)
         {
             _token.reset();
-            _token.type = TokenType::comment;
-            _context = Context::singeLineComment;
+            _token.type = Token<CharT>::Type::comment;
+            _context = _Context::singeLineComment;
             _skip();
         }
     }
     else if (_token.data == keywords::beginMultiLineComment<CharT>)
     {
-        _context = Context::multiLineComment;
+        _context = _Context::multiLineComment;
         _token.reset();
-        _token.type = TokenType::comment;
+        _token.type = Token<CharT>::Type::comment;
     }
 
-    if (_context == Context::multiLineComment)
+    if (_context == _Context::multiLineComment)
     {
         auto found
             = _token.data.rfind(keywords::endMultiLineComment<CharT>.data());
@@ -312,10 +295,9 @@ bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
 template<typename CharT>
 void Tokenizer<CharT>::_reset()
 {
-    using namespace internals;
 
     _token.reset();
-    _context = Context::undefined;
+    _context = _Context::undefined;
 }
 
 template<typename CharT>
@@ -323,4 +305,4 @@ void Tokenizer<CharT>::_skip(int count)
 {
     _skipCount += count;
 }
-} // namespace json
+} // namespace json::token

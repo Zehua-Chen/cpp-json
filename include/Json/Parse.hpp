@@ -8,10 +8,36 @@
 
 #pragma once
 
+#include "Json/Assembler.hpp"
 #include "Json/BasicValue.hpp"
+#include "Json/Tokenizer.hpp"
+#include <utility>
+
+// Declarations
 
 namespace json
 {
 template<typename Iter, typename CharT = char>
 BasicValue<CharT> parse(Iter begin, Iter end);
+} // namespace json
+
+// Implementations
+
+namespace json
+{
+template<typename Iter, typename CharT>
+BasicValue<CharT> parse(Iter begin, Iter end)
+{
+    using json::assemble::Assembler;
+    using json::token::Tokenizer;
+
+    Tokenizer<CharT> tokenizer;
+    Assembler<CharT> assembler;
+
+    tokenizer.tokenize(begin, end, assembler);
+
+    BasicValue<CharT> root = std::move(assembler.root());
+
+    return root;
+}
 } // namespace json
