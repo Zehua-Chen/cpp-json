@@ -7,7 +7,7 @@
 //
 
 #include "gtest/gtest.h"
-#include "Json/Parse.hpp"
+#include "Json/Json.hpp"
 #include <iostream>
 #include <string>
 #include <fstream>
