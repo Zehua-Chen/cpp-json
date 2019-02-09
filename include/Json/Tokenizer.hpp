@@ -267,26 +267,46 @@ bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
             _context = _Context::singeLineComment;
             _skip();
         }
+        
+        return false;
     }
     else if (_token.data == keywords::beginMultiLineComment<CharT>)
     {
         _context = _Context::multiLineComment;
         _token.reset();
         _token.type = Token<CharT>::Type::comment;
+        
+        return false;
     }
 
     if (_context == _Context::multiLineComment)
     {
-        auto found
-            = _token.data.rfind(keywords::endMultiLineComment<CharT>.data());
         // If ends with */
-        if (found != std::basic_string_view<CharT>::npos)
+        std::basic_string<CharT> &buffer = _token.data;
+
+        if (buffer.size() >= 2
+            && buffer[buffer.size() - 2]
+                == keywords::endMultiLineComment<CharT>[0]
+            && buffer[buffer.size() - 1]
+                == keywords::endMultiLineComment<CharT>[1])
         {
             // remove trailing */
-            _token.data.erase(found);
+            buffer.pop_back();
+            buffer.pop_back();
+
             callback(_token);
             _reset();
         }
+        // auto found
+        //     = _token.data.rfind(keywords::endMultiLineComment<CharT>.data());
+
+        // if (found != std::basic_string_view<CharT>::npos)
+        // {
+        //     // remove trailing */
+        //     _token.data.erase(found);
+        //     callback(_token);
+        //     _reset();
+        // }
     }
 
     return false;
