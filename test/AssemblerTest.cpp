@@ -26,6 +26,15 @@ using namespace json::assemble;
 using TType = Token<char>::Type;
 using VType = BasicValue<char>::Type;
 
+TEST(AssemblerTest, Null)
+{
+    Assembler<char> assembler;
+    BasicValue<char> &root = assembler.root();
+    
+    ASSERT_EQ(root.type(), VType::primitive);
+    EXPECT_TRUE(root.string().empty());
+}
+
 TEST(AssemblerTest, Simple)
 {
     // Simple object

@@ -18,14 +18,40 @@
 
 namespace json::assemble
 {
+/**
+ * Phase 2 of the parsing process, take tokens and assemble tokens into a
+ * json value.
+ */
 template<typename CharT>
 class Assembler
 {
 public:
+    /**
+     * Take a token and use the token to assemble the json value
+     * @param token the token used to assemble.
+     */
     void operator()(const json::token::Token<CharT> &token);
+
+    /**
+     * Take a token and use the token to assemble the json value
+     * @param token the token used to assemble.
+     */
     void takeToken(const json::token::Token<CharT> &token);
 
+    /**
+     * The root json value
+     * @returns a reference to the root of the json value. If the the json
+     * tree is empty, append a new json null primitive to the tree and returns
+     * it.
+     */
     BasicValue<CharT> &root();
+
+    /**
+     * The root json value
+     * @returns a constant reference to the root of the json value. If the the
+     * json tree is empty, append a new json null primitive to the tree and
+     * returns it.
+     */
     const BasicValue<CharT> &root() const;
 
 private:
@@ -49,6 +75,7 @@ private:
         BasicValue<CharT> value;
         std::basic_string<CharT> name;
 
+        _Scope(_VType type);
         _Scope(_VType type, std::basic_string<CharT> &&name);
         _Scope(BasicValue<CharT> &&value, std::basic_string<CharT> &&name);
 
@@ -58,7 +85,8 @@ private:
     };
 
     void _finishTopItem();
-    void _assignItemToTopOfScope(_V &&value, _Name *name = nullptr);
+    void _embedValueInTopOfScopes(_V &&value, _Name &&name);
+    void _embedScopeInTopOfScopes(_Scope &&scope);
 
     std::basic_string<CharT> _key;
     std::stack<_Scope> _stack;
@@ -69,6 +97,13 @@ private:
 
 namespace json::assemble
 {
+    
+template<typename CharT>
+Assembler<CharT>::_Scope::_Scope(_VType type)
+    : value(type)
+{
+}
+
 template<typename CharT>
 Assembler<CharT>::_Scope::_Scope(_VType type, std::basic_string<CharT> &&name)
     : value(type)
@@ -158,8 +193,8 @@ void Assembler<CharT>::takeToken(const json::token::Token<CharT> &token)
         {
             BasicValue<CharT> primitive = makePrimitive<CharT>();
             primitive.string(token.data);
-            
-            _assignItemToTopOfScope(std::move(primitive), &_key);
+
+            _embedValueInTopOfScopes(std::move(primitive), std::move(_key));
         }
 
         break;
@@ -174,12 +209,22 @@ void Assembler<CharT>::takeToken(const json::token::Token<CharT> &token)
 template<typename CharT>
 json::BasicValue<CharT> &Assembler<CharT>::root()
 {
+    if (_stack.empty())
+    {
+        _stack.emplace(_VType::primitive);
+    }
+    
     return _stack.top().value;
 }
 
 template<typename CharT>
 const json::BasicValue<CharT> &Assembler<CharT>::root() const
 {
+    if (_stack.empty())
+    {
+        _stack.emplace(_VType::primitive);
+    }
+    
     return _stack.top().value;
 }
 
@@ -189,19 +234,19 @@ void Assembler<CharT>::_finishTopItem()
     _Scope current = std::move(_stack.top());
     _stack.pop();
 
-    _assignItemToTopOfScope(std::move(current.value), &current.name);
+    _embedScopeInTopOfScopes(std::move(current));
 }
 
 template<typename CharT>
-void Assembler<CharT>::_assignItemToTopOfScope(_V &&value, _Name *name)
+void Assembler<CharT>::_embedValueInTopOfScopes(_V &&value, _Name &&name)
 {
     _Scope &top = _stack.top();
     _V &topValue = top.value;
-    
+
     switch (topValue.type())
     {
     case _VType::object:
-        topValue[*name] = std::move(value);
+        topValue[std::move(name)] = std::move(value);
         break;
     case _VType::array:
         topValue.append(std::move(value));
@@ -209,5 +254,11 @@ void Assembler<CharT>::_assignItemToTopOfScope(_V &&value, _Name *name)
     default:
         break;
     }
+}
+
+template<typename CharT>
+void Assembler<CharT>::_embedScopeInTopOfScopes(_Scope &&scope)
+{
+    _embedValueInTopOfScopes(std::move(scope.value), std::move(scope.name));
 }
 } // namespace json::assemble
