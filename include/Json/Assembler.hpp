@@ -24,15 +24,25 @@ class Assembler
 public:
     void operator()(const json::token::Token<CharT> &token);
     void takeToken(const json::token::Token<CharT> &token);
-    
+
     BasicValue<CharT> &root();
     const BasicValue<CharT> &root() const;
 
 private:
     /**
-     * _VType stands for Value Type, "_" prefix denotes private type
+     * _V stands for Value, "_" prefix denotes private type
+     */
+    using _V = BasicValue<CharT>;
+
+    /**
+     * _VType stands for Value::Type, "_" prefix denotes private type
      */
     using _VType = typename BasicValue<CharT>::Type;
+
+    /**
+     * The name given to values, "_" prefix denotes private type
+     */
+    using _Name = std::basic_string<CharT>;
 
     struct _Scope
     {
@@ -46,6 +56,9 @@ private:
 
         bool isAnonymous() const;
     };
+
+    void _finishTopItem();
+    void _assignItemToTopOfScope(_V &&value, _Name *name = nullptr);
 
     std::basic_string<CharT> _key;
     std::stack<_Scope> _stack;
@@ -113,23 +126,7 @@ void Assembler<CharT>::takeToken(const json::token::Token<CharT> &token)
         // Cannot touch the last one, needs it to return the root
         if (_stack.size() > size_t{ 1 })
         {
-            _Scope current = std::move(_stack.top());
-            _stack.pop();
-
-            _Scope &next = _stack.top();
-            BasicValue<CharT> &nextValue = next.value;
-
-            switch (nextValue.type())
-            {
-            case _VType::object:
-                nextValue[current.name] = std::move(current.value);
-                break;
-            case _VType::array:
-                nextValue.append(std::move(current.value));
-                break;
-            default:
-                break;
-            }
+            _finishTopItem();
         }
 
         break;
@@ -139,22 +136,7 @@ void Assembler<CharT>::takeToken(const json::token::Token<CharT> &token)
         // Cannot touch the last one, needs it to return the root
         if (_stack.size() > size_t{ 1 })
         {
-            _Scope current = std::move(_stack.top());
-            _stack.pop();
-
-            _Scope &next = _stack.top();
-            BasicValue<CharT> &nextValue = next.value;
-
-            switch (nextValue.type())
-            {
-            case _VType::object:
-                nextValue[current.name] = std::move(current.value);
-                break;
-            case _VType::array:
-                nextValue.append(std::move(current.value));
-            default:
-                break;
-            }
+            _finishTopItem();
         }
 
         break;
@@ -174,32 +156,10 @@ void Assembler<CharT>::takeToken(const json::token::Token<CharT> &token)
         }
         else
         {
-            _Scope &top = _stack.top();
-            BasicValue<CharT> &topValue = top.value;
-
-            switch (topValue.type())
-            {
-            case _VType::object:
-            {
-                // Assign values to corresponding pairs
-                BasicValue<CharT> value = makePrimitive<CharT>();
-                value.string(token.data);
-
-                topValue[_key] = std::move(value);
-                _key.clear();
-                break;
-            }
-            case _VType::array:
-            {
-                BasicValue<CharT> value = makePrimitive<CharT>();
-                value.string(token.data);
-
-                topValue.append(std::move(value));
-                break;
-            }
-            default:
-                break;
-            }
+            BasicValue<CharT> primitive = makePrimitive<CharT>();
+            primitive.string(token.data);
+            
+            _assignItemToTopOfScope(std::move(primitive), &_key);
         }
 
         break;
@@ -221,5 +181,33 @@ template<typename CharT>
 const json::BasicValue<CharT> &Assembler<CharT>::root() const
 {
     return _stack.top().value;
+}
+
+template<typename CharT>
+void Assembler<CharT>::_finishTopItem()
+{
+    _Scope current = std::move(_stack.top());
+    _stack.pop();
+
+    _assignItemToTopOfScope(std::move(current.value), &current.name);
+}
+
+template<typename CharT>
+void Assembler<CharT>::_assignItemToTopOfScope(_V &&value, _Name *name)
+{
+    _Scope &top = _stack.top();
+    _V &topValue = top.value;
+    
+    switch (topValue.type())
+    {
+    case _VType::object:
+        topValue[*name] = std::move(value);
+        break;
+    case _VType::array:
+        topValue.append(std::move(value));
+        break;
+    default:
+        break;
+    }
 }
 } // namespace json::assemble
