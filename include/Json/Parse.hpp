@@ -17,7 +17,7 @@
 
 namespace json
 {
-template<typename Iter, typename CharT = char>
+template<typename CharT = char, typename Iter>
 BasicValue<CharT> parse(Iter begin, Iter end);
 } // namespace json
 
@@ -25,7 +25,7 @@ BasicValue<CharT> parse(Iter begin, Iter end);
 
 namespace json
 {
-template<typename Iter, typename CharT>
+template<typename CharT, typename Iter>
 BasicValue<CharT> parse(Iter begin, Iter end)
 {
     using json::assemble::Assembler;

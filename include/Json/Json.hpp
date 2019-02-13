@@ -18,4 +18,7 @@
 namespace json 
 {
     using Value = BasicValue<char>;
+    using U16Value = BasicValue<char16_t>;
+    using U32Value = BasicValue<char32_t>;
+    using WValue = BasicValue<wchar_t>;
 }

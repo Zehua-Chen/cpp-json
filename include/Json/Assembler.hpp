@@ -167,7 +167,7 @@ void Assembler<CharT>::takeToken(const json::token::Token<CharT> &token)
         // If stack is empty, and we have an array, we have a single primitive
         if (_stack.empty())
         {
-            BasicValue<char> primtive = makePrimitive();
+            BasicValue<CharT> primtive = makePrimitive<CharT>();
             primtive.string(token.data);
 
             _stack.emplace(std::move(primtive), std::move(_key));
@@ -182,7 +182,7 @@ void Assembler<CharT>::takeToken(const json::token::Token<CharT> &token)
             case _VType::object:
             {
                 // Assign values to corresponding pairs
-                BasicValue<CharT> value = makePrimitive();
+                BasicValue<CharT> value = makePrimitive<CharT>();
                 value.string(token.data);
 
                 topValue[_key] = std::move(value);
@@ -191,7 +191,7 @@ void Assembler<CharT>::takeToken(const json::token::Token<CharT> &token)
             }
             case _VType::array:
             {
-                BasicValue<CharT> value = makePrimitive();
+                BasicValue<CharT> value = makePrimitive<CharT>();
                 value.string(token.data);
 
                 topValue.append(std::move(value));
