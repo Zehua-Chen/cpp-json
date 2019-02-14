@@ -17,6 +17,11 @@
 
 namespace json
 {
+/**
+ * Parse a json value stored in a string in the range [begin, end)
+ * @param begin inclusive begin
+ * @param end exclusive end
+ */
 template<typename CharT = char, typename Iter>
 BasicValue<CharT> parse(Iter begin, Iter end);
 } // namespace json
@@ -25,6 +30,11 @@ BasicValue<CharT> parse(Iter begin, Iter end);
 
 namespace json
 {
+/**
+ * Parse a json value stored in a string in the range [begin, end)
+ * @param begin inclusive begin
+ * @param end exclusive end
+ */
 template<typename CharT, typename Iter>
 BasicValue<CharT> parse(Iter begin, Iter end)
 {

@@ -30,24 +30,52 @@ struct Token
         undefined,
     };
 
+    /**
+     * Create a token with type initialized to undefined.
+     */
     Token();
-    Token(
-        Type type,
-        std::basic_string<CharT> data = std::basic_string<CharT>{});
 
+    /**
+     * Create a copy of another token
+     * @param other another token
+     */
     Token(const Token<CharT> &other);
+
+    /**
+     * Transfer the resources of anther token
+     * @param other another token
+     */
     Token(Token<CharT> &&other);
 
-    void append(CharT letter);
-    void reset();
+    /**
+     * Transfer the resources of anther token
+     * @param type type of the token
+     * @param data data of the token
+     */
+    Token(
+        Type type, std::basic_string<CharT> data = std::basic_string<CharT>{});
 
+    /**
+     * See if two tokens are equal
+     * @param other another token
+     */
     bool operator==(const Token<CharT> &other) const;
+
+    /**
+     * See if two tokens are not equal
+     * @param other another token
+     */
     bool operator!=(const Token<CharT> &other) const;
 
     Type type;
     std::basic_string<CharT> data;
 };
 
+/**
+ * Print token to out stream
+ * @param out the out stream
+ * @param token the token to print
+ */
 template<typename CharT>
 std::basic_ostream<CharT> &
 operator<<(std::basic_ostream<CharT> &out, const Token<CharT> &token);
@@ -58,6 +86,11 @@ operator<<(std::basic_ostream<CharT> &out, const Token<CharT> &token);
 
 namespace json::token
 {
+/**
+ * Print token to out stream
+ * @param out the out stream
+ * @param token the token to print
+ */
 template<typename CharT>
 std::basic_ostream<CharT> &
 operator<<(std::basic_ostream<CharT> &out, const Token<CharT> &token)
@@ -105,18 +138,19 @@ operator<<(std::basic_ostream<CharT> &out, const Token<CharT> &token)
     return out;
 }
 
+/**
+ * Create a token with type initialized to undefined.
+ */
 template<typename CharT>
 Token<CharT>::Token()
+    : type(Type::undefined)
 {
 }
 
-template<typename CharT>
-Token<CharT>::Token(Type type, std::basic_string<CharT> data)
-    : type(type)
-    , data(data)
-{
-}
-
+/**
+ * Create a copy of another token
+ * @param other another token
+ */
 template<typename CharT>
 Token<CharT>::Token(const Token<CharT> &other)
     : type(other.type)
@@ -124,6 +158,10 @@ Token<CharT>::Token(const Token<CharT> &other)
 {
 }
 
+/**
+ * Transfer the resources of anther token
+ * @param other another token
+ */
 template<typename CharT>
 Token<CharT>::Token(Token<CharT> &&other)
     : type(other.type)
@@ -131,19 +169,22 @@ Token<CharT>::Token(Token<CharT> &&other)
 {
 }
 
+/**
+ * Transfer the resources of anther token
+ * @param type type of the token
+ * @param data data of the token
+ */
 template<typename CharT>
-void Token<CharT>::append(CharT letter)
+Token<CharT>::Token(Type type, std::basic_string<CharT> data)
+    : type(type)
+    , data(data)
 {
-    data.push_back(letter);
 }
 
-template<typename CharT>
-void Token<CharT>::reset()
-{
-    data.clear();
-    type = Type::undefined;
-}
-
+/**
+ * See if two tokens are equal
+ * @param other another token
+ */
 template<typename CharT>
 bool Token<CharT>::operator==(const Token<CharT> &other) const
 {
@@ -160,6 +201,10 @@ bool Token<CharT>::operator==(const Token<CharT> &other) const
     return true;
 }
 
+/**
+ * See if two tokens are not equal
+ * @param other another token
+ */
 template<typename CharT>
 bool Token<CharT>::operator!=(const Token<CharT> &other) const
 {
