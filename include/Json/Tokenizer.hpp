@@ -252,7 +252,18 @@ void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
         _state = _State::maybeComment;
         _token.data += letter;
         break;
+    case keywords::space<CharT>:
+        break;
+    case keywords::tab<CharT>:
+        break;
+    case keywords::star<CharT>:
+        break;
+    case keywords::endline<CharT>:
+        break;
+    case keywords::carriageReturn<CharT>:
+        break;
     default:
+        _token.data += letter;
         break;
     }
 }
