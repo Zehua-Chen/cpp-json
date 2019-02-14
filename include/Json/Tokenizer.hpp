@@ -15,32 +15,30 @@
 
 namespace json::token
 {
+/**
+ * The tokenizer works like a state machine.
+ *
+ * At X state, _handleXState method will be called to handle the input at
+ * X state.
+ */
 template<typename CharT>
 class Tokenizer
 {
 public:
     // Tokenizer();
 
+    /**
+     * Tokenize strings in [begin, end), and spit the input through callback
+     * @param begin inclusive start of string
+     * @param end exclusive end of string
+     * @param callback a function object that takes Token as parameter.
+     */
     template<typename Iter, typename Callback>
     void tokenize(Iter begin, Iter end, Callback &callback);
 
 private:
-    // Tokenizer pipeline
-    // 1. Call _inspectCharacter
-    // 2. Call _inspectExistingToken if _inspectCharacter returns true
-
-    enum class _Context
-    {
-        singleLineComment,
-        multiLineComment,
-        singleQuoteString,
-        doubleQuoteString,
-        undefined,
-    };
-
     enum class _State
     {
-        undefined,
         singleQuoteString,
         doubleQuoteString,
         nonStringLiteral,
@@ -48,41 +46,51 @@ private:
         singleLineComment,
         multiLineComment,
         multiLineCommentEnding,
+        other,
     };
 
+    /**
+     * Given a the current state, invoke the appropriate state handler
+     * @param letter the input
+     * @param callback the callback through which tokens are spit out.
+     */
     template<typename Callback>
-    void _handleUndefinedState(CharT letter, Callback &callback);
+    void _inspectLetter(CharT letter, Callback &callback);
+
+    // State handlers
+
+    template<typename Callback>
+    void _handleOtherState(CharT letter, Callback &callback);
 
     template<typename Callback>
     void _handleSingleQuoteStringState(CharT letter, Callback &callback);
 
     template<typename Callback>
     void _handleDoubleQuoteStringState(CharT letter, Callback &callback);
-    
+
     template<typename Callback>
     void _handleNonStringLiteralState(CharT letter, Callback &callback);
-    
+
     template<typename Callback>
     void _handleMaybeCommentState(CharT letter, Callback &callback);
-    
+
     template<typename Callback>
     void _handleSingleLineCommentState(CharT letter, Callback &callback);
-    
+
     template<typename Callback>
     void _handleMultiLineCommentState(CharT letter, Callback &callback);
-    
+
     template<typename Callback>
     void _handleMultiLineCommentEndingState(CharT letter, Callback &callback);
 
-    template<typename Callback>
-    void _inspectLetter(CharT letter, Callback &callback);
-
+    /**
+     * Determine if a letter can be inside a string literals
+     * @returns true if letter is between A-Z, a-z, 0-9
+     */
     bool _canLetterBeNonStringLiteral(CharT letter);
-    
-    void _reset();
 
     Token<CharT> _token;
-    _State _state = _State::undefined;
+    _State _state = _State::other;
 };
 } // namespace json::token
 
@@ -90,6 +98,13 @@ private:
 
 namespace json::token
 {
+
+/**
+ * Tokenize strings in [begin, end), and spit the input through callback
+ * @param begin inclusive start of string
+ * @param end exclusive end of string
+ * @param callback a function object that takes Token as parameter.
+ */
 template<typename CharT>
 template<typename Iter, typename Callback>
 void Tokenizer<CharT>::tokenize(Iter begin, Iter end, Callback &callback)
@@ -112,14 +127,19 @@ void Tokenizer<CharT>::tokenize(Iter begin, Iter end, Callback &callback)
     }
 }
 
+/**
+ * Given a the current state, invoke the appropriate state handler
+ * @param letter the input
+ * @param callback the callback through which tokens are spit out.
+ */
 template<typename CharT>
 template<typename Callback>
 void Tokenizer<CharT>::_inspectLetter(CharT letter, Callback &callback)
 {
     switch (_state)
     {
-    case _State::undefined:
-        _handleUndefinedState(letter, callback);
+    case _State::other:
+        _handleOtherState(letter, callback);
         break;
     case _State::singleQuoteString:
         _handleSingleQuoteStringState(letter, callback);
@@ -147,10 +167,10 @@ void Tokenizer<CharT>::_inspectLetter(CharT letter, Callback &callback)
 
 template<typename CharT>
 template<typename Callback>
-void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
+void Tokenizer<CharT>::_handleOtherState(CharT letter, Callback &callback)
 {
     using namespace json;
-    
+
     switch (letter)
     {
     case keywords::leftCurlyBrace<CharT>:
@@ -178,7 +198,6 @@ void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
     {
         _token.type = Token<CharT>::Type::beginArray;
         callback(_token);
-        _reset();
 
         return;
     }
@@ -193,7 +212,6 @@ void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
 
         _token.type = Token<CharT>::Type::endArray;
         callback(_token);
-        _reset();
 
         return;
     }
@@ -220,27 +238,27 @@ void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
     {
         switch (_state)
         {
-        case _State::undefined:
+        case _State::other:
             _state = _State::singleQuoteString;
             break;
         case _State::singleQuoteString:
-            _state = _State::undefined;
+            _state = _State::other;
             break;
         default:
             break;
         }
-        
+
         return;
     }
     case keywords::doubleQuote<CharT>:
     {
         switch (_state)
         {
-        case _State::undefined:
+        case _State::other:
             _state = _State::doubleQuoteString;
             break;
         case _State::doubleQuoteString:
-            _state = _State::undefined;
+            _state = _State::other;
             break;
         default:
             break;
@@ -261,7 +279,7 @@ void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
     default:
         break;
     }
-    
+
     if (_canLetterBeNonStringLiteral(letter))
     {
         _token.data += letter;
@@ -277,7 +295,7 @@ void Tokenizer<CharT>::_handleSingleQuoteStringState(
     switch (letter)
     {
     case keywords::singleQuote<CharT>:
-        _state = _State::undefined;
+        _state = _State::other;
         break;
     default:
         _token.data += letter;
@@ -293,7 +311,7 @@ void Tokenizer<CharT>::_handleDoubleQuoteStringState(
     switch (letter)
     {
     case keywords::doubleQuote<CharT>:
-        _state = _State::undefined;
+        _state = _State::other;
         break;
     default:
         _token.data += letter;
@@ -303,16 +321,19 @@ void Tokenizer<CharT>::_handleDoubleQuoteStringState(
 
 template<typename CharT>
 template<typename Callback>
-void Tokenizer<CharT>::_handleNonStringLiteralState(CharT letter, Callback &callback)
+void Tokenizer<CharT>::_handleNonStringLiteralState(
+    CharT letter, Callback &callback)
 {
     if (_canLetterBeNonStringLiteral(letter))
     {
         _token.data += letter;
     }
-    else 
+    else
     {
-        _state = _State::undefined;
-        _handleUndefinedState(letter, callback);
+        // Due to the fact that non string literals do not have border letters,
+        // the next letter cannot be discarded.
+        _state = _State::other;
+        _handleOtherState(letter, callback);
     }
 }
 
@@ -332,7 +353,7 @@ void Tokenizer<CharT>::_handleMaybeCommentState(
         _token.data.clear();
         break;
     default:
-        _state = _State::undefined;
+        _state = _State::other;
         _token.data += letter;
         break;
     }
@@ -340,12 +361,13 @@ void Tokenizer<CharT>::_handleMaybeCommentState(
 
 template<typename CharT>
 template<typename Callback>
-void Tokenizer<CharT>::_handleSingleLineCommentState(CharT letter, Callback &callback)
+void Tokenizer<CharT>::_handleSingleLineCommentState(
+    CharT letter, Callback &callback)
 {
     switch (letter)
     {
     case keywords::endline<CharT>:
-        _state = _State::undefined;
+        _state = _State::other;
         _token.type = Token<CharT>::Type::comment;
         callback(_token);
         _token.data.clear();
@@ -360,7 +382,8 @@ void Tokenizer<CharT>::_handleSingleLineCommentState(CharT letter, Callback &cal
 
 template<typename CharT>
 template<typename Callback>
-void Tokenizer<CharT>::_handleMultiLineCommentState(CharT letter, Callback &callback)
+void Tokenizer<CharT>::_handleMultiLineCommentState(
+    CharT letter, Callback &callback)
 {
     switch (letter)
     {
@@ -378,13 +401,14 @@ void Tokenizer<CharT>::_handleMultiLineCommentState(CharT letter, Callback &call
 
 template<typename CharT>
 template<typename Callback>
-void Tokenizer<CharT>::_handleMultiLineCommentEndingState(CharT letter, Callback &callback)
+void Tokenizer<CharT>::_handleMultiLineCommentEndingState(
+    CharT letter, Callback &callback)
 {
     switch (letter)
     {
     case keywords::backSlash<CharT>:
         _token.data.pop_back();
-        _state = _State::undefined;
+        _state = _State::other;
         _token.type = Token<CharT>::Type::comment;
         callback(_token);
         _token.data.clear();
@@ -396,30 +420,28 @@ void Tokenizer<CharT>::_handleMultiLineCommentEndingState(CharT letter, Callback
     }
 }
 
+/**
+ * Determine if a letter can be inside a string literals
+ * @returns true if letter is between A-Z, a-z, 0-9
+ */
 template<typename CharT>
 bool Tokenizer<CharT>::_canLetterBeNonStringLiteral(CharT letter)
 {
-    if (letter >= keywords::A<CharT> && letter <= keywords::Z<CharT> )
+    if (letter >= keywords::A<CharT> && letter <= keywords::Z<CharT>)
     {
         return true;
     }
-    
+
     if (letter >= keywords::a<CharT> && letter <= keywords::z<CharT>)
     {
         return true;
     }
-    
+
     if (letter >= keywords::zero<CharT> && letter <= keywords::nine<CharT>)
     {
         return true;
     }
-    
-    return false;
-}
 
-template<typename CharT>
-void Tokenizer<CharT>::_reset()
-{
-    _token.data.clear();
+    return false;
 }
 } // namespace json::token
