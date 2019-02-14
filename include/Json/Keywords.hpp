@@ -51,6 +51,12 @@ template<typename CharT>
 inline constexpr CharT doubleQuote{};
 
 template<typename CharT>
+inline constexpr CharT backSlash{};
+
+template<typename CharT>
+inline constexpr CharT star{};
+
+template<typename CharT>
 inline const std::basic_string_view<CharT> singleLineComment{};
 
 template<typename CharT>
@@ -96,6 +102,12 @@ inline constexpr char singleQuote<char>{ '\'' };
 
 template<>
 inline constexpr char doubleQuote<char>{ '\"' };
+
+template<>
+inline constexpr char backSlash<char>{ '/' };
+
+template<>
+inline constexpr char star<char>{ '*' };
 
 template<>
 inline const std::basic_string_view<char> singleLineComment<char>{ "//" };
@@ -145,13 +157,25 @@ template<>
 inline constexpr char16_t doubleQuote<char16_t>{ u'\"' };
 
 template<>
-inline const std::basic_string_view<char16_t> singleLineComment<char16_t>{ u"//" };
+inline constexpr char16_t backSlash<char16_t>{ u'/' };
 
 template<>
-inline const std::basic_string_view<char16_t> beginMultiLineComment<char16_t>{ u"/*" };
+inline constexpr char16_t star<char16_t>{ u'*' };
 
 template<>
-inline const std::basic_string_view<char16_t> endMultiLineComment<char16_t>{ u"*/" };
+inline const std::basic_string_view<char16_t> singleLineComment<char16_t>{
+    u"//"
+};
+
+template<>
+inline const std::basic_string_view<char16_t> beginMultiLineComment<char16_t>{
+    u"/*"
+};
+
+template<>
+inline const std::basic_string_view<char16_t> endMultiLineComment<char16_t>{
+    u"*/"
+};
 
 // utf32 Specialization
 
@@ -192,13 +216,25 @@ template<>
 inline constexpr char32_t doubleQuote<char32_t>{ U'\"' };
 
 template<>
-inline const std::basic_string_view<char32_t> singleLineComment<char32_t>{ U"//" };
+inline constexpr char32_t backSlash<char32_t>{ U'/' };
 
 template<>
-inline const std::basic_string_view<char32_t> beginMultiLineComment<char32_t>{ U"/*" };
+inline constexpr char32_t star<char32_t>{ U'*' };
 
 template<>
-inline const std::basic_string_view<char32_t> endMultiLineComment<char32_t>{ U"*/" };
+inline const std::basic_string_view<char32_t> singleLineComment<char32_t>{
+    U"//"
+};
+
+template<>
+inline const std::basic_string_view<char32_t> beginMultiLineComment<char32_t>{
+    U"/*"
+};
+
+template<>
+inline const std::basic_string_view<char32_t> endMultiLineComment<char32_t>{
+    U"*/"
+};
 
 // wchar_t Specialization
 
@@ -239,11 +275,23 @@ template<>
 inline constexpr wchar_t doubleQuote<wchar_t>{ L'\"' };
 
 template<>
-inline const std::basic_string_view<wchar_t> singleLineComment<wchar_t>{ L"//" };
+inline constexpr wchar_t backSlash<wchar_t>{ L'/' };
 
 template<>
-inline const std::basic_string_view<wchar_t> beginMultiLineComment<wchar_t>{ L"/*" };
+inline constexpr wchar_t star<wchar_t>{ L'*' };
 
 template<>
-inline const std::basic_string_view<wchar_t> endMultiLineComment<wchar_t>{ L"*/" };
+inline const std::basic_string_view<wchar_t> singleLineComment<wchar_t>{
+    L"//"
+};
+
+template<>
+inline const std::basic_string_view<wchar_t> beginMultiLineComment<wchar_t>{
+    L"/*"
+};
+
+template<>
+inline const std::basic_string_view<wchar_t> endMultiLineComment<wchar_t>{
+    L"*/"
+};
 } // namespace json::keywords

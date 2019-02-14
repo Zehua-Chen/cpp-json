@@ -11,6 +11,7 @@
 #include "Json/Keywords.hpp"
 #include "Json/Token.hpp"
 #include <iostream>
+#include <type_traits>
 
 namespace json::token
 {
@@ -18,7 +19,7 @@ template<typename CharT>
 class Tokenizer
 {
 public:
-    Tokenizer();
+    // Tokenizer();
 
     template<typename Iter, typename Callback>
     void tokenize(Iter begin, Iter end, Callback &callback);
@@ -37,27 +38,52 @@ private:
         undefined,
     };
 
-    /**
-     * Inspect a letter
-     * @returns true if further action is needed
-     */
-    template<typename Callback>
-    bool _inspectCharacter(CharT letter, Callback &callback);
+    enum class _State
+    {
+        undefined,
+        singleQuoteString,
+        doubleQuoteString,
+        maybeComment,
+        singleLineComment,
+        multiLineComment,
+        multiLineCommentEnding,
+    };
 
-    /**
-     * Inspect existing token
-     * @returns true if further action is needed
-     */
     template<typename Callback>
-    bool _inspectExistingToken(Callback &callback);
+    void _handleUndefinedState(CharT letter, Callback &callback);
+
+    template<typename Callback>
+    void _handleSingleQuoteStringState(CharT letter, Callback &callback);
+
+    template<typename Callback>
+    void _handleDoubleQuoteStringState(CharT letter, Callback &callback);
+    
+    template<typename Callback>
+    void _handleMaybeCommentState(CharT letter, Callback &callback);
+    
+    template<typename Callback>
+    void _handleSingleLineCommentState(CharT letter, Callback &callback);
+    
+    template<typename Callback>
+    void _handleMultiLineCommentState(CharT letter, Callback &callback);
+    
+    template<typename Callback>
+    void _handleMultiLineCommentEndingState(CharT letter, Callback &callback);
+
+    template<typename Callback>
+    void _inspectLetter(CharT letter, Callback &callback);
+
 
     void _reset();
     void _skip(int count = 1);
     bool _shouldAppendLetter(CharT letter);
 
     Token<CharT> _token;
-    _Context _context;
-    int _skipCount;
+    std::basic_string<CharT> _keyword;
+    _Context _context = _Context::undefined;
+    int _skipCount = 0;
+
+    _State _state = _State::undefined;
 };
 } // namespace json::token
 
@@ -66,13 +92,6 @@ private:
 namespace json::token
 {
 template<typename CharT>
-Tokenizer<CharT>::Tokenizer()
-    : _context(_Context::undefined)
-    , _skipCount(0)
-{
-}
-
-template<typename CharT>
 template<typename Iter, typename Callback>
 void Tokenizer<CharT>::tokenize(Iter begin, Iter end, Callback &callback)
 {
@@ -80,18 +99,9 @@ void Tokenizer<CharT>::tokenize(Iter begin, Iter end, Callback &callback)
 
     while (begin != end)
     {
-        if (_skipCount == 0)
-        {
-            result = result ? _inspectCharacter(*begin, callback) : false;
-            result = result ? _inspectExistingToken(callback) : false;
-        }
-        else
-        {
-            --_skipCount;
-        }
+        _inspectLetter(*begin, callback);
 
         ++begin;
-        result = true;
     }
 
     // Handle json text with a single string
@@ -105,46 +115,48 @@ void Tokenizer<CharT>::tokenize(Iter begin, Iter end, Callback &callback)
 
 template<typename CharT>
 template<typename Callback>
-bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
+void Tokenizer<CharT>::_inspectLetter(CharT letter, Callback &callback)
+{
+    switch (_state)
+    {
+    case _State::undefined:
+        _handleUndefinedState(letter, callback);
+        break;
+    case _State::singleQuoteString:
+        _handleSingleQuoteStringState(letter, callback);
+        break;
+    case _State::doubleQuoteString:
+        _handleDoubleQuoteStringState(letter, callback);
+        break;
+    case _State::maybeComment:
+        _handleMaybeCommentState(letter, callback);
+        break;
+    case _State::singleLineComment:
+        _handleSingleLineCommentState(letter, callback);
+        break;
+    case _State::multiLineComment:
+        _handleMultiLineCommentState(letter, callback);
+        break;
+    case _State::multiLineCommentEnding:
+        _handleMultiLineCommentEndingState(letter, callback);
+        break;
+    }
+}
+
+template<typename CharT>
+template<typename Callback>
+void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
 {
     using namespace json;
-
-    if (_shouldAppendLetter(letter))
-    {
-        _token.append(letter);
-        
-        // Only these two scnearios requries furthur actions
-        if (_context == _Context::undefined
-            || _context == _Context::multiLineComment)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
+    
     switch (letter)
     {
-    case keywords::endline<CharT>:
-    {
-        // \n represnets the end of a single line comment
-        if (_context == _Context::singleLineComment)
-        {
-            callback(_token);
-            _reset();
-        }
-
-        return false;
-    }
     case keywords::beginObject<CharT>:
     {
         _token.type = Token<CharT>::Type::beginObject;
         callback(_token);
-        _reset();
 
-        return false;
+        break;
     }
     case keywords::endObject<CharT>:
     {
@@ -152,23 +164,23 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
         {
             _token.type = Token<CharT>::Type::value;
             callback(_token);
-
-            _reset();
+            _token.data.clear();
         }
 
         _token.type = Token<CharT>::Type::endObject;
         callback(_token);
-        _reset();
 
-        return false;
+        break;
     }
     case keywords::beginArray<CharT>:
     {
+        _keyword.clear();
+
         _token.type = Token<CharT>::Type::beginArray;
         callback(_token);
         _reset();
 
-        return false;
+        break;
     }
     case keywords::endArray<CharT>:
     {
@@ -176,23 +188,22 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
         {
             _token.type = Token<CharT>::Type::value;
             callback(_token);
-
-            _reset();
+            _token.data.clear();
         }
 
         _token.type = Token<CharT>::Type::endArray;
         callback(_token);
         _reset();
 
-        return false;
+        break;
     }
     case keywords::colon<CharT>:
     {
         _token.type = Token<CharT>::Type::key;
         callback(_token);
-        _reset();
+        _token.data.clear();
 
-        return false;
+        break;
     }
     case keywords::comma<CharT>:
     {
@@ -200,200 +211,169 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
         {
             _token.type = Token<CharT>::Type::value;
             callback(_token);
-            _reset();
+            _token.data.clear();
         }
 
-        return false;
+        break;
     }
     case keywords::singleQuote<CharT>:
     {
-        switch (_context)
+        switch (_state)
         {
-        case _Context::singleQuoteString:
-            _context = _Context::undefined;
+        case _State::undefined:
+            _state = _State::singleQuoteString;
+            break;
+        case _State::singleQuoteString:
+            _state = _State::undefined;
             break;
         default:
-            _context = _Context::singleQuoteString;
             break;
         }
-
-        return false;
+        
+        break;
     }
     case keywords::doubleQuote<CharT>:
     {
-        switch (_context)
+        switch (_state)
         {
-        case _Context::doubleQuoteString:
-            _context = _Context::undefined;
+        case _State::undefined:
+            _state = _State::doubleQuoteString;
+            break;
+        case _State::doubleQuoteString:
+            _state = _State::undefined;
             break;
         default:
-            _context = _Context::doubleQuoteString;
             break;
         }
 
-        return false;
+        break;
     }
+    case keywords::backSlash<CharT>:
+        _state = _State::maybeComment;
+        _token.data += letter;
+        break;
     default:
-    {
-        return false;
-    }
+        break;
     }
 }
 
 template<typename CharT>
 template<typename Callback>
-bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
+void Tokenizer<CharT>::_handleSingleQuoteStringState(
+    CharT letter, Callback &callback)
 {
-    using namespace json;
-
-    if (_token.data == keywords::singleLineComment<CharT>)
+    switch (letter)
     {
-        if (_context != _Context::singleQuoteString
-            && _context != _Context::doubleQuoteString
-            && _context != _Context::multiLineComment)
-        {
-            _token.reset();
-            _token.type = Token<CharT>::Type::comment;
-            _context = _Context::singleLineComment;
-        }
-
-        return false;
+    case keywords::singleQuote<CharT>:
+        _state = _State::undefined;
+        break;
+    default:
+        _token.data += letter;
+        break;
     }
-    else if (_token.data == keywords::beginMultiLineComment<CharT>)
+}
+
+template<typename CharT>
+template<typename Callback>
+void Tokenizer<CharT>::_handleDoubleQuoteStringState(
+    CharT letter, Callback &callback)
+{
+    switch (letter)
     {
-        _context = _Context::multiLineComment;
-        _token.reset();
+    case keywords::doubleQuote<CharT>:
+        _state = _State::undefined;
+        break;
+    default:
+        _token.data += letter;
+        break;
+    }
+}
+
+template<typename CharT>
+template<typename Callback>
+void Tokenizer<CharT>::_handleMaybeCommentState(
+    CharT letter, Callback &callback)
+{
+    switch (letter)
+    {
+    case keywords::backSlash<CharT>:
+        _state = _State::singleLineComment;
+        _token.data.clear();
+        break;
+    case keywords::star<CharT>:
+        _state = _State::multiLineComment;
+        _token.data.clear();
+        break;
+    default:
+        _state = _State::undefined;
+        _token.data += letter;
+        break;
+    }
+}
+
+template<typename CharT>
+template<typename Callback>
+void Tokenizer<CharT>::_handleSingleLineCommentState(CharT letter, Callback &callback)
+{
+    switch (letter)
+    {
+    case keywords::endline<CharT>:
+        _state = _State::undefined;
         _token.type = Token<CharT>::Type::comment;
-
-        return false;
+        callback(_token);
+        _token.data.clear();
+        break;
+    case keywords::carriageReturn<CharT>:
+        break;
+    default:
+        _token.data += letter;
+        break;
     }
+}
 
-    if (_context == _Context::multiLineComment)
+template<typename CharT>
+template<typename Callback>
+void Tokenizer<CharT>::_handleMultiLineCommentState(CharT letter, Callback &callback)
+{
+    switch (letter)
     {
-        // If ends with */
-        std::basic_string<CharT> &buffer = _token.data;
-
-        if (buffer.size() >= 2
-            && buffer[buffer.size() - 2]
-                == keywords::endMultiLineComment<CharT>[0]
-            && buffer[buffer.size() - 1]
-                == keywords::endMultiLineComment<CharT>[1])
-        {
-            // remove trailing */
-            buffer.pop_back();
-            buffer.pop_back();
-
-            callback(_token);
-            _reset();
-        }
+    case keywords::star<CharT>:
+        _state = _State::multiLineCommentEnding;
+        _token.data += letter;
+        break;
+    case keywords::carriageReturn<CharT>:
+        break;
+    default:
+        _token.data += letter;
+        break;
     }
+}
 
-    return false;
+template<typename CharT>
+template<typename Callback>
+void Tokenizer<CharT>::_handleMultiLineCommentEndingState(CharT letter, Callback &callback)
+{
+    switch (letter)
+    {
+    case keywords::backSlash<CharT>:
+        _token.data.pop_back();
+        _state = _State::undefined;
+        _token.type = Token<CharT>::Type::comment;
+        callback(_token);
+        _token.data.clear();
+        break;
+    default:
+        _token.data += letter;
+        _state = _State::multiLineComment;
+        break;
+    }
 }
 
 template<typename CharT>
 void Tokenizer<CharT>::_reset()
 {
-
+    _keyword.clear();
     _token.reset();
     _context = _Context::undefined;
-}
-
-template<typename CharT>
-void Tokenizer<CharT>::_skip(int count)
-{
-    _skipCount += count;
-}
-
-template<typename CharT>
-bool Tokenizer<CharT>::_shouldAppendLetter(CharT letter)
-{
-    switch (_context)
-    {
-    case _Context::singleQuoteString:
-    {
-        switch (letter)
-        {
-        case keywords::singleQuote<CharT>:
-            return false;
-        case keywords::doubleQuote<CharT>:
-            return true;
-        case keywords::carriageReturn<CharT>:
-            return false;
-        default:
-            return true;
-        }
-    }
-    case _Context::doubleQuoteString:
-    {
-        switch (letter)
-        {
-        case keywords::singleQuote<CharT>:
-            return true;
-        case keywords::doubleQuote<CharT>:
-            return false;
-        case keywords::carriageReturn<CharT>:
-            return false;
-        default:
-            return true;
-        }
-    }
-    case _Context::multiLineComment:
-    {
-        switch (letter)
-        {
-        case keywords::carriageReturn<CharT>:
-            return false;
-        default:
-            return true;
-        }
-    }
-    case _Context::singleLineComment:
-    {
-        switch (letter)
-        {
-        case keywords::endline<CharT>:
-            return false;
-        case keywords::carriageReturn<CharT>:
-            return false;
-        default:
-            return true;
-        }
-    }
-    case _Context::undefined:
-    {
-        switch (letter)
-        {
-        case keywords::beginObject<CharT>:
-            return false;
-        case keywords::endObject<CharT>:
-            return false;
-        case keywords::beginArray<CharT>:
-            return false;
-        case keywords::endArray<CharT>:
-            return false;
-        case keywords::carriageReturn<CharT>:
-            return false;
-        case keywords::colon<CharT>:
-            return false;
-        case keywords::tab<CharT>:
-            return false;
-        case keywords::endline<CharT>:
-            return false;
-        case keywords::space<CharT>:
-            return false;
-        case keywords::singleQuote<CharT>:
-            return false;
-        case keywords::doubleQuote<CharT>:
-            return false;
-        case keywords::comma<CharT>:
-            return false;
-        }
-
-        return true;
-    }
-    default:
-        return false;
-    }
 }
 } // namespace json::token
