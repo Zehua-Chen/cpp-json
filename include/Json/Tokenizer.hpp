@@ -43,6 +43,7 @@ private:
         undefined,
         singleQuoteString,
         doubleQuoteString,
+        nonStringLiteral,
         maybeComment,
         singleLineComment,
         multiLineComment,
@@ -59,6 +60,9 @@ private:
     void _handleDoubleQuoteStringState(CharT letter, Callback &callback);
     
     template<typename Callback>
+    void _handleNonStringLiteralState(CharT letter, Callback &callback);
+    
+    template<typename Callback>
     void _handleMaybeCommentState(CharT letter, Callback &callback);
     
     template<typename Callback>
@@ -73,16 +77,11 @@ private:
     template<typename Callback>
     void _inspectLetter(CharT letter, Callback &callback);
 
-
+    bool _canLetterBeNonStringLiteral(CharT letter);
+    
     void _reset();
-    void _skip(int count = 1);
-    bool _shouldAppendLetter(CharT letter);
 
     Token<CharT> _token;
-    std::basic_string<CharT> _keyword;
-    _Context _context = _Context::undefined;
-    int _skipCount = 0;
-
     _State _state = _State::undefined;
 };
 } // namespace json::token
@@ -128,6 +127,9 @@ void Tokenizer<CharT>::_inspectLetter(CharT letter, Callback &callback)
     case _State::doubleQuoteString:
         _handleDoubleQuoteStringState(letter, callback);
         break;
+    case _State::nonStringLiteral:
+        _handleNonStringLiteralState(letter, callback);
+        break;
     case _State::maybeComment:
         _handleMaybeCommentState(letter, callback);
         break;
@@ -151,14 +153,14 @@ void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
     
     switch (letter)
     {
-    case keywords::beginObject<CharT>:
+    case keywords::leftCurlyBrace<CharT>:
     {
         _token.type = Token<CharT>::Type::beginObject;
         callback(_token);
 
-        break;
+        return;
     }
-    case keywords::endObject<CharT>:
+    case keywords::rightCurlyBrace<CharT>:
     {
         if (!_token.data.empty())
         {
@@ -170,19 +172,17 @@ void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
         _token.type = Token<CharT>::Type::endObject;
         callback(_token);
 
-        break;
+        return;
     }
-    case keywords::beginArray<CharT>:
+    case keywords::leftSquareBracket<CharT>:
     {
-        _keyword.clear();
-
         _token.type = Token<CharT>::Type::beginArray;
         callback(_token);
         _reset();
 
-        break;
+        return;
     }
-    case keywords::endArray<CharT>:
+    case keywords::rightSquareBracket<CharT>:
     {
         if (!_token.data.empty())
         {
@@ -195,7 +195,7 @@ void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
         callback(_token);
         _reset();
 
-        break;
+        return;
     }
     case keywords::colon<CharT>:
     {
@@ -203,7 +203,7 @@ void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
         callback(_token);
         _token.data.clear();
 
-        break;
+        return;
     }
     case keywords::comma<CharT>:
     {
@@ -214,7 +214,7 @@ void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
             _token.data.clear();
         }
 
-        break;
+        return;
     }
     case keywords::singleQuote<CharT>:
     {
@@ -230,7 +230,7 @@ void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
             break;
         }
         
-        break;
+        return;
     }
     case keywords::doubleQuote<CharT>:
     {
@@ -246,25 +246,26 @@ void Tokenizer<CharT>::_handleUndefinedState(CharT letter, Callback &callback)
             break;
         }
 
-        break;
+        return;
     }
     case keywords::backSlash<CharT>:
         _state = _State::maybeComment;
         _token.data += letter;
-        break;
+        return;
     case keywords::space<CharT>:
-        break;
+        return;
     case keywords::tab<CharT>:
-        break;
-    case keywords::star<CharT>:
-        break;
-    case keywords::endline<CharT>:
-        break;
+        return;
     case keywords::carriageReturn<CharT>:
-        break;
+        return;
     default:
-        _token.data += letter;
         break;
+    }
+    
+    if (_canLetterBeNonStringLiteral(letter))
+    {
+        _token.data += letter;
+        _state = _State::nonStringLiteral;
     }
 }
 
@@ -297,6 +298,21 @@ void Tokenizer<CharT>::_handleDoubleQuoteStringState(
     default:
         _token.data += letter;
         break;
+    }
+}
+
+template<typename CharT>
+template<typename Callback>
+void Tokenizer<CharT>::_handleNonStringLiteralState(CharT letter, Callback &callback)
+{
+    if (_canLetterBeNonStringLiteral(letter))
+    {
+        _token.data += letter;
+    }
+    else 
+    {
+        _state = _State::undefined;
+        _handleUndefinedState(letter, callback);
     }
 }
 
@@ -352,8 +368,8 @@ void Tokenizer<CharT>::_handleMultiLineCommentState(CharT letter, Callback &call
         _state = _State::multiLineCommentEnding;
         _token.data += letter;
         break;
-    case keywords::carriageReturn<CharT>:
-        break;
+    // case keywords::carriageReturn<CharT>:
+    //     break;
     default:
         _token.data += letter;
         break;
@@ -381,10 +397,29 @@ void Tokenizer<CharT>::_handleMultiLineCommentEndingState(CharT letter, Callback
 }
 
 template<typename CharT>
+bool Tokenizer<CharT>::_canLetterBeNonStringLiteral(CharT letter)
+{
+    if (letter >= keywords::A<CharT> && letter <= keywords::Z<CharT> )
+    {
+        return true;
+    }
+    
+    if (letter >= keywords::a<CharT> && letter <= keywords::z<CharT>)
+    {
+        return true;
+    }
+    
+    if (letter >= keywords::zero<CharT> && letter <= keywords::nine<CharT>)
+    {
+        return true;
+    }
+    
+    return false;
+}
+
+template<typename CharT>
 void Tokenizer<CharT>::_reset()
 {
-    _keyword.clear();
-    _token.reset();
-    _context = _Context::undefined;
+    _token.data.clear();
 }
 } // namespace json::token

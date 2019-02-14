@@ -15,16 +15,16 @@
 namespace json::keywords
 {
 template<typename CharT>
-inline constexpr CharT beginObject{};
+inline constexpr CharT leftCurlyBrace{};
 
 template<typename CharT>
-inline constexpr CharT endObject{};
+inline constexpr CharT rightCurlyBrace{};
 
 template<typename CharT>
-inline constexpr CharT beginArray{};
+inline constexpr CharT leftSquareBracket{};
 
 template<typename CharT>
-inline constexpr CharT endArray{};
+inline constexpr CharT rightSquareBracket{};
 
 template<typename CharT>
 inline constexpr CharT comma{};
@@ -57,27 +57,36 @@ template<typename CharT>
 inline constexpr CharT star{};
 
 template<typename CharT>
-inline const std::basic_string_view<CharT> singleLineComment{};
+inline constexpr CharT A{};
 
 template<typename CharT>
-inline const std::basic_string_view<CharT> beginMultiLineComment{};
+inline constexpr CharT a{};
 
 template<typename CharT>
-inline const std::basic_string_view<CharT> endMultiLineComment{};
+inline constexpr CharT Z{};
+
+template<typename CharT>
+inline constexpr CharT z{};
+
+template<typename CharT>
+inline constexpr CharT zero{};
+
+template<typename CharT>
+inline constexpr CharT nine{};
 
 // utf8 Specialization
 
 template<>
-inline constexpr char beginObject<char>{ '{' };
+inline constexpr char leftCurlyBrace<char>{ '{' };
 
 template<>
-inline constexpr char endObject<char>{ '}' };
+inline constexpr char rightCurlyBrace<char>{ '}' };
 
 template<>
-inline constexpr char beginArray<char>{ '[' };
+inline constexpr char leftSquareBracket<char>{ '[' };
 
 template<>
-inline constexpr char endArray<char>{ ']' };
+inline constexpr char rightSquareBracket<char>{ ']' };
 
 template<>
 inline constexpr char comma<char>{ ',' };
@@ -110,27 +119,36 @@ template<>
 inline constexpr char star<char>{ '*' };
 
 template<>
-inline const std::basic_string_view<char> singleLineComment<char>{ "//" };
+inline constexpr char A<char>{ 'A' };
 
 template<>
-inline const std::basic_string_view<char> beginMultiLineComment<char>{ "/*" };
+inline constexpr char a<char>{ 'a' };
 
 template<>
-inline const std::basic_string_view<char> endMultiLineComment<char>{ "*/" };
+inline constexpr char Z<char>{ 'Z' };
+
+template<>
+inline constexpr char z<char>{ 'z' };
+
+template<>
+inline constexpr char zero<char>{ '0' };
+
+template<>
+inline constexpr char nine<char>{ '9' };
 
 // utf16 Specialization
 
 template<>
-inline constexpr char16_t beginObject<char16_t>{ u'{' };
+inline constexpr char16_t leftCurlyBrace<char16_t>{ u'{' };
 
 template<>
-inline constexpr char16_t endObject<char16_t>{ u'}' };
+inline constexpr char16_t rightCurlyBrace<char16_t>{ u'}' };
 
 template<>
-inline constexpr char16_t beginArray<char16_t>{ u'[' };
+inline constexpr char16_t leftSquareBracket<char16_t>{ u'[' };
 
 template<>
-inline constexpr char16_t endArray<char16_t>{ u']' };
+inline constexpr char16_t rightSquareBracket<char16_t>{ u']' };
 
 template<>
 inline constexpr char16_t comma<char16_t>{ u',' };
@@ -163,33 +181,36 @@ template<>
 inline constexpr char16_t star<char16_t>{ u'*' };
 
 template<>
-inline const std::basic_string_view<char16_t> singleLineComment<char16_t>{
-    u"//"
-};
+inline constexpr char16_t A<char16_t>{ u'A' };
 
 template<>
-inline const std::basic_string_view<char16_t> beginMultiLineComment<char16_t>{
-    u"/*"
-};
+inline constexpr char16_t a<char16_t>{ u'a' };
 
 template<>
-inline const std::basic_string_view<char16_t> endMultiLineComment<char16_t>{
-    u"*/"
-};
+inline constexpr char16_t Z<char16_t>{ u'Z' };
+
+template<>
+inline constexpr char16_t z<char16_t>{ u'z' };
+
+template<>
+inline constexpr char16_t zero<char16_t>{ u'0' };
+
+template<>
+inline constexpr char16_t nine<char16_t>{ u'9' };
 
 // utf32 Specialization
 
 template<>
-inline constexpr char32_t beginObject<char32_t>{ U'{' };
+inline constexpr char32_t leftCurlyBrace<char32_t>{ U'{' };
 
 template<>
-inline constexpr char32_t endObject<char32_t>{ U'}' };
+inline constexpr char32_t rightCurlyBrace<char32_t>{ U'}' };
 
 template<>
-inline constexpr char32_t beginArray<char32_t>{ U'[' };
+inline constexpr char32_t leftSquareBracket<char32_t>{ U'[' };
 
 template<>
-inline constexpr char32_t endArray<char32_t>{ U']' };
+inline constexpr char32_t rightSquareBracket<char32_t>{ U']' };
 
 template<>
 inline constexpr char32_t comma<char32_t>{ U',' };
@@ -222,33 +243,36 @@ template<>
 inline constexpr char32_t star<char32_t>{ U'*' };
 
 template<>
-inline const std::basic_string_view<char32_t> singleLineComment<char32_t>{
-    U"//"
-};
+inline constexpr char32_t A<char32_t>{ U'A' };
 
 template<>
-inline const std::basic_string_view<char32_t> beginMultiLineComment<char32_t>{
-    U"/*"
-};
+inline constexpr char32_t a<char32_t>{ U'a' };
 
 template<>
-inline const std::basic_string_view<char32_t> endMultiLineComment<char32_t>{
-    U"*/"
-};
+inline constexpr char32_t Z<char32_t>{ U'Z' };
+
+template<>
+inline constexpr char32_t z<char32_t>{ U'z' };
+
+template<>
+inline constexpr char32_t zero<char32_t>{ U'0' };
+
+template<>
+inline constexpr char32_t nine<char32_t>{ U'9' };
 
 // wchar_t Specialization
 
 template<>
-inline constexpr wchar_t beginObject<wchar_t>{ L'{' };
+inline constexpr wchar_t leftCurlyBrace<wchar_t>{ L'{' };
 
 template<>
-inline constexpr wchar_t endObject<wchar_t>{ L'}' };
+inline constexpr wchar_t rightCurlyBrace<wchar_t>{ L'}' };
 
 template<>
-inline constexpr wchar_t beginArray<wchar_t>{ L'[' };
+inline constexpr wchar_t leftSquareBracket<wchar_t>{ L'[' };
 
 template<>
-inline constexpr wchar_t endArray<wchar_t>{ L']' };
+inline constexpr wchar_t rightSquareBracket<wchar_t>{ L']' };
 
 template<>
 inline constexpr wchar_t comma<wchar_t>{ L',' };
@@ -281,17 +305,21 @@ template<>
 inline constexpr wchar_t star<wchar_t>{ L'*' };
 
 template<>
-inline const std::basic_string_view<wchar_t> singleLineComment<wchar_t>{
-    L"//"
-};
+inline constexpr wchar_t A<wchar_t>{ L'A' };
 
 template<>
-inline const std::basic_string_view<wchar_t> beginMultiLineComment<wchar_t>{
-    L"/*"
-};
+inline constexpr wchar_t a<wchar_t>{ L'a' };
 
 template<>
-inline const std::basic_string_view<wchar_t> endMultiLineComment<wchar_t>{
-    L"*/"
-};
+inline constexpr wchar_t Z<wchar_t>{ L'Z' };
+
+template<>
+inline constexpr wchar_t z<wchar_t>{ L'z' };
+
+template<>
+inline constexpr wchar_t zero<wchar_t>{ L'0' };
+
+template<>
+inline constexpr wchar_t nine<wchar_t>{ L'9' };
+
 } // namespace json::keywords
