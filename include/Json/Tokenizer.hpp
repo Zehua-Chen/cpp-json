@@ -30,9 +30,10 @@ private:
 
     enum class _Context
     {
-        singeLineComment,
+        singleLineComment,
         multiLineComment,
-        string,
+        singleQuoteString,
+        doubleQuoteString,
         undefined,
     };
 
@@ -52,6 +53,7 @@ private:
 
     void _reset();
     void _skip(int count = 1);
+    bool _shouldAppendLetter(CharT letter);
 
     Token<CharT> _token;
     _Context _context;
@@ -107,44 +109,31 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
 {
     using namespace json;
 
+    if (_shouldAppendLetter(letter))
+    {
+        _token.append(letter);
+        
+        // Only these two scnearios requries furthur actions
+        if (_context == _Context::undefined
+            || _context == _Context::multiLineComment)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     switch (letter)
     {
-    case keywords::carriageReturn<CharT>:
-    {
-        return false;
-    }
     case keywords::endline<CharT>:
     {
         // \n represnets the end of a single line comment
-        if (_context == _Context::singeLineComment)
+        if (_context == _Context::singleLineComment)
         {
             callback(_token);
             _reset();
-        }
-        // \n does not mean the end of a multiline comment
-        if (_context == _Context::multiLineComment)
-        {
-            _token.append(letter);
-        }
-
-        return false;
-    }
-    case keywords::space<CharT>:
-    {
-        if (_context == _Context::singeLineComment
-            || _context == _Context::multiLineComment
-            || _context == _Context::string)
-        {
-            _token.append(letter);
-        }
-
-        return false;
-    }
-    case keywords::tab<CharT>:
-    {
-        if (_context == _Context::string)
-        {
-            _token.append(letter);
         }
 
         return false;
@@ -220,11 +209,11 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     {
         switch (_context)
         {
-        case _Context::string:
+        case _Context::singleQuoteString:
             _context = _Context::undefined;
             break;
         default:
-            _context = _Context::string;
+            _context = _Context::singleQuoteString;
             break;
         }
 
@@ -232,22 +221,21 @@ bool Tokenizer<CharT>::_inspectCharacter(CharT letter, Callback &callback)
     }
     case keywords::doubleQuote<CharT>:
     {
-        if (_context == _Context::string)
+        switch (_context)
         {
+        case _Context::doubleQuoteString:
             _context = _Context::undefined;
-        }
-        else
-        {
-            _context = _Context::string;
+            break;
+        default:
+            _context = _Context::doubleQuoteString;
+            break;
         }
 
         return false;
     }
-    // Other characters
     default:
     {
-        _token.append(letter);
-        return true;
+        return false;
     }
     }
 }
@@ -260,14 +248,15 @@ bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
 
     if (_token.data == keywords::singleLineComment<CharT>)
     {
-        if (_context != _Context::string)
+        if (_context != _Context::singleQuoteString
+            && _context != _Context::doubleQuoteString
+            && _context != _Context::multiLineComment)
         {
             _token.reset();
             _token.type = Token<CharT>::Type::comment;
-            _context = _Context::singeLineComment;
-            _skip();
+            _context = _Context::singleLineComment;
         }
-        
+
         return false;
     }
     else if (_token.data == keywords::beginMultiLineComment<CharT>)
@@ -275,7 +264,7 @@ bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
         _context = _Context::multiLineComment;
         _token.reset();
         _token.type = Token<CharT>::Type::comment;
-        
+
         return false;
     }
 
@@ -297,16 +286,6 @@ bool Tokenizer<CharT>::_inspectExistingToken(Callback &callback)
             callback(_token);
             _reset();
         }
-        // auto found
-        //     = _token.data.rfind(keywords::endMultiLineComment<CharT>.data());
-
-        // if (found != std::basic_string_view<CharT>::npos)
-        // {
-        //     // remove trailing */
-        //     _token.data.erase(found);
-        //     callback(_token);
-        //     _reset();
-        // }
     }
 
     return false;
@@ -324,5 +303,97 @@ template<typename CharT>
 void Tokenizer<CharT>::_skip(int count)
 {
     _skipCount += count;
+}
+
+template<typename CharT>
+bool Tokenizer<CharT>::_shouldAppendLetter(CharT letter)
+{
+    switch (_context)
+    {
+    case _Context::singleQuoteString:
+    {
+        switch (letter)
+        {
+        case keywords::singleQuote<CharT>:
+            return false;
+        case keywords::doubleQuote<CharT>:
+            return true;
+        case keywords::carriageReturn<CharT>:
+            return false;
+        default:
+            return true;
+        }
+    }
+    case _Context::doubleQuoteString:
+    {
+        switch (letter)
+        {
+        case keywords::singleQuote<CharT>:
+            return true;
+        case keywords::doubleQuote<CharT>:
+            return false;
+        case keywords::carriageReturn<CharT>:
+            return false;
+        default:
+            return true;
+        }
+    }
+    case _Context::multiLineComment:
+    {
+        switch (letter)
+        {
+        case keywords::carriageReturn<CharT>:
+            return false;
+        default:
+            return true;
+        }
+    }
+    case _Context::singleLineComment:
+    {
+        switch (letter)
+        {
+        case keywords::endline<CharT>:
+            return false;
+        case keywords::carriageReturn<CharT>:
+            return false;
+        default:
+            return true;
+        }
+    }
+    case _Context::undefined:
+    {
+        switch (letter)
+        {
+        case keywords::beginObject<CharT>:
+            return false;
+        case keywords::endObject<CharT>:
+            return false;
+        case keywords::beginArray<CharT>:
+            return false;
+        case keywords::endArray<CharT>:
+            return false;
+        case keywords::carriageReturn<CharT>:
+            return false;
+        case keywords::colon<CharT>:
+            return false;
+        case keywords::tab<CharT>:
+            return false;
+        case keywords::endline<CharT>:
+            return false;
+        case keywords::space<CharT>:
+            return false;
+        case keywords::singleQuote<CharT>:
+            return false;
+        case keywords::doubleQuote<CharT>:
+            return false;
+        case keywords::comma<CharT>:
+            return false;
+        }
+
+        return true;
+    }
+    default:
+        return false;
+    }
 }
 } // namespace json::token
