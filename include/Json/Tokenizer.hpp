@@ -269,13 +269,7 @@ void Tokenizer<CharT>::_handleOtherState(CharT letter, Callback &callback)
     case keywords::backSlash<CharT>:
         _state = _State::maybeComment;
         _token.data += letter;
-        return;
-    case keywords::space<CharT>:
-        return;
-    case keywords::tab<CharT>:
-        return;
-    case keywords::carriageReturn<CharT>:
-        return;
+        return;  
     default:
         break;
     }
