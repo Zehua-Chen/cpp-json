@@ -41,12 +41,11 @@ BasicValue<CharT> parse(Iter begin, Iter end)
     using json::assemble::Assembler;
     using json::token::Tokenizer;
 
-    Tokenizer<CharT> tokenizer;
-    Assembler<CharT> assembler;
+    Tokenizer<CharT, Assembler<CharT>> tokenizer;
 
-    tokenizer.tokenize(begin, end, assembler);
+    tokenizer.tokenize(begin, end);
 
-    BasicValue<CharT> root = std::move(assembler.root());
+    BasicValue<CharT> root = std::move(tokenizer.assembler().root());
 
     return root;
 }

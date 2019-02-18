@@ -24,14 +24,25 @@ using std::vector;
 using namespace json;
 using namespace json::token;
 
+template<typename CharT>
+struct Recorder
+{
+    vector<Token<CharT>> tokens;
+    
+    void operator()(const Token<CharT> &token) 
+    {
+        tokens.push_back(token);
+    }
+};
+
 TEST(TokenizerTest, Simple)
 {
     // Simple object
     {
         string json = "{ 'name': \"a\" }";
 
-        Tokenizer<char> tokenizer;
-        vector<Token<char>> tokens;
+        Tokenizer<char, Recorder<char>> tokenizer;
+
         vector<Token<char>> expectedTokens{
             { Token<char>::Type::beginObject },
             { Token<char>::Type::key, "name" },
@@ -39,20 +50,17 @@ TEST(TokenizerTest, Simple)
             { Token<char>::Type::endObject },
         };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        tokenizer.tokenize(json.begin(), json.end());
 
-        tokenizer.tokenize(json.begin(), json.end(), recorder);
-
-        EXPECT_EQ(tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
     }
 
     // Simple array
     {
         string json = "[ 'a', 'b', 'c' ]";
 
-        Tokenizer<char> tokenizer;
-        vector<Token<char>> tokens;
+        Tokenizer<char, Recorder<char>> tokenizer;
+        
         vector<Token<char>> expectedTokens{
             { Token<char>::Type::beginArray },
             { Token<char>::Type::value, "a" },
@@ -61,66 +69,51 @@ TEST(TokenizerTest, Simple)
             { Token<char>::Type::endArray },
         };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        tokenizer.tokenize(json.begin(), json.end());
 
-        tokenizer.tokenize(json.begin(), json.end(), recorder);
-
-        EXPECT_EQ(tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
     }
 
     // Single string
     {
         string json = "'text'";
 
-        Tokenizer<char> tokenizer;
-        vector<Token<char>> tokens;
+        Tokenizer<char, Recorder<char>> tokenizer;
 
         vector<Token<char>> expectedTokens{};
         expectedTokens.emplace_back(Token<char>::Type::value, "text");
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        tokenizer.tokenize(json.begin(), json.end());
 
-        tokenizer.tokenize(json.begin(), json.end(), recorder);
-
-        EXPECT_EQ(tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
     }
 
     // Single Number
     {
         string json = "12.33";
 
-        Tokenizer<char> tokenizer;
-        vector<Token<char>> tokens;
-
+        Tokenizer<char, Recorder<char>> tokenizer;
+        
         vector<Token<char>> expectedTokens{};
         expectedTokens.emplace_back(Token<char>::Type::value, "12.33");
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        tokenizer.tokenize(json.begin(), json.end());
 
-        tokenizer.tokenize(json.begin(), json.end(), recorder);
-
-        EXPECT_EQ(tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
     }
     
     // Single Bools
     {
         string json = "false";
 
-        Tokenizer<char> tokenizer;
-        vector<Token<char>> tokens;
+        Tokenizer<char, Recorder<char>> tokenizer;
 
         vector<Token<char>> expectedTokens{};
         expectedTokens.emplace_back(Token<char>::Type::value, "false");
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        tokenizer.tokenize(json.begin(), json.end());
 
-        tokenizer.tokenize(json.begin(), json.end(), recorder);
-
-        EXPECT_EQ(tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
     }
 }
 
@@ -146,8 +139,7 @@ TEST(TokenizerTest, Nested)
         istreambuf_iterator<char> begin{ ss };
         istreambuf_iterator<char> end{};
 
-        Tokenizer<char> tokenizer;
-        vector<Token<char>> tokens;
+        Tokenizer<char, Recorder<char>> tokenizer;
         vector<Token<char>> expectedTokens{
             // level 1
             { Token<char>::Type::beginObject },
@@ -182,13 +174,10 @@ TEST(TokenizerTest, Nested)
             // end level 1
             { Token<char>::Type::endObject },
         };
+        
+        tokenizer.tokenize(begin, end);
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
-
-        tokenizer.tokenize(begin, end, recorder);
-
-        EXPECT_EQ(tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
     }
 
     // Nested array
@@ -208,8 +197,8 @@ TEST(TokenizerTest, Nested)
         istreambuf_iterator<char> begin{ ss };
         istreambuf_iterator<char> end{};
 
-        Tokenizer<char> tokenizer;
-        vector<Token<char>> tokens;
+        Tokenizer<char, Recorder<char>> tokenizer;
+
         vector<Token<char>> expectedTokens{
             // root
             { Token<char>::Type::beginArray },
@@ -246,13 +235,10 @@ TEST(TokenizerTest, Nested)
             // End root
             { Token<char>::Type::endArray },
         };
+        
+        tokenizer.tokenize(begin, end);
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
-
-        tokenizer.tokenize(begin, end, recorder);
-
-        EXPECT_EQ(tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
     }
 }
 
@@ -269,7 +255,6 @@ TEST(TokenizerTest, Complex)
         istreambuf_iterator<char> begin{ ss };
         istreambuf_iterator<char> end{};
 
-        vector<Token<char>> tokens;
         vector<Token<char>> expectedTokens{
             { Token<char>::Type::beginObject },
             { Token<char>::Type::key, "a" },
@@ -292,13 +277,10 @@ TEST(TokenizerTest, Complex)
             { Token<char>::Type::endObject }
         };
 
-        Tokenizer<char> tokenizer;
+        Tokenizer<char, Recorder<char>> tokenizer;
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
-
-        tokenizer.tokenize(begin, end, recorder);
-        EXPECT_EQ(tokens, expectedTokens);
+        tokenizer.tokenize(begin, end);
+        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
     }
 }
 
@@ -315,8 +297,8 @@ TEST(TokenizerTest, SingleLineComment)
         istreambuf_iterator<char> begin{ ss };
         istreambuf_iterator<char> end{};
 
-        Tokenizer<char> tokenizer;
-        vector<Token<char>> tokens;
+        Tokenizer<char, Recorder<char>> tokenizer;
+        
         vector<Token<char>> expectedTokens{
             { Token<char>::Type::beginObject },
             { Token<char>::Type::comment, "I am a philosophor" },
@@ -325,12 +307,9 @@ TEST(TokenizerTest, SingleLineComment)
             { Token<char>::Type::endObject },
         };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        tokenizer.tokenize(begin, end);
 
-        tokenizer.tokenize(begin, end, recorder);
-
-        EXPECT_EQ(tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
     }
 
     // Object with comment using Windows endline
@@ -344,7 +323,7 @@ TEST(TokenizerTest, SingleLineComment)
         istreambuf_iterator<char> begin{ ss };
         istreambuf_iterator<char> end{};
 
-        Tokenizer<char> tokenizer;
+        Tokenizer<char, Recorder<char>> tokenizer;
         vector<Token<char>> tokens;
         vector<Token<char>> expectedTokens{
             { Token<char>::Type::beginObject },
@@ -354,12 +333,9 @@ TEST(TokenizerTest, SingleLineComment)
             { Token<char>::Type::endObject },
         };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        tokenizer.tokenize(begin, end);
 
-        tokenizer.tokenize(begin, end, recorder);
-
-        EXPECT_EQ(tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
     }
 }
 
@@ -379,8 +355,8 @@ TEST(TokenizerTest, MultiLineComment)
         istreambuf_iterator<char> begin{ ss };
         istreambuf_iterator<char> end{};
 
-        Tokenizer<char> tokenizer;
-        vector<Token<char>> tokens;
+        Tokenizer<char, Recorder<char>> tokenizer;
+
         vector<Token<char>> expectedTokens{
             { Token<char>::Type::beginObject },
             { Token<char>::Type::comment, "I am a philosophor\nSurprize!\n" },
@@ -389,12 +365,9 @@ TEST(TokenizerTest, MultiLineComment)
             { Token<char>::Type::endObject },
         };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        tokenizer.tokenize(begin, end);
 
-        tokenizer.tokenize(begin, end, recorder);
-
-        EXPECT_EQ(tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
     }
 }
 
@@ -402,33 +375,27 @@ TEST(TokenizerTest, Context)
 {
     {
         string json = "\"some value = {}[]:,\n\"";
-        Tokenizer<char> tokenizer;
+        Tokenizer<char, Recorder<char>> tokenizer;
 
         vector<Token<char>> tokens;
         vector<Token<char>> expectedTokens{ { Token<char>::Type::value,
                                               "some value = {}[]:,\n" } };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        tokenizer.tokenize(json.begin(), json.end());
 
-        tokenizer.tokenize(json.begin(), json.end(), recorder);
-
-        EXPECT_EQ(tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
     }
 
     {
         string json = "\"the 'philosophor'\"";
-        Tokenizer<char> tokenizer;
+        Tokenizer<char, Recorder<char>> tokenizer;
 
         vector<Token<char>> tokens;
         vector<Token<char>> expectedTokens{ { Token<char>::Type::value,
                                               "the 'philosophor'" } };
 
-        const auto recorder
-            = [&](const Token<char> &token) { tokens.push_back(token); };
+        tokenizer.tokenize(json.begin(), json.end());
 
-        tokenizer.tokenize(json.begin(), json.end(), recorder);
-
-        EXPECT_EQ(tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
     }
 }
