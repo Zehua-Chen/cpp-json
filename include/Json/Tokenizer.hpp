@@ -410,6 +410,11 @@ bool Tokenizer<CharT>::_canLetterBeNonStringLiteral(CharT letter)
     {
         return true;
     }
+    
+    if (letter == keywords::dot<CharT>)
+    {
+        return true;
+    }
 
     return false;
 }

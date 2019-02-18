@@ -75,8 +75,45 @@ TEST(TokenizerTest, Simple)
 
         Tokenizer<char> tokenizer;
         vector<Token<char>> tokens;
-        vector<Token<char>> expectedTokens{ { Token<char>::Type::value,
-                                              "text" } };
+
+        vector<Token<char>> expectedTokens{};
+        expectedTokens.emplace_back(Token<char>::Type::value, "text");
+
+        const auto recorder
+            = [&](const Token<char> &token) { tokens.push_back(token); };
+
+        tokenizer.tokenize(json.begin(), json.end(), recorder);
+
+        EXPECT_EQ(tokens, expectedTokens);
+    }
+
+    // Single Number
+    {
+        string json = "12.33";
+
+        Tokenizer<char> tokenizer;
+        vector<Token<char>> tokens;
+
+        vector<Token<char>> expectedTokens{};
+        expectedTokens.emplace_back(Token<char>::Type::value, "12.33");
+
+        const auto recorder
+            = [&](const Token<char> &token) { tokens.push_back(token); };
+
+        tokenizer.tokenize(json.begin(), json.end(), recorder);
+
+        EXPECT_EQ(tokens, expectedTokens);
+    }
+    
+    // Single Bools
+    {
+        string json = "false";
+
+        Tokenizer<char> tokenizer;
+        vector<Token<char>> tokens;
+
+        vector<Token<char>> expectedTokens{};
+        expectedTokens.emplace_back(Token<char>::Type::value, "false");
 
         const auto recorder
             = [&](const Token<char> &token) { tokens.push_back(token); };
@@ -366,34 +403,32 @@ TEST(TokenizerTest, Context)
     {
         string json = "\"some value = {}[]:,\n\"";
         Tokenizer<char> tokenizer;
-        
+
         vector<Token<char>> tokens;
-        vector<Token<char>> expectedTokens{
-            { Token<char>::Type::value, "some value = {}[]:,\n" }
-        };
+        vector<Token<char>> expectedTokens{ { Token<char>::Type::value,
+                                              "some value = {}[]:,\n" } };
 
         const auto recorder
             = [&](const Token<char> &token) { tokens.push_back(token); };
 
         tokenizer.tokenize(json.begin(), json.end(), recorder);
-        
+
         EXPECT_EQ(tokens, expectedTokens);
     }
-    
+
     {
         string json = "\"the 'philosophor'\"";
         Tokenizer<char> tokenizer;
-        
+
         vector<Token<char>> tokens;
-        vector<Token<char>> expectedTokens{
-            { Token<char>::Type::value, "the 'philosophor'" }
-        };
+        vector<Token<char>> expectedTokens{ { Token<char>::Type::value,
+                                              "the 'philosophor'" } };
 
         const auto recorder
             = [&](const Token<char> &token) { tokens.push_back(token); };
 
         tokenizer.tokenize(json.begin(), json.end(), recorder);
-        
+
         EXPECT_EQ(tokens, expectedTokens);
     }
 }

@@ -74,6 +74,9 @@ inline constexpr CharT zero{};
 template<typename CharT>
 inline constexpr CharT nine{};
 
+template<typename CharT>
+inline constexpr CharT dot{};
+
 // utf8 Specialization
 
 template<>
@@ -135,6 +138,9 @@ inline constexpr char zero<char>{ '0' };
 
 template<>
 inline constexpr char nine<char>{ '9' };
+
+template<>
+inline constexpr char dot<char>{ '.' };
 
 // utf16 Specialization
 
@@ -198,6 +204,9 @@ inline constexpr char16_t zero<char16_t>{ u'0' };
 template<>
 inline constexpr char16_t nine<char16_t>{ u'9' };
 
+template<>
+inline constexpr char16_t dot<char16_t>{ u'.' };
+
 // utf32 Specialization
 
 template<>
@@ -260,6 +269,9 @@ inline constexpr char32_t zero<char32_t>{ U'0' };
 template<>
 inline constexpr char32_t nine<char32_t>{ U'9' };
 
+template<>
+inline constexpr char32_t dot<char32_t>{ U'.' };
+
 // wchar_t Specialization
 
 template<>
@@ -321,5 +333,8 @@ inline constexpr wchar_t zero<wchar_t>{ L'0' };
 
 template<>
 inline constexpr wchar_t nine<wchar_t>{ L'9' };
+
+template<>
+inline constexpr wchar_t dot<wchar_t>{ L'.' };
 
 } // namespace json::keywords
