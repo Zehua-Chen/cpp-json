@@ -236,34 +236,14 @@ void Tokenizer<CharT>::_handleOtherState(CharT letter, Callback &callback)
     }
     case keywords::singleQuote<CharT>:
     {
-        switch (_state)
-        {
-        case _State::other:
-            _state = _State::singleQuoteString;
-            break;
-        case _State::singleQuoteString:
-            _state = _State::other;
-            break;
-        default:
-            break;
-        }
+        _state = _State::singleQuoteString;
 
         return;
     }
     case keywords::doubleQuote<CharT>:
     {
-        switch (_state)
-        {
-        case _State::other:
-            _state = _State::doubleQuoteString;
-            break;
-        case _State::doubleQuoteString:
-            _state = _State::other;
-            break;
-        default:
-            break;
-        }
-
+        _state = _State::doubleQuoteString;
+        
         return;
     }
     case keywords::backSlash<CharT>:
