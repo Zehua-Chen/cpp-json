@@ -52,7 +52,7 @@ TEST(TokenizerTest, Simple)
 
         tokenizer.tokenize(json.begin(), json.end());
 
-        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.output().tokens, expectedTokens);
     }
 
     // Simple array
@@ -71,7 +71,7 @@ TEST(TokenizerTest, Simple)
 
         tokenizer.tokenize(json.begin(), json.end());
 
-        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.output().tokens, expectedTokens);
     }
 
     // Single string
@@ -85,7 +85,7 @@ TEST(TokenizerTest, Simple)
 
         tokenizer.tokenize(json.begin(), json.end());
 
-        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.output().tokens, expectedTokens);
     }
 
     // Single Number
@@ -99,7 +99,7 @@ TEST(TokenizerTest, Simple)
 
         tokenizer.tokenize(json.begin(), json.end());
 
-        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.output().tokens, expectedTokens);
     }
     
     // Single Bools
@@ -113,7 +113,7 @@ TEST(TokenizerTest, Simple)
 
         tokenizer.tokenize(json.begin(), json.end());
 
-        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.output().tokens, expectedTokens);
     }
 }
 
@@ -177,7 +177,7 @@ TEST(TokenizerTest, Nested)
         
         tokenizer.tokenize(begin, end);
 
-        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.output().tokens, expectedTokens);
     }
 
     // Nested array
@@ -238,7 +238,7 @@ TEST(TokenizerTest, Nested)
         
         tokenizer.tokenize(begin, end);
 
-        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.output().tokens, expectedTokens);
     }
 }
 
@@ -280,7 +280,7 @@ TEST(TokenizerTest, Complex)
         Tokenizer<char, Recorder<char>> tokenizer;
 
         tokenizer.tokenize(begin, end);
-        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.output().tokens, expectedTokens);
     }
 }
 
@@ -309,7 +309,7 @@ TEST(TokenizerTest, SingleLineComment)
 
         tokenizer.tokenize(begin, end);
 
-        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.output().tokens, expectedTokens);
     }
 
     // Object with comment using Windows endline
@@ -335,7 +335,7 @@ TEST(TokenizerTest, SingleLineComment)
 
         tokenizer.tokenize(begin, end);
 
-        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.output().tokens, expectedTokens);
     }
 }
 
@@ -367,7 +367,7 @@ TEST(TokenizerTest, MultiLineComment)
 
         tokenizer.tokenize(begin, end);
 
-        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.output().tokens, expectedTokens);
     }
 }
 
@@ -383,7 +383,7 @@ TEST(TokenizerTest, Context)
 
         tokenizer.tokenize(json.begin(), json.end());
 
-        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.output().tokens, expectedTokens);
     }
 
     {
@@ -396,6 +396,6 @@ TEST(TokenizerTest, Context)
 
         tokenizer.tokenize(json.begin(), json.end());
 
-        EXPECT_EQ(tokenizer.assembler().tokens, expectedTokens);
+        EXPECT_EQ(tokenizer.output().tokens, expectedTokens);
     }
 }

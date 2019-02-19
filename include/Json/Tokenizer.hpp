@@ -21,7 +21,7 @@ namespace json::token
  * At X state, _handleXState method will be called to handle the input at
  * X state.
  */
-template<typename CharT, typename AssemblerT>
+template<typename CharT, typename OutputT>
 class Tokenizer
 {
 public:
@@ -35,7 +35,7 @@ public:
     template<typename Iter>
     void tokenize(Iter begin, Iter end);
     
-    AssemblerT &assembler();
+    OutputT &output();
 
 private:
     enum class _State
@@ -82,7 +82,7 @@ private:
 
     Token<CharT> _token;
     _State _state = _State::other;
-    AssemblerT _assembler;
+    OutputT _output;
 };
 } // namespace json::token
 
@@ -96,9 +96,9 @@ namespace json::token
  * @param begin inclusive start of string
  * @param end exclusive end of string
  */
-template<typename CharT, typename AssemblerT>
+template<typename CharT, typename OutputT>
 template<typename Iter>
-void Tokenizer<CharT, AssemblerT>::tokenize(Iter begin, Iter end)
+void Tokenizer<CharT, OutputT>::tokenize(Iter begin, Iter end)
 {
     bool result = true;
 
@@ -114,22 +114,22 @@ void Tokenizer<CharT, AssemblerT>::tokenize(Iter begin, Iter end)
     if (!_token.data.empty())
     {
         _token.type = Token<CharT>::Type::value;
-        _assembler(_token);
+        _output(_token);
     }
 }
 
-template<typename CharT, typename AssemblerT>
-AssemblerT &Tokenizer<CharT, AssemblerT>::assembler()
+template<typename CharT, typename OutputT>
+OutputT &Tokenizer<CharT, OutputT>::output()
 {
-    return _assembler;
+    return _output;
 }
 
 /**
  * Given a the current state, invoke the appropriate state handler
  * @param letter the input
  */
-template<typename CharT, typename AssemblerT>
-void Tokenizer<CharT, AssemblerT>::_inspectLetter(CharT letter)
+template<typename CharT, typename OutputT>
+void Tokenizer<CharT, OutputT>::_inspectLetter(CharT letter)
 {
     switch (_state)
     {
@@ -160,8 +160,8 @@ void Tokenizer<CharT, AssemblerT>::_inspectLetter(CharT letter)
     }
 }
 
-template<typename CharT, typename AssemblerT>
-void Tokenizer<CharT, AssemblerT>::_handleOtherState(CharT letter)
+template<typename CharT, typename OutputT>
+void Tokenizer<CharT, OutputT>::_handleOtherState(CharT letter)
 {
     using namespace json;
 
@@ -170,7 +170,7 @@ void Tokenizer<CharT, AssemblerT>::_handleOtherState(CharT letter)
     case keywords::leftCurlyBrace<CharT>:
     {
         _token.type = Token<CharT>::Type::beginObject;
-        _assembler(_token);
+        _output(_token);
 
         return;
     }
@@ -179,19 +179,19 @@ void Tokenizer<CharT, AssemblerT>::_handleOtherState(CharT letter)
         if (!_token.data.empty())
         {
             _token.type = Token<CharT>::Type::value;
-            _assembler(_token);
+            _output(_token);
             _token.data.clear();
         }
 
         _token.type = Token<CharT>::Type::endObject;
-        _assembler(_token);
+        _output(_token);
 
         return;
     }
     case keywords::leftSquareBracket<CharT>:
     {
         _token.type = Token<CharT>::Type::beginArray;
-        _assembler(_token);
+        _output(_token);
 
         return;
     }
@@ -200,19 +200,19 @@ void Tokenizer<CharT, AssemblerT>::_handleOtherState(CharT letter)
         if (!_token.data.empty())
         {
             _token.type = Token<CharT>::Type::value;
-            _assembler(_token);
+            _output(_token);
             _token.data.clear();
         }
 
         _token.type = Token<CharT>::Type::endArray;
-        _assembler(_token);
+        _output(_token);
 
         return;
     }
     case keywords::colon<CharT>:
     {
         _token.type = Token<CharT>::Type::key;
-        _assembler(_token);
+        _output(_token);
         _token.data.clear();
 
         return;
@@ -222,7 +222,7 @@ void Tokenizer<CharT, AssemblerT>::_handleOtherState(CharT letter)
         if (!_token.data.empty())
         {
             _token.type = Token<CharT>::Type::value;
-            _assembler(_token);
+            _output(_token);
             _token.data.clear();
         }
 
@@ -254,8 +254,8 @@ void Tokenizer<CharT, AssemblerT>::_handleOtherState(CharT letter)
     }
 }
 
-template<typename CharT, typename AssemblerT>
-void Tokenizer<CharT, AssemblerT>::_handleSingleQuoteStringState(CharT letter)
+template<typename CharT, typename OutputT>
+void Tokenizer<CharT, OutputT>::_handleSingleQuoteStringState(CharT letter)
 {
     switch (letter)
     {
@@ -268,8 +268,8 @@ void Tokenizer<CharT, AssemblerT>::_handleSingleQuoteStringState(CharT letter)
     }
 }
 
-template<typename CharT, typename AssemblerT>
-void Tokenizer<CharT, AssemblerT>::_handleDoubleQuoteStringState(CharT letter)
+template<typename CharT, typename OutputT>
+void Tokenizer<CharT, OutputT>::_handleDoubleQuoteStringState(CharT letter)
 {
     switch (letter)
     {
@@ -282,8 +282,8 @@ void Tokenizer<CharT, AssemblerT>::_handleDoubleQuoteStringState(CharT letter)
     }
 }
 
-template<typename CharT, typename AssemblerT>
-void Tokenizer<CharT, AssemblerT>::_handleNonStringLiteralState(CharT letter)
+template<typename CharT, typename OutputT>
+void Tokenizer<CharT, OutputT>::_handleNonStringLiteralState(CharT letter)
 {
     if (_canLetterBeNonStringLiteral(letter))
     {
@@ -298,8 +298,8 @@ void Tokenizer<CharT, AssemblerT>::_handleNonStringLiteralState(CharT letter)
     }
 }
 
-template<typename CharT, typename AssemblerT>
-void Tokenizer<CharT, AssemblerT>::_handleMaybeCommentState(CharT letter)
+template<typename CharT, typename OutputT>
+void Tokenizer<CharT, OutputT>::_handleMaybeCommentState(CharT letter)
 {
     switch (letter)
     {
@@ -314,15 +314,15 @@ void Tokenizer<CharT, AssemblerT>::_handleMaybeCommentState(CharT letter)
     }
 }
 
-template<typename CharT, typename AssemblerT>
-void Tokenizer<CharT, AssemblerT>::_handleSingleLineCommentState(CharT letter)
+template<typename CharT, typename OutputT>
+void Tokenizer<CharT, OutputT>::_handleSingleLineCommentState(CharT letter)
 {
     switch (letter)
     {
     case keywords::endline<CharT>:
         _state = _State::other;
         _token.type = Token<CharT>::Type::comment;
-        _assembler(_token);
+        _output(_token);
         _token.data.clear();
         break;
     case keywords::carriageReturn<CharT>:
@@ -333,8 +333,8 @@ void Tokenizer<CharT, AssemblerT>::_handleSingleLineCommentState(CharT letter)
     }
 }
 
-template<typename CharT, typename AssemblerT>
-void Tokenizer<CharT, AssemblerT>::_handleMultiLineCommentState(CharT letter)
+template<typename CharT, typename OutputT>
+void Tokenizer<CharT, OutputT>::_handleMultiLineCommentState(CharT letter)
 {
     switch (letter)
     {
@@ -350,8 +350,8 @@ void Tokenizer<CharT, AssemblerT>::_handleMultiLineCommentState(CharT letter)
     }
 }
 
-template<typename CharT, typename AssemblerT>
-void Tokenizer<CharT, AssemblerT>::_handleMultiLineCommentEndingState(
+template<typename CharT, typename OutputT>
+void Tokenizer<CharT, OutputT>::_handleMultiLineCommentEndingState(
     CharT letter)
 {
     switch (letter)
@@ -360,7 +360,7 @@ void Tokenizer<CharT, AssemblerT>::_handleMultiLineCommentEndingState(
         _token.data.pop_back();
         _state = _State::other;
         _token.type = Token<CharT>::Type::comment;
-        _assembler(_token);
+        _output(_token);
         _token.data.clear();
         break;
     default:
@@ -374,8 +374,8 @@ void Tokenizer<CharT, AssemblerT>::_handleMultiLineCommentEndingState(
  * Determine if a letter can be inside a string literals
  * @returns true if letter is between A-Z, a-z, 0-9
  */
-template<typename CharT, typename AssemblerT>
-bool Tokenizer<CharT, AssemblerT>::_canLetterBeNonStringLiteral(CharT letter)
+template<typename CharT, typename OutputT>
+bool Tokenizer<CharT, OutputT>::_canLetterBeNonStringLiteral(CharT letter)
 {
     if (letter >= keywords::A<CharT> && letter <= keywords::Z<CharT>)
     {

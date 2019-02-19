@@ -45,7 +45,7 @@ BasicValue<CharT> parse(Iter begin, Iter end)
 
     tokenizer.tokenize(begin, end);
 
-    BasicValue<CharT> root = std::move(tokenizer.assembler().root());
+    BasicValue<CharT> root = std::move(tokenizer.output().root());
 
     return root;
 }
