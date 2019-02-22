@@ -34,7 +34,7 @@ public:
      */
     template<typename Iter>
     void tokenize(Iter begin, Iter end);
-    
+
     OutputT &output();
 
 private:
@@ -80,9 +80,16 @@ private:
      */
     bool _canLetterBeNonStringLiteral(CharT letter);
 
+    // Token that holds the current buffer
     Token<CharT> _token;
+
+    // Current state of the optimizer
     _State _state = _State::other;
-    CharT _currentLetter;
+
+    // Current letter being inspected
+    CharT _currentLetter = CharT{};
+
+    // Where tokenizer output is sent
     OutputT _output;
 };
 } // namespace json::token
