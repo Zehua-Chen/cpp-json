@@ -54,25 +54,25 @@ private:
      * Given a the current state, invoke the appropriate state handler
      * @param letter the input
      */
-    void _inspectLetter(CharT letter);
+    void _inspectCurrentLetter();
 
     // State handlers
 
-    void _handleOtherState(CharT letter);
+    void _handleOtherState();
 
-    void _handleSingleQuoteStringState(CharT letter);
+    void _handleSingleQuoteStringState();
 
-    void _handleDoubleQuoteStringState(CharT letter);
+    void _handleDoubleQuoteStringState();
 
-    void _handleNonStringLiteralState(CharT letter);
+    void _handleNonStringLiteralState();
 
-    void _handleMaybeCommentState(CharT letter);
+    void _handleMaybeCommentState();
 
-    void _handleSingleLineCommentState(CharT letter);
+    void _handleSingleLineCommentState();
 
-    void _handleMultiLineCommentState(CharT letter);
+    void _handleMultiLineCommentState();
 
-    void _handleMultiLineCommentEndingState(CharT letter);
+    void _handleMultiLineCommentEndingState();
 
     /**
      * Determine if a letter can be inside a string literals
@@ -82,6 +82,7 @@ private:
 
     Token<CharT> _token;
     _State _state = _State::other;
+    CharT _currentLetter;
     OutputT _output;
 };
 } // namespace json::token
@@ -104,7 +105,8 @@ void Tokenizer<CharT, OutputT>::tokenize(Iter begin, Iter end)
 
     while (begin != end)
     {
-        _inspectLetter(*begin);
+        _currentLetter = *begin;
+        _inspectCurrentLetter();
 
         ++begin;
     }
@@ -129,43 +131,43 @@ OutputT &Tokenizer<CharT, OutputT>::output()
  * @param letter the input
  */
 template<typename CharT, typename OutputT>
-void Tokenizer<CharT, OutputT>::_inspectLetter(CharT letter)
+void Tokenizer<CharT, OutputT>::_inspectCurrentLetter()
 {
     switch (_state)
     {
     case _State::other:
-        _handleOtherState(letter);
+        _handleOtherState();
         break;
     case _State::singleQuoteString:
-        _handleSingleQuoteStringState(letter);
+        _handleSingleQuoteStringState();
         break;
     case _State::doubleQuoteString:
-        _handleDoubleQuoteStringState(letter);
+        _handleDoubleQuoteStringState();
         break;
     case _State::nonStringLiteral:
-        _handleNonStringLiteralState(letter);
+        _handleNonStringLiteralState();
         break;
     case _State::maybeComment:
-        _handleMaybeCommentState(letter);
+        _handleMaybeCommentState();
         break;
     case _State::singleLineComment:
-        _handleSingleLineCommentState(letter);
+        _handleSingleLineCommentState();
         break;
     case _State::multiLineComment:
-        _handleMultiLineCommentState(letter);
+        _handleMultiLineCommentState();
         break;
     case _State::multiLineCommentEnding:
-        _handleMultiLineCommentEndingState(letter);
+        _handleMultiLineCommentEndingState();
         break;
     }
 }
 
 template<typename CharT, typename OutputT>
-void Tokenizer<CharT, OutputT>::_handleOtherState(CharT letter)
+void Tokenizer<CharT, OutputT>::_handleOtherState()
 {
     using namespace json;
 
-    switch (letter)
+    switch (_currentLetter)
     {
     case keywords::leftCurlyBrace<CharT>:
     {
@@ -247,61 +249,61 @@ void Tokenizer<CharT, OutputT>::_handleOtherState(CharT letter)
         break;
     }
 
-    if (_canLetterBeNonStringLiteral(letter))
+    if (_canLetterBeNonStringLiteral(_currentLetter))
     {
-        _token.data += letter;
+        _token.data += _currentLetter;
         _state = _State::nonStringLiteral;
     }
 }
 
 template<typename CharT, typename OutputT>
-void Tokenizer<CharT, OutputT>::_handleSingleQuoteStringState(CharT letter)
+void Tokenizer<CharT, OutputT>::_handleSingleQuoteStringState()
 {
-    switch (letter)
+    switch (_currentLetter)
     {
     case keywords::singleQuote<CharT>:
         _state = _State::other;
         break;
     default:
-        _token.data += letter;
+        _token.data += _currentLetter;
         break;
     }
 }
 
 template<typename CharT, typename OutputT>
-void Tokenizer<CharT, OutputT>::_handleDoubleQuoteStringState(CharT letter)
+void Tokenizer<CharT, OutputT>::_handleDoubleQuoteStringState()
 {
-    switch (letter)
+    switch (_currentLetter)
     {
     case keywords::doubleQuote<CharT>:
         _state = _State::other;
         break;
     default:
-        _token.data += letter;
+        _token.data += _currentLetter;
         break;
     }
 }
 
 template<typename CharT, typename OutputT>
-void Tokenizer<CharT, OutputT>::_handleNonStringLiteralState(CharT letter)
+void Tokenizer<CharT, OutputT>::_handleNonStringLiteralState()
 {
-    if (_canLetterBeNonStringLiteral(letter))
+    if (_canLetterBeNonStringLiteral(_currentLetter))
     {
-        _token.data += letter;
+        _token.data += _currentLetter;
     }
     else
     {
         // Due to the fact that non string literals do not have border letters,
         // the next letter cannot be discarded.
         _state = _State::other;
-        _handleOtherState(letter);
+        _handleOtherState();
     }
 }
 
 template<typename CharT, typename OutputT>
-void Tokenizer<CharT, OutputT>::_handleMaybeCommentState(CharT letter)
+void Tokenizer<CharT, OutputT>::_handleMaybeCommentState()
 {
-    switch (letter)
+    switch (_currentLetter)
     {
     case keywords::backSlash<CharT>:
         _state = _State::singleLineComment;
@@ -315,9 +317,9 @@ void Tokenizer<CharT, OutputT>::_handleMaybeCommentState(CharT letter)
 }
 
 template<typename CharT, typename OutputT>
-void Tokenizer<CharT, OutputT>::_handleSingleLineCommentState(CharT letter)
+void Tokenizer<CharT, OutputT>::_handleSingleLineCommentState()
 {
-    switch (letter)
+    switch (_currentLetter)
     {
     case keywords::endline<CharT>:
         _state = _State::other;
@@ -328,33 +330,32 @@ void Tokenizer<CharT, OutputT>::_handleSingleLineCommentState(CharT letter)
     case keywords::carriageReturn<CharT>:
         break;
     default:
-        _token.data += letter;
+        _token.data += _currentLetter;
         break;
     }
 }
 
 template<typename CharT, typename OutputT>
-void Tokenizer<CharT, OutputT>::_handleMultiLineCommentState(CharT letter)
+void Tokenizer<CharT, OutputT>::_handleMultiLineCommentState()
 {
-    switch (letter)
+    switch (_currentLetter)
     {
     case keywords::star<CharT>:
         _state = _State::multiLineCommentEnding;
-        _token.data += letter;
+        _token.data += _currentLetter;
         break;
     // case keywords::carriageReturn<CharT>:
     //     break;
     default:
-        _token.data += letter;
+        _token.data += _currentLetter;
         break;
     }
 }
 
 template<typename CharT, typename OutputT>
-void Tokenizer<CharT, OutputT>::_handleMultiLineCommentEndingState(
-    CharT letter)
+void Tokenizer<CharT, OutputT>::_handleMultiLineCommentEndingState()
 {
-    switch (letter)
+    switch (_currentLetter)
     {
     case keywords::backSlash<CharT>:
         _token.data.pop_back();
@@ -364,7 +365,7 @@ void Tokenizer<CharT, OutputT>::_handleMultiLineCommentEndingState(
         _token.data.clear();
         break;
     default:
-        _token.data += letter;
+        _token.data += _currentLetter;
         _state = _State::multiLineComment;
         break;
     }
