@@ -104,3 +104,23 @@ TEST(BasicArrayTest, ReadWrite)
 
     EXPECT_EQ(array[1].string(), newElement.string());
 }
+
+TEST(BasicArrayTest, Erase)
+{
+    auto array = makeArray();
+
+    auto element1 = makePrimitive();
+    element1.string("element 1");
+    auto element2 = makePrimitive();
+    element2.string("element 2");
+
+    array.append(element1);
+    array.append(element2);
+    
+    ASSERT_EQ(array.size(), size_t{ 2 });
+    
+    array.erase(1);
+    
+    ASSERT_EQ(array.size(), size_t{ 1 });
+    EXPECT_EQ(array[0].string(), "element 1");
+}

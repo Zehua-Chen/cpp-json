@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <variant>
 #include <vector>
+#include <iterator>
 
 namespace json
 {
@@ -91,7 +92,6 @@ public:
 
     /// Type modifiers
 
-    // TODO: Implement
     /**
      * Set the type of object;
      * @param type new type of the value
@@ -134,7 +134,6 @@ public:
      */
     void set(const Key &key, BasicValue<CharT> &value);
 
-    // TODO: Implement
     /**
      * Erase the value with the key
      * @param key the key associated with the value
@@ -185,15 +184,14 @@ public:
      * Add new element to the array.
      * @value the value to add
      */
-    void append(const BasicValue &value);
+    void append(const BasicValue<CharT> &value);
     
     /**
      * Add new element to the array.
      * @value the value to add
      */
-    void append(BasicValue &&value);
+    void append(BasicValue<CharT> &&value);
 
-    // TODO: Implement
     /**
      * Erase element in the array, will push elements to remain ordering.
      * @index the index to erase at.
@@ -218,61 +216,19 @@ public:
 
     /// Primitive Modifiers
 
-    // TODO: Implement
-    /**
-     * Set the value of the primitive to a boolean value.
-     * @value the value to set
-     */
-    void boolean(bool value);
-
     /**
      * Set the value of the primitive to a string value.
      * @value the value to set
      */
     void string(const std::basic_string<CharT> &text);
 
-    // TODO: Implement
-    /**
-     * Set the value of the primitive to a number value.
-     * @value the value to set
-     */
-    void number(float number);
-
-    // TODO: Implement
-    /**
-     * Set the value of the primitive to null value.
-     * @value the value to set
-     */
-    void nullify();
-
     /// Primitive accessors
-
-    // TODO: Implement
-    /**
-     * Retrieve the boolean value represented by the primitive
-     * @returns true or false
-     */
-    bool boolean() const;
 
     /**
      * Retrieve a constant reference to the string represented by the primitive
      * @returns a constant reference to the string.
      */
     const std::basic_string<CharT> &string() const;
-
-    // TODO: Implement
-    /**
-     * Retrieve the number represented by the primitive
-     * @returns the number that the primitive represents
-     */
-    float number() const;
-
-    // TODO: Implement
-    /**
-     * Determines if the primitve is null.
-     * @returns if the primitive is null.
-     */
-    bool isNull() const;
 
     /**
      * Retrieve a reference to the string represented by the primitive
@@ -417,6 +373,29 @@ bool BasicValue<CharT>::isPrimitive() const
 // Universal accessors
 
 /**
+ * Set the type of object;
+ * @param type new type of the value
+ */
+template<typename CharT>
+void BasicValue<CharT>::type(Type type)
+{
+    switch (type)
+    {
+    case Type::object:
+        _data.template emplace<ObjectData>();
+        break;
+    case Type::array:
+        _data.template emplace<ArrayData>();
+        break;
+    case Type::primitive:
+        _data.template emplace<PrimitiveData>();
+        break;
+    }
+    
+    _type = type;
+}
+
+/**
  * Get the size of the value
  * @returns type = object: size of unordered map; type = array: size of
  * vector; type = primitive: size of string.
@@ -500,6 +479,17 @@ void BasicValue<CharT>::set(const Key &key, BasicValue<CharT> &value)
     data.insert_or_assign(key, value);
 }
 
+/**
+ * Erase the value with the key
+ * @param key the key associated with the value
+ */
+template<typename CharT>
+void BasicValue<CharT>::erase(const Key &key)
+{
+    ObjectData &data = std::get<ObjectData>(_data);
+    data.erase(key);
+}
+
 /// Object accessors
 
 /**
@@ -567,7 +557,7 @@ bool BasicValue<CharT>::contains(const Key &key) const
  * @value the value to add
  */
 template<typename CharT>
-void BasicValue<CharT>::append(const BasicValue &value)
+void BasicValue<CharT>::append(const BasicValue<CharT> &value)
 {
     ArrayData &data = std::get<ArrayData>(_data);
     data.push_back(value);
@@ -578,10 +568,24 @@ void BasicValue<CharT>::append(const BasicValue &value)
  * @value the value to add
  */
 template<typename CharT>
-void BasicValue<CharT>::append(BasicValue &&value)
+void BasicValue<CharT>::append(BasicValue<CharT> &&value)
 {
     ArrayData &data = std::get<ArrayData>(_data);
     data.push_back(std::move(value));
+}
+
+/**
+ * Erase element in the array, will push elements to remain ordering.
+ * @index the index to erase at.
+ */
+template<typename CharT>
+void BasicValue<CharT>::erase(const size_t index)
+{
+    ArrayData &data = std::get<ArrayData>(_data);
+    auto position = data.begin();
+    std::advance(position, index);
+    
+    data.erase(position);
 }
 
 /// Array accessors

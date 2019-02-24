@@ -121,3 +121,19 @@ TEST(BasicObjectTest, ReadWriteWithSubscripts)
 
     EXPECT_EQ(object.get("name").string(), newName.string());
 }
+
+TEST(BasicObjectTest, Erase)
+{
+    auto object = makeObject();
+    
+    auto name = makePrimitive();
+    name.string("jackson");
+    
+    object["name"] = name;
+    
+    ASSERT_TRUE(object.contains("name"));
+    
+    object.erase("name");
+    
+    ASSERT_FALSE(object.contains("name"));
+}

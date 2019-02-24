@@ -8,10 +8,17 @@
 
 #pragma once
 
+#include "Json/Assembler.hpp"
 #include "Json/BasicValue.hpp"
+#include "Json/Keywords.hpp"
+#include "Json/Parse.hpp"
+#include "Json/Token.hpp"
 #include "Json/Tokenizer.hpp"
 
 namespace json 
 {
     using Value = BasicValue<char>;
+    using U16Value = BasicValue<char16_t>;
+    using U32Value = BasicValue<char32_t>;
+    using WValue = BasicValue<wchar_t>;
 }

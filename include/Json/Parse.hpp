@@ -17,7 +17,12 @@
 
 namespace json
 {
-template<typename Iter, typename CharT = char>
+/**
+ * Parse a json value stored in a string in the range [begin, end)
+ * @param begin inclusive begin
+ * @param end exclusive end
+ */
+template<typename CharT = char, typename Iter>
 BasicValue<CharT> parse(Iter begin, Iter end);
 } // namespace json
 
@@ -25,18 +30,22 @@ BasicValue<CharT> parse(Iter begin, Iter end);
 
 namespace json
 {
-template<typename Iter, typename CharT>
+/**
+ * Parse a json value stored in a string in the range [begin, end)
+ * @param begin inclusive begin
+ * @param end exclusive end
+ */
+template<typename CharT, typename Iter>
 BasicValue<CharT> parse(Iter begin, Iter end)
 {
     using json::assemble::Assembler;
     using json::token::Tokenizer;
 
-    Tokenizer<CharT> tokenizer;
-    Assembler<CharT> assembler;
+    Tokenizer<CharT, Assembler<CharT>> tokenizer;
 
-    tokenizer.tokenize(begin, end, assembler);
+    tokenizer.tokenize(begin, end);
 
-    BasicValue<CharT> root = std::move(assembler.root());
+    BasicValue<CharT> root = std::move(tokenizer.output().root());
 
     return root;
 }

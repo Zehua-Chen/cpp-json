@@ -21,6 +21,8 @@ add_executable(
     "test/BasicObjectTest.cpp"
     "test/BasicArrayTest.cpp"
     "test/BasicPrimitiveTest.cpp"
+    "test/BasicValueTest.cpp"
+    "test/EncodingTest.cpp"
     "test/ParseTest.cpp"
     "test/TokenTest.cpp"
     "test/TokenizerTest.cpp"

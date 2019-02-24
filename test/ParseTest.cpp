@@ -7,7 +7,7 @@
 //
 
 #include "gtest/gtest.h"
-#include "Json/Parse.hpp"
+#include "Json/Json.hpp"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -47,20 +47,20 @@ TEST_F(ParseTest, RootTest)
 
 TEST_F(ParseTest, FirstElement)
 {
-    const BasicValue<char> &last = root[0];
+    const BasicValue<char> &first = root[0];
     
-    ASSERT_TRUE(last.contains("Dead"));
-    EXPECT_EQ(last["Dead"].string(), "false");
+    ASSERT_TRUE(first.contains("Dead"));
+    EXPECT_EQ(first["Dead"].string(), "false");
     
-    ASSERT_TRUE(last.contains("Destination"));
-    EXPECT_EQ(last["Destination"].string(), "0");
+    ASSERT_TRUE(first.contains("Destination"));
+    EXPECT_EQ(first["Destination"].string(), "0");
     
-    ASSERT_TRUE(last.contains("Type"));
-    EXPECT_EQ(last["Type"].string(), "Player");
+    ASSERT_TRUE(first.contains("Type"));
+    EXPECT_EQ(first["Type"].string(), "Player");
     
     // Nested Item: Death Efects
-    ASSERT_TRUE(last.contains("Death Effects"));
-    const BasicValue<char> &deathEffect = last["Death Effects"];
+    ASSERT_TRUE(first.contains("Death Effects"));
+    const BasicValue<char> &deathEffect = first["Death Effects"];
     
     ASSERT_TRUE(deathEffect.contains("Speed"));
     EXPECT_EQ(deathEffect["Speed"].string(), "0");
