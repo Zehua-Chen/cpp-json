@@ -86,8 +86,19 @@ struct Token
      */
     NumberData &number();
     
+    /**
+     * Become a string token
+     */
     void formString();
+    
+    /**
+     * Become a comment token
+     */
     void formComment();
+    
+    /**
+     * Become a number token
+     */
     void formNumber();
 
     /**
@@ -276,6 +287,36 @@ Token<CharT>::Token(const float &num)
     , data(num)
 {
     
+}
+
+/**
+ * Become a string token
+ */
+template<typename CharT>
+void Token<CharT>::formString()
+{
+    type = Type::string;
+    data.template emplace<0>();
+}
+
+/**
+ * Become a comment token
+ */
+template<typename CharT>
+void Token<CharT>::formComment()
+{
+    type = Type::comment;
+    data.template emplace<0>();
+}
+
+/**
+ * Become a number token
+ */
+template<typename CharT>
+void Token<CharT>::formNumber()
+{
+    type = Type::number;
+    data.template emplace<1>(0.0f);
 }
 
 /**
