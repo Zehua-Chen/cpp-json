@@ -12,6 +12,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <variant>
 
 namespace json::token
 {
@@ -24,11 +25,19 @@ struct Token
         endObject,
         beginArray,
         endArray,
-        key,
-        value,
+        string,
+        number,
+        booleanTrue,
+        booleanFalse,
+        null,
         comment,
         undefined,
     };
+    
+    using StringData = std::basic_string<CharT>;
+    using NumberData = float;
+    
+    using Data = std::variant<StringData, NumberData>;
 
     /**
      * Create a token with type initialized to undefined.
@@ -46,14 +55,40 @@ struct Token
      * @param other another token
      */
     Token(Token<CharT> &&other);
-
+    
     /**
-     * Transfer the resources of anther token
-     * @param type type of the token
-     * @param data data of the token
+     * Create a token of a specific type
+     * @type type to create the token with.
      */
-    Token(
-        Type type, std::basic_string<CharT> data = std::basic_string<CharT>{});
+    Token(const Type &type);
+    
+    /**
+     * Create a string token
+     * @str the string to create the token with
+     */
+    Token(const std::basic_string<CharT> &str);
+    
+    /**
+     * Create a number token
+     * @num the number to create the token with
+     */
+    Token(const float &num);
+    
+    /**
+     * Get a reference to the string data if the type is string or comment
+     * @returns a reference to the string data
+     */
+    StringData &string();
+    
+    /**
+     * Get a reference to the number data;
+     * @returns a reference to the number data
+     */
+    NumberData &number();
+    
+    void formString();
+    void formComment();
+    void formNumber();
 
     /**
      * See if two tokens are equal
@@ -67,8 +102,16 @@ struct Token
      */
     bool operator!=(const Token<CharT> &other) const;
 
+    /**
+     * Type of the token
+     */
     Type type;
-    std::basic_string<CharT> data;
+    
+    /**
+     * Data of the token
+     * Undefined unless type is string, comment or number
+     */
+    Data data;
 };
 
 /**
@@ -95,6 +138,7 @@ template<typename CharT>
 std::basic_ostream<CharT> &
 operator<<(std::basic_ostream<CharT> &out, const Token<CharT> &token)
 {
+    using std::get;
     using std::string_view;
 
     const auto print = [&](string_view text) {
@@ -106,13 +150,22 @@ operator<<(std::basic_ostream<CharT> &out, const Token<CharT> &token)
 
     switch (token.type)
     {
-    case Token<CharT>::Type::key:
-        print("key=");
-        out << token.data;
+    case Token<CharT>::Type::string:
+        print("string=");
+        out << get<0>(token.data);
         break;
-    case Token<CharT>::Type::value:
-        print("value=");
-        out << token.data;
+    case Token<CharT>::Type::number:
+        print("number=");
+        out << get<1>(token.data);
+        break;
+    case Token<CharT>::Type::booleanTrue:
+        print("number=true");
+        break;
+    case Token<CharT>::Type::booleanFalse:
+        print("number=false");
+        break;
+    case Token<CharT>::Type::null:
+        print("null");
         break;
     case Token<CharT>::Type::beginObject:
         print("beginObject");
@@ -128,7 +181,7 @@ operator<<(std::basic_ostream<CharT> &out, const Token<CharT> &token)
         break;
     case Token<CharT>::Type::comment:
         print("comment=");
-        out << token.data;
+        out << get<0>(token.data);
         break;
     case Token<CharT>::Type::undefined:
         print("?");
@@ -165,20 +218,84 @@ Token<CharT>::Token(const Token<CharT> &other)
 template<typename CharT>
 Token<CharT>::Token(Token<CharT> &&other)
     : type(other.type)
-    , data(std::move(other.data))
+{
+    switch (type)
+    {
+    case Type::string:
+    case Type::comment:
+        data.template emplace<0>(std::move(std::get<0>(other.data)));
+        break;
+    case Type::number:
+        data = other.data;
+        break;
+    default:
+        break;
+    }
+}
+
+/**
+ * Create a token of a specific type
+ * @type type to create the token with.
+ */
+template<typename CharT>
+Token<CharT>::Token(const Type &type)
+    : type(type)
+    , data()
+{
+    switch (type)
+    {
+    case Type::string:
+        data.template emplace<0>();
+        break;
+    case Type::number:
+        data.template emplace<1>(0.0f);
+        break;
+    default:
+        break;
+    }
+}
+
+/**
+ * Create a string token
+ * @str the string to create the token with
+ */
+template<typename CharT>
+Token<CharT>::Token(const std::basic_string<CharT> &str)
+    : type(Type::string)
+    , data(str)
 {
 }
 
 /**
- * Transfer the resources of anther token
- * @param type type of the token
- * @param data data of the token
+ * Create a number token
+ * @num the number to create the token with
  */
 template<typename CharT>
-Token<CharT>::Token(Type type, std::basic_string<CharT> data)
-    : type(type)
-    , data(data)
+Token<CharT>::Token(const float &num)
+    : type(Type::number)
+    , data(num)
 {
+    
+}
+
+/**
+ * Get a reference to the string data if the type is string or comment
+ * @returns a reference to the string data
+ */
+template<typename CharT>
+typename Token<CharT>::StringData &Token<CharT>::string()
+{
+    return std::get<0>(data);
+}
+
+/**
+ * Get a reference to the number data;
+ * @returns a reference to the number data
+ */
+template<typename CharT>
+typename Token<CharT>::NumberData &Token<CharT>::number()
+{
+    return std::get<1>(data);
 }
 
 /**
