@@ -12,20 +12,20 @@ set(
     "include/Json/Keywords.hpp"
     "include/Json/Parse.hpp"
     "include/Json/Token.hpp"
-    "include/Json/Tokenizer.hpp")
+    "include/Json/Lexer.hpp")
 
 add_executable(
     test
-    "test/AssemblerTest.cpp"
+    # "test/AssemblerTest.cpp"
     "test/testmain.cpp"
     "test/BasicObjectTest.cpp"
     "test/BasicArrayTest.cpp"
     "test/BasicPrimitiveTest.cpp"
     "test/BasicValueTest.cpp"
-    "test/EncodingTest.cpp"
-    "test/ParseTest.cpp"
+    # "test/EncodingTest.cpp"
+    # "test/ParseTest.cpp"
     "test/TokenTest.cpp"
-    "test/TokenizerTest.cpp"
+    "test/LexerTest.cpp"
     ${HEADERS})
     
 target_link_libraries(
