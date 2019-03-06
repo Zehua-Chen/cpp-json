@@ -18,3 +18,5 @@ dependencies/
 
 # Editors
 .vscode
+
+__pycache__

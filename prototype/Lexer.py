@@ -26,7 +26,7 @@ class NumberState(enum.Enum):
     AFTER_E = 2
 
 
-class NumberParser:
+class NumberLexer:
 
     class State(enum.Enum):
         BEFORE_DEC_POINT = 0
@@ -39,26 +39,28 @@ class NumberParser:
         self.after_dec_point = 0
         self.distance_after_dec_point = 0
         self.scale = 0
-        self.state = NumberParser.State.BEFORE_DEC_POINT
+        self.scale_sign = 1
+        self.state = NumberLexer.State.BEFORE_DEC_POINT
 
     def to_number(self) -> float:
-        return self.sign * (self.pre_dot + self.after_dec_point) * (10 ** self.scale)
+        scale = self.scale * self.scale_sign
+        return self.sign * (self.pre_dot + self.after_dec_point) * (10 ** scale)
 
     def take_number(self, number: int):
 
-        if self.state == NumberParser.State.BEFORE_DEC_POINT:
+        if self.state == NumberLexer.State.BEFORE_DEC_POINT:
             self._add_before_dec_point(number)
-        elif self.state == NumberParser.State.AFTER_DEC_POINT:
+        elif self.state == NumberLexer.State.AFTER_DEC_POINT:
             self._add_after_dec_point(number)
-        elif self.state == NumberParser.State.AFTER_E:
+        elif self.state == NumberLexer.State.AFTER_E:
             self._add_scale(number)
 
     def go_after_dec_point(self):
-        self.state = NumberParser.State.AFTER_DEC_POINT
+        self.state = NumberLexer.State.AFTER_DEC_POINT
         self.distance_after_dec_point = 1
 
     def go_after_e(self):
-        self.state = NumberParser.State.AFTER_E
+        self.state = NumberLexer.State.AFTER_E
 
     def _add_after_dec_point(self, value: int):
         self.after_dec_point += value * \
@@ -74,7 +76,7 @@ class NumberParser:
         self.scale += value
 
 
-class PrimitiveParser:
+class PrimitiveLexer:
     
     def __init__(self, index: int, primtive: str):
         self.index = index
@@ -160,17 +162,17 @@ class Lexer:
         elif self.current_letter == "f":
             self.state = State.FALSE
             # self.state_data = "false", 1
-            self.state_data = PrimitiveParser(1, "false")
+            self.state_data = PrimitiveLexer(1, "false")
         # if matching true
         elif self.current_letter == "t":
             self.state = State.TRUE
             # self.state_data = "true", 1
-            self.state_data = PrimitiveParser(1, "true")
+            self.state_data = PrimitiveLexer(1, "true")
         # if matching null
         elif self.current_letter == "n":
             self.state = State.NULL
             # self.state_data = "null", 1
-            self.state_data = PrimitiveParser(1, "null")
+            self.state_data = PrimitiveLexer(1, "null")
         elif self.current_letter == " " \
                 or self.current_letter == "\t" \
                 or self.current_letter == "\n":
@@ -178,11 +180,11 @@ class Lexer:
         # negative numbers
         elif self.current_letter == "-":
             self.state = State.NUMBER
-            self.state_data = NumberParser(-1)
+            self.state_data = NumberLexer(-1)
         # number
         elif self.current_letter.isnumeric():
             self.state = State.NUMBER
-            self.state_data = NumberParser(1)
+            self.state_data = NumberLexer(1)
         # unexpected characters
         else:
             raise LexerException(self.current_letter)
@@ -249,10 +251,16 @@ class Lexer:
             self.should_continue = False
         # - after e
         elif self.current_letter == "-":
-            pass
+            if self.state_data.state == NumberLexer.State.AFTER_E:
+                self.state_data.scale_sign = -1
+            else:
+                raise LexerException(self.current_letter)
         # + after e
         elif self.current_letter == "+":
-            pass
+            if self.state_data.state == NumberLexer.State.AFTER_E:
+                self.state_data.scale_sign = 1
+            else:
+                raise LexerException(self.current_letter)
         # . dot
         elif self.current_letter == ".":
             # self.state_data.state = NumberState.AFTER_DOT

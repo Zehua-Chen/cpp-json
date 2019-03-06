@@ -2,7 +2,7 @@ from Token import Token
 from Lexer import Lexer, LexerException, State
 
 
-json = "{ 'a': true, 'b': false, 'c': null, 'd': -12.22e2 }"
+json = "{ 'a': true, 'b': false, 'c': null, 'd': -12.22e-2 }"
 lexer = Lexer(json)
 
 while not lexer.is_finished:
