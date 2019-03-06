@@ -1,5 +1,4 @@
-from Token import Token
-from Lexer import Lexer, LexerException, State
+from lexer import Lexer, Token, LexerException
 
 
 json = "{ 'a': true, 'b': false, 'c': null, 'd': -12.22e-2 }"

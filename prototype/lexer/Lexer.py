@@ -1,15 +1,8 @@
 import enum
-from Token import Token
-
-
-class LexerException(BaseException):
-
-    def __init__(self, letter: str):
-        self.letter = letter
-
-    def __str__(self):
-        return "unexpected letter: {}".format(self.letter)
-
+from .Token import Token
+from .LexerException import LexerException
+from .NumberLexer import NumberLexer
+from .PrimitiveLexer import PrimitiveLexer
 
 class State(enum.Enum):
     START = 0
@@ -18,85 +11,6 @@ class State(enum.Enum):
     TRUE = 3
     NULL = 4
     NUMBER = 5
-
-
-class NumberState(enum.Enum):
-    BEFORE_DOT = 0
-    AFTER_DOT = 1
-    AFTER_E = 2
-
-
-class NumberLexer:
-
-    class State(enum.Enum):
-        BEFORE_DEC_POINT = 0
-        AFTER_DEC_POINT = 1
-        AFTER_E = 2
-
-    def __init__(self, sign):
-        self.sign = sign
-        self.pre_dot = 0
-        self.after_dec_point = 0
-        self.distance_after_dec_point = 0
-        self.scale = 0
-        self.scale_sign = 1
-        self.state = NumberLexer.State.BEFORE_DEC_POINT
-
-    def to_number(self) -> float:
-        scale = self.scale * self.scale_sign
-        return self.sign * (self.pre_dot + self.after_dec_point) * (10 ** scale)
-
-    def take_number(self, number: int):
-
-        if self.state == NumberLexer.State.BEFORE_DEC_POINT:
-            self._add_before_dec_point(number)
-        elif self.state == NumberLexer.State.AFTER_DEC_POINT:
-            self._add_after_dec_point(number)
-        elif self.state == NumberLexer.State.AFTER_E:
-            self._add_scale(number)
-
-    def go_after_dec_point(self):
-        self.state = NumberLexer.State.AFTER_DEC_POINT
-        self.distance_after_dec_point = 1
-
-    def go_after_e(self):
-        self.state = NumberLexer.State.AFTER_E
-
-    def _add_after_dec_point(self, value: int):
-        self.after_dec_point += value * \
-            (1 / (10 ** self.distance_after_dec_point))
-        self.distance_after_dec_point += 1
-
-    def _add_before_dec_point(self, value: int):
-        self.pre_dot *= 10
-        self.pre_dot += value
-
-    def _add_scale(self, value: int):
-        self.scale *= 10
-        self.scale += value
-
-
-class PrimitiveLexer:
-    
-    def __init__(self, index: int, primtive: str):
-        self.index = index
-        self.primitive = primtive
-        self.completed = False
-        
-    def take_letter(self, letter: str):
-        
-        # if not at last letter
-        if self.index < len(self.primitive) - 1:
-            if self.primitive[self.index] == letter:
-                self.index += 1
-            else:
-                raise LexerException(letter)
-        # if at last letter
-        else:
-            if self.primitive[self.index] == letter:
-                self.completed = True
-            else:
-                raise LexerException(letter)
 
 
 class Lexer:
@@ -205,9 +119,9 @@ class Lexer:
         self._iterate()
 
     def _true_state(self):
-        
+
         self.state_data.take_letter(self.current_letter)
-        
+
         if self.state_data.completed:
             self.state = State.START
             self.should_continue = False
@@ -218,7 +132,7 @@ class Lexer:
     def _false_state(self):
 
         self.state_data.take_letter(self.current_letter)
-        
+
         if self.state_data.completed:
             self.state = State.START
             self.should_continue = False
@@ -229,7 +143,7 @@ class Lexer:
     def _null_state(self):
 
         self.state_data.take_letter(self.current_letter)
-        
+
         if self.state_data.completed:
             self.state = State.START
             self.should_continue = False
