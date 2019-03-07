@@ -3,7 +3,7 @@ class PrimitiveLexer:
     def __init__(self, index: int, primtive: str):
         self.index = index
         self.primitive = primtive
-        self.completed = False
+        self.is_completed = False
         
     def take_letter(self, letter: str):
         
@@ -16,6 +16,6 @@ class PrimitiveLexer:
         # if at last letter
         else:
             if self.primitive[self.index] == letter:
-                self.completed = True
+                self.is_completed = True
             else:
                 raise LexerException(letter)
