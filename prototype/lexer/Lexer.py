@@ -55,11 +55,19 @@ class Lexer:
 
         # {
         if self.current_letter == "{":
-            self.token = Token("begin object")
+            self.token = Token.being_object()
             self.should_continue = False
         # }
         elif self.current_letter == "}":
-            self.token = Token("end object")
+            self.token = Token.end_object()
+            self.should_continue = False
+        # [
+        elif self.current_letter == "[":
+            self.token = Token.begin_array()
+            self.should_continue = False
+        # ]
+        elif self.current_letter == "[":
+            self.token = Token.end_array()
             self.should_continue = False
         # string
         elif self.current_letter == "'" or self.current_letter == "\"":
@@ -67,21 +75,19 @@ class Lexer:
             self.sub_lexer = StringLexer(self.current_letter)
         # ,
         elif self.current_letter == ",":
-            self.token = Token("value separator")
+            self.token = Token.value_separator()
             self.should_continue = False
         # :
         elif self.current_letter == ":":
-            self.token = Token("key value separator")
+            self.token = Token.key_value_separator()
             self.should_continue = False
         # If matching false
         elif self.current_letter == "f":
             self.state = State.FALSE
-            # self.state_data = "false", 1
             self.sub_lexer = PrimitiveLexer(1, "false")
         # if matching true
         elif self.current_letter == "t":
             self.state = State.TRUE
-            # self.state_data = "true", 1
             self.sub_lexer = PrimitiveLexer(1, "true")
         # if matching null
         elif self.current_letter == "n":
@@ -111,7 +117,7 @@ class Lexer:
         self.sub_lexer.take_letter(self.current_letter)
         
         if self.sub_lexer.is_completed:
-            self.token = Token("string", self.sub_lexer.to_string())
+            self.token = Token.string(self.sub_lexer.to_string())
             self.should_continue = False
             self.state = State.START
 
@@ -125,7 +131,7 @@ class Lexer:
         if self.sub_lexer.is_completed:
             self.state = State.START
             self.should_continue = False
-            self.token = Token("boolean", "true")
+            self.token = Token.boolean(True)
 
         self._iterate()
 
@@ -136,7 +142,7 @@ class Lexer:
         if self.sub_lexer.is_completed:
             self.state = State.START
             self.should_continue = False
-            self.token = Token("boolean", "false")
+            self.token = Token.boolean(False)
 
         self._iterate()
 
@@ -147,7 +153,7 @@ class Lexer:
         if self.sub_lexer.is_completed:
             self.state = State.START
             self.should_continue = False
-            self.token = Token("null")
+            self.token = Token.null()
 
         self._iterate()
 
@@ -160,7 +166,7 @@ class Lexer:
                 or self.current_letter == "}" \
                 or self.current_letter == "]" \
                 or self.current_letter == " ":
-            self.token = Token("number", self.sub_lexer.to_number())
+            self.token = Token.number(self.sub_lexer.to_number())
             self.state = State.START
             self.should_continue = False
             return
