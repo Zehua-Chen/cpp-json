@@ -55,6 +55,8 @@ class StringLexer:
             if self.hex_count == 4:
                 self.buffer += "(number: {})".format(self.hex_value)
                 self.state = StringLexer.State.STRING
+                self.hex_count = 0
+                self.hex_value = 0
 
     def to_string(self) -> str:
         return self.buffer
