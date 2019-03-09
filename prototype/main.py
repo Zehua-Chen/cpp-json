@@ -1,8 +1,7 @@
 from lexer import Lexer, Token, LexerException
 
 
-# json = "{ 'a': true, 'b': false, 'c': null, 'd': -12.22e-2, 'e': 'as we can' }"
-json = "{ 'abc': 'ee\\\\e' }"
+json = "{ 'a': true, 'b': false, 'c': null, 'd': -12.22e-2, 'e': '\\u1111' }"
 lexer = Lexer(json)
 
 print(json)

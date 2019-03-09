@@ -5,6 +5,7 @@ from .NumberLexer import NumberLexer
 from .PrimitiveLexer import PrimitiveLexer
 from .StringLexer import StringLexer
 
+
 class State(enum.Enum):
     START = 0
     STRING = 1
