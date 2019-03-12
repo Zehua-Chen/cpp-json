@@ -37,11 +37,11 @@ class Token:
         
     @staticmethod
     def boolean(value: bool):
-        return Token(Token.Type.STRING, data=value)
+        return Token(Token.Type.BOOLEAN, data=value)
         
     @staticmethod
     def number(value: float):
-        return Token(Token.Type.STRING, data=value)
+        return Token(Token.Type.NUMBER, data=value)
         
     @staticmethod
     def null():
@@ -56,12 +56,12 @@ class Token:
         return Token(Token.Type.VALUE_SEPARATOR)
 
     def __init__(self, token_type, data=None):
-        self.token_type = token_type
+        self.type = token_type
         self.data = data
 
     def __str__(self):
         
         if self.data == None:
-            return str(self.token_type.name)
+            return str(self.type.name)
         else:
-            return "{}: {}".format(self.token_type.name, self.data)
+            return "{}: {}".format(self.type.name, self.data)

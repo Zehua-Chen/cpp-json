@@ -13,8 +13,8 @@ print(json)
 while not lexer.is_finished:
     lexer.extract_token()
     composer.take_token(lexer.token)
-    
-root = composer.root
+
+root = composer.root()
 
 print("Output Json Object")
 print(root)

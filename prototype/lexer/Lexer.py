@@ -205,18 +205,3 @@ class Lexer:
         except StopIteration as e:
             self.is_finished = True
 
-    def _finish_matching_state_data(self) -> bool:
-        literal, index = self.sub_lexer
-
-        # if not at last letter
-        if index < len(literal) - 1:
-            if self.current_letter != literal[index]:
-                raise LexerException(self.current_letter)
-        # at last letter
-        else:
-            if self.current_letter == literal[index]:
-                return True
-            else:
-                raise LexerException(self.current_letter)
-
-        return False
