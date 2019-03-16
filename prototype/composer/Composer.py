@@ -37,6 +37,9 @@ class Composer:
         return self._stack[len(self._stack) - 1].value
 
     def take_token(self, token: Token):
+        
+        # print("token = {}".format(token))
+        
         if self._state == Composer.State.START:
             self._start_state(token)
         elif self._state == Composer.State.OBJ_START:
@@ -91,18 +94,54 @@ class Composer:
                 raise ComposerError("wrong place for token: {}".format(token))
         elif token.type == Token.Type.STRING:
             self._key = token.data
-            self._state = Composer.State.OBJ_HAS_KEY
+            self._state = Composer.State.OBJ_HAS_KEY_STRING
         else:
             raise ComposerError("unexpected token {}".format(token))
 
     def _obj_has_key_string_state(self, token: Token):
-        pass
+        if token.type == Token.Type.KEY_VALUE_SEAPARATOR:
+            self._state = Composer.State.OBJ_HAS_KEY
+        else:
+            raise ComposerError("unexpected token {}".format(token))
 
     def _obj_has_key_state(self, token: Token):
-        pass
+        if token.type == Token.Type.BEGIN_OBJECT:
+            self._stack.append(Scope.make_object(self._key))
+            self._state = Composer.State.OBJ_START
+        elif token.type == Token.Type.BEGIN_ARRAY:
+            self._stack.append(Scope.make_array(self._key))
+            self._state = Composer.State.ARRAY_START
+        elif token.type == Token.Type.STRING:
+            self._stack.append(Scope.make_string(token.data, self._key))
+            self._state = Composer.State.OBJ_HAS_VALUE
+        elif token.type == Token.Type.NUMBER:
+            self._stack.append(Scope.make_number(token.data, self._key))
+            self._state = Composer.State.OBJ_HAS_VALUE
+        elif token.type == Token.Type.BOOLEAN:
+            self._stack.append(Scope.make_boolean(token.data, self._key))
+            self._state = Composer.State.OBJ_HAS_VALUE
+        elif token.type == Token.Type.NULL:
+            self._stack.append(Scope.make_null(self._key))
+            self._state = Composer.State.OBJ_HAS_VALUE
 
     def _obj_has_value_state(self, token: Token):
-        pass
+        if token.type == Token.Type.END_OBJECT:
+            if self._is_current_root():
+                self._state = Composer.State.FINIEHD
+            elif self._is_parent_array():
+                self._state = Composer.State.ARRAY_HAS_VALUE
+            elif self._is_parent_object():
+                current_scope = self._stack.pop()
+                parent_scope = self._peek()
+                parent_scope.value[current_scope.name] = current_scope.value
+                self._state = Composer.State.OBJ_START
+        elif token.type == Token.Type.VALUE_SEPARATOR:
+            current_scope = self._stack.pop()
+            parent_scope = self._peek()
+            parent_scope.value[current_scope.name] = current_scope.value
+            self._state = Composer.State.OBJ_START
+            
+            print(parent_scope.value)
 
     def _array_start_state(self, token: Token):
         pass
@@ -112,12 +151,17 @@ class Composer:
 
     def _error_state(self, token: Token):
         pass
+        
+    def _peek(self) -> Scope:
+        return self._stack[len(self._stack) - 1]
 
     def _is_current_root(self) -> bool:
         return len(self._stack) == 1
 
     def _is_parent_object(self) -> bool:
-        pass
+        parent = self._stack[len(self._stack) - 2]
+        return parent.value_type == Scope.Type.OBJECT
 
     def _is_parent_array(self) -> bool:
-        pass
+        parent = self._stack[len(self._stack) - 2]
+        return parent.value_type == Scope.Type.ARRAY

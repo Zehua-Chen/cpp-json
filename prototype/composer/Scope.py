@@ -33,7 +33,7 @@ class Scope:
         
     @staticmethod
     def make_null(name: str = None):
-        return Scope(name, value, Scope.Type.NULL)
+        return Scope(name, None, Scope.Type.NULL)
 
     def __init__(self, name: str, value, value_type):
         self.name = name
