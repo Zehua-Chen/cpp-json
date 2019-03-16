@@ -2,7 +2,7 @@ from lexer import Lexer, Token, LexerException
 from composer import Composer
 
 
-json = "{ 'a': true, 'b': false, 'c': null, 'd': -12.22e-2, 'e': '\\u1111\\u1010' }"
+json = "{ 'a': true, 'b': ['a', 'a'], 'c': '12' }"
     
 lexer = Lexer(json)
 composer = Composer()
@@ -13,6 +13,7 @@ print(json)
 while not lexer.is_finished:
     lexer.extract_token()
     composer.take_token(lexer.token)
+    print(composer)
 
 root = composer.root()
 

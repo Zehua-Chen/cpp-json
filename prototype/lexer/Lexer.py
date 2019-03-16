@@ -66,7 +66,7 @@ class Lexer:
             self.token = Token.begin_array()
             self.should_continue = False
         # ]
-        elif self.current_letter == "[":
+        elif self.current_letter == "]":
             self.token = Token.end_array()
             self.should_continue = False
         # string
