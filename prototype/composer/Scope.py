@@ -6,21 +6,36 @@ class Scope:
     class Type(enum.Enum):
         OBJECT = 0
         ARRAY = 1
-        PRIMITIVE = 2
+        STRING = 2
+        BOOLEAN = 3
+        NUMBER = 4
+        NULL = 5
         
     @staticmethod
-    def new_object(name: str = None):
+    def make_object(name: str = None):
         return Scope(name, {}, Scope.Type.OBJECT)
         
     @staticmethod
-    def new_array(name: str = None):
+    def make_array(name: str = None):
         return Scope(name, [], Scope.Type.ARRAY)
         
     @staticmethod
-    def new_primitive(name: str = None, value = None):
-        return Scope(name, value, Scope.Type.PRIMITIVE)
+    def make_string(value = None, name: str = None):
+        return Scope(name, value, Scope.Type.STRING)
+        
+    @staticmethod
+    def make_number(value = None, name: str = None):
+        return Scope(name, value, Scope.Type.NUMBER)
+        
+    @staticmethod
+    def make_boolean(value = None, name: str = None):
+        return Scope(name, value, Scope.Type.BOOLEAN)
+        
+    @staticmethod
+    def make_null(name: str = None):
+        return Scope(name, value, Scope.Type.NULL)
 
-    def __init__(self, name: str, value, type):
+    def __init__(self, name: str, value, value_type):
         self.name = name
         self.value = value
-        self.type = type
+        self.value_type = value_type
