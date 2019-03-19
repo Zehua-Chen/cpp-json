@@ -14,8 +14,10 @@ class Composer:
         OBJ_HAS_KEY_STRING = 4
         OBJ_HAS_KEY = 5
         OBJ_HAS_VALUE = 6
-        ARRAY_START = 7
-        ARRAY_HAS_VALUE = 8
+        OBJ_READY = 7
+        ARRAY_START = 8
+        ARRAY_HAS_VALUE = 9
+        ARRAY_READY = 10
 
     def __init__(self):
         self._stack = []
@@ -46,10 +48,14 @@ class Composer:
             self._obj_has_key_state(token)
         elif self._state == Composer.State.OBJ_HAS_VALUE:
             self._obj_has_value_state(token)
+        elif self._state == Composer.State.OBJ_READY:
+            self._obj_ready(token)
         elif self._state == Composer.State.ARRAY_START:
             self._array_start_state(token)
         elif self._state == Composer.State.ARRAY_HAS_VALUE:
             self._array_has_value_state(token)
+        elif self._state == Composer.State.ARRAY_READY:
+            self._array_ready(token)
         elif self._state == Composer.State.ERROR:
             self._error_state(token)
         elif self._state == Composer.State.FINIEHD:
@@ -158,15 +164,24 @@ class Composer:
                 pass
         # value separator, start a new round of key-value pair recording
         elif token.type == Token.Type.VALUE_SEPARATOR:
-            self._state = Composer.State.OBJ_START
+            self._state = Composer.State.OBJ_READY
+            
+    def _obj_ready(self, token: Token):
+        if token.type == Token.Type.STRING:
+            self._key = token.data
+            self._state = Composer.State.OBJ_HAS_KEY_STRING
+        else:
+            raise ComposerError("cannot have {} here".format(token))
 
     def _array_start_state(self, token: Token):
         # insert new object into the array
         if token.type == Token.Type.BEGIN_OBJECT:
             self._push(Scope.make_object())
+            self._state = Composer.State.OBJ_START
         # insert new array into the array
         elif token.type == Token.Type.BEGIN_ARRAY:
             self._push(Scope.make_array())
+            self._state = Composer.State.ARRAY_START
         # end array
         elif token.type == Token.Type.END_ARRAY:
             if self._is_context_object():
@@ -201,7 +216,29 @@ class Composer:
             elif self._is_context_void():
                 self._state = Composer.State.FINIEHD
         elif token.type == Token.Type.VALUE_SEPARATOR:
+            self._state = Composer.State.ARRAY_READY
+            
+    def _array_ready(self, token: Token):
+        # insert new object into the array
+        if token.type == Token.Type.BEGIN_OBJECT:
+            self._push(Scope.make_object())
+            self._state = Composer.State.OBJ_START
+        # insert new array into the array
+        elif token.type == Token.Type.BEGIN_ARRAY:
+            self._push(Scope.make_array())
             self._state = Composer.State.ARRAY_START
+        elif token.type == Token.Type.STRING:
+            self._push(Scope.make_string(token.data))
+            self._state = Composer.State.ARRAY_HAS_VALUE
+        elif token.type == Token.Type.NUMBER:
+            self._push(Scope.make_string(token.data))
+            self._state = Composer.State.ARRAY_HAS_VALUE
+        elif token.type == Token.Type.BOOLEAN:
+            self._push(Scope.make_string(token.data))
+            self._state = Composer.State.ARRAY_HAS_VALUE
+        elif token.type == Token.Type.NULL:
+            self._push(Scope.make_null())
+            self._state = Composer.State.ARRAY_HAS_VALUE
 
     def _error_state(self, token: Token):
         pass
