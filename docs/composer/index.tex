@@ -1,0 +1,104 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabu}
+\usepackage[scaled=0.92]{helvet}
+
+\setlength{\parindent}{0pt}
+\renewcommand{\familydefault}{\sfdefault}
+
+\title{Json Composer Design}
+\author{Zehua Chen}
+\date{\today}
+
+\newcommand{\objectstart}{o\_s}
+\newcommand{\arraystart}{a\_s}
+\newcommand{\objecthaskeystring}{o\_h\_ks}
+\newcommand{\objecthaskey}{o\_h\_k}
+\newcommand{\objecthasvalue}{o\_h\_\_v}
+\newcommand{\arrayhasvalue}{a\_h\_v}
+
+\begin{document}
+  \maketitle
+  
+  \section{States}
+  
+    \begin{description}
+      \item[start] initial state of the composer;
+      \item[error] the state the composer will be in if an error has occured; 
+      \item[finish] the state the compoer will be in after the root object has
+      been parsed;  
+      \item[object start] the initial start of an object;
+      \item[object has key string] the state in which the composer will be in 
+      after receiving the string that represents the key;
+      \item[object has key] the state in which the composer will be in after 
+      receiving the key string and the key value separator 
+      token;
+      \item[object has value] the state in which the composer will be in after
+      receiving a value;
+      \item[object ready] the state in which the composer will be in after 
+      receiving a value separator and is ready to start 
+      taking a new key-value pair; 
+      \item[array start] the inital state of an array;
+      \item[array has value] the state in which the composer will be in after 
+      receiving a value;  
+      \item[array ready] the state in which the composer will be in after 
+      receiving value separator and ready to take the next element; 
+    \end{description}
+    
+    \begin{tabu} to \linewidth{ X[l] | X[l] }
+      \toprule[1pt]
+      \textbf{State} & \textbf{Shorthand} \\ \midrule[1pt] 
+      start & start \\ \hline
+      error & error \\ \hline
+      finish & finish \\ \hline
+      object start & \objectstart \\ \hline
+      object has key string & \objecthaskeystring \\ \hline
+      object has key & \objecthaskey \\ \hline
+      object has value & \objecthasvalue \\ \hline
+      object ready & o\_r \\ \hline
+      array start & \arraystart \\ \hline
+      array has value & \arrayhasvalue \\ \hline
+      array ready & a\_r \\ \bottomrule[1pt]
+    \end{tabu}
+  
+  \section{Inputs}
+  
+    \begin{tabu} to \linewidth{ X[1,l] | X[3,l] }
+      \toprule[1pt]
+      \textbf{Input} & \textbf{Description} \\ \midrule[1pt] 
+      begin\_obj & true when the token is begin object \\ \hline
+      begin\_array & true when the token is begin array \\ \hline
+      end\_obj & true when the token is end object \\ \hline
+      end\_array & true when the token is end array \\ \hline
+      string & true when the token is string \\ \hline
+      boolean & true when the token is boolean \\ \hline
+      number & true when the token is number \\ \hline
+      null & true when the token is null \\ \hline
+      non\_string & true when the token is a primitive other than string \\ \hline
+      primitive & true when the token is string, boolean, number, or null \\ \hline
+      void\_context & true when there is no parent object \\ \hline
+      obj\_context & true when the parent is an object \\ \hline
+      array\_context & true when the parent is an array \\ \bottomrule[1pt] 
+    \end{tabu}
+    
+  \section{Transitions}
+    
+    \begin{longtabu} to \linewidth{  X[1,l] | X[1,l] | X[3,l] | X[3,l] }
+      \toprule[1pt]
+      \textbf{From} & \textbf{To} & \textbf{Condition} & \textbf{Action} \\ \midrule[1pt]
+      % start state's outbonding transitions
+      \multicolumn{4}{c}{From \textbf{Start} State} \\ \midrule[1pt]
+      start & finish & primitive & push stack \\ \hline 
+      start & \objectstart & begin\_obj & push stack \\ \hline
+      start & \arraystart & begin\_array & push stack \\ \midrule[1pt]
+      % object start state's outbonding transitions
+      \multicolumn{4}{c}{From \textbf{Object Start} State} \\ \midrule[1pt]
+      \objectstart & \objecthaskeystring & string & record key \\ \hline
+      \objectstart & \objecthasvalue & end\_obj \& obj\_context & pop stack \\ \hline
+      \objectstart & \arrayhasvalue & end\_obj \& array\_context & pop stack \\ \hline
+      \objectstart & finish & end\_obj \& void\_context & \\ \hline
+      \objectstart & error & else & \\ \hline
+    \end{longtabu}
+\end{document}
