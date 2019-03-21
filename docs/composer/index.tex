@@ -12,12 +12,16 @@
 \author{Zehua Chen}
 \date{\today}
 
+\newcommand{\thickhline}{\specialrule{1pt}{0pt}{0pt}}
 \newcommand{\objectstart}{o\_s}
-\newcommand{\arraystart}{a\_s}
+\newcommand{\objectready}{o\_r}
 \newcommand{\objecthaskeystring}{o\_h\_ks}
 \newcommand{\objecthaskey}{o\_h\_k}
-\newcommand{\objecthasvalue}{o\_h\_\_v}
+\newcommand{\objecthasvalue}{o\_h\_v}
+
 \newcommand{\arrayhasvalue}{a\_h\_v}
+\newcommand{\arraystart}{a\_s}
+\newcommand{\arrayready}{a\_r}
 
 \begin{document}
   \maketitle
@@ -48,8 +52,8 @@
     \end{description}
     
     \begin{tabu} to \linewidth{ X[l] | X[l] }
-      \toprule[1pt]
-      \textbf{State} & \textbf{Shorthand} \\ \midrule[1pt] 
+      \thickhline
+      \textbf{State} & \textbf{Shorthand} \\ \thickhline
       start & start \\ \hline
       error & error \\ \hline
       finish & finish \\ \hline
@@ -57,21 +61,23 @@
       object has key string & \objecthaskeystring \\ \hline
       object has key & \objecthaskey \\ \hline
       object has value & \objecthasvalue \\ \hline
-      object ready & o\_r \\ \hline
+      object ready & \objectready \\ \hline
       array start & \arraystart \\ \hline
       array has value & \arrayhasvalue \\ \hline
-      array ready & a\_r \\ \bottomrule[1pt]
+      array ready & a\_r \\ \thickhline
     \end{tabu}
   
   \section{Inputs}
   
     \begin{tabu} to \linewidth{ X[1,l] | X[3,l] }
-      \toprule[1pt]
-      \textbf{Input} & \textbf{Description} \\ \midrule[1pt] 
-      begin\_obj & true when the token is begin object \\ \hline
+      \thickhline
+      \textbf{Input} & \textbf{Description} \\ \thickhline 
+      begin\_object & true when the token is begin object \\ \hline
       begin\_array & true when the token is begin array \\ \hline
       end\_obj & true when the token is end object \\ \hline
       end\_array & true when the token is end array \\ \hline
+      key\_value\_separator & true when the token is a key value separator \\ \hline
+      value\_separator & true when the token is a value separator \\ \hline
       string & true when the token is string \\ \hline
       boolean & true when the token is boolean \\ \hline
       number & true when the token is number \\ \hline
@@ -80,25 +86,74 @@
       primitive & true when the token is string, boolean, number, or null \\ \hline
       void\_context & true when there is no parent object \\ \hline
       obj\_context & true when the parent is an object \\ \hline
-      array\_context & true when the parent is an array \\ \bottomrule[1pt] 
+      array\_context & true when the parent is an array \\ \thickhline
     \end{tabu}
     
   \section{Transitions}
+  
+    \begin{itemize}
+      \item \textbf{push stack}: add new item to the stack;
+      \item \textbf{pop stack}: pop item from the stack and and insert the 
+      item into the new top of the stack;
+    \end{itemize}
     
     \begin{longtabu} to \linewidth{  X[1,l] | X[1,l] | X[3,l] | X[3,l] }
-      \toprule[1pt]
-      \textbf{From} & \textbf{To} & \textbf{Condition} & \textbf{Action} \\ \midrule[1pt]
+      \thickhline
+      \textbf{From} & \textbf{To} & \textbf{Condition} & \textbf{Action} \\ \thickhline
       % start state's outbonding transitions
-      \multicolumn{4}{c}{From \textbf{Start} State} \\ \midrule[1pt]
+      \multicolumn{4}{c}{From \textbf{Start} State} \\ \thickhline
       start & finish & primitive & push stack \\ \hline 
-      start & \objectstart & begin\_obj & push stack \\ \hline
-      start & \arraystart & begin\_array & push stack \\ \midrule[1pt]
+      start & \objectstart & begin\_object & push stack \\ \hline
+      start & \arraystart & begin\_array & push stack \\ \thickhline
       % object start state's outbonding transitions
-      \multicolumn{4}{c}{From \textbf{Object Start} State} \\ \midrule[1pt]
+      \multicolumn{4}{c}{From \textbf{Object Start} State} \\ \thickhline
       \objectstart & \objecthaskeystring & string & record key \\ \hline
-      \objectstart & \objecthasvalue & end\_obj \& obj\_context & pop stack \\ \hline
-      \objectstart & \arrayhasvalue & end\_obj \& array\_context & pop stack \\ \hline
+      \objectstart & \objecthasvalue & end\_obj \& obj\_context & \\ \hline
+      \objectstart & \arrayhasvalue & end\_obj \& array\_context & \\ \hline
       \objectstart & finish & end\_obj \& void\_context & \\ \hline
-      \objectstart & error & else & \\ \hline
+      \objectstart & error & else & \\ \thickhline
+      % object ready state's outbonding transitions
+      \multicolumn{4}{c}{From \textbf{Object Ready} State} \\ \thickhline
+      \objectready & \objecthaskeystring & string & record key \\ \hline
+      \objectready & error & else & \\ \thickhline
+      % object has key string state's outbonding transitions
+      \multicolumn{4}{c}{From \textbf{Object Has Key String} State} \\ \thickhline
+      \objecthaskeystring & \objecthaskey & key\_value\_separator & record key \\ \hline
+      \objecthaskeystring & error & else & \\ \thickhline
+      % object has key state's outbonding transitions
+      \multicolumn{4}{c}{From \textbf{Object Has Key} State} \\ \thickhline
+      \objecthaskey & \objecthasvalue & primitive & push stack \\ \hline
+      \objecthaskey & \objectstart & begin\_object & push stack \\ \hline
+      \objecthaskey & \arraystart & begin\_arary & push stack \\ \hline
+      \objecthaskey & error & else & \\ \thickhline
+      % object has value state's outbonding transitions
+      \multicolumn{4}{c}{From \textbf{Object Has Value} State} \\ \thickhline
+      \objecthasvalue & \objectready & value\_separator & pop stack  \\ \hline
+      \objecthasvalue & \objecthasvalue & end\_object \& object\_context & pop stack  \\ \hline
+      \objecthasvalue & \arrayhasvalue & end\_object \& array\_context & pop stack \\ \hline
+      \objecthasvalue & finish & end\_object \& void\_context & \\ \hline
+      \objecthasvalue & erorr & else & \\ \thickhline
+      % array start state's outbonding transitions
+      \multicolumn{4}{c}{From \textbf{Array Start} State} \\ \thickhline
+      \arraystart & \arraystart & begin\_array & push stack \\ \hline
+      \arraystart & \objectstart & begin\_object & push stack \\ \hline
+      \arraystart & \arrayhasvalue & primitive & push stack \\ \hline
+      \arraystart & \objecthasvalue & end\_array \& object\_context & \\ \hline
+      \arraystart & \arrayhasvalue & end\_array \& array\_context & \\ \hline
+      \arraystart & finish & end\_array \& void\_context & \\ \hline
+      \arraystart & eror & error & \\ \thickhline
+      % array ready state's outbonding transitions
+      \multicolumn{4}{c}{From \textbf{Array Ready} State} \\ \thickhline
+      \arrayready & \objectstart & begin\_object & push stack \\ \hline
+      \arrayready & \arraystart & begin\_array & push stack \\ \hline
+      \arrayready & \arrayhasvalue & primitive & push stack \\ \hline
+      \arrayready & error & else & \\ \thickhline
+      % array has value state's outbonding transitions
+      \multicolumn{4}{c}{From \textbf{Array Has Value} State} \\ \thickhline
+      \arrayhasvalue & \arrayready & value\_separator & pop stack \\ \hline 
+      \arrayhasvalue & \arrayhasvalue & end\_array \& array\_context & pop stack \\ \hline 
+      \arrayhasvalue & \objecthasvalue & end\_array \& object\_context & pop stack \\ \hline 
+      \arrayhasvalue & \objecthasvalue & end\_array \& void\_context & \\ \hline 
+      \arrayhasvalue & error & else & \\ \thickhline 
     \end{longtabu}
 \end{document}
