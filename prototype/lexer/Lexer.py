@@ -29,12 +29,13 @@ class Lexer:
         self.should_continue = True
         # end of file
         self.is_finished = False
-
-    def extract_token(self):
-        self.should_continue = True
-
-        while self.should_continue and not self.is_finished:
-            self._handle_state()
+        self.has_token = False
+        
+    def take_letter(self, letter: str):
+        self.has_token = False
+        self.current_letter = letter
+        
+        self._handle_state()
 
     def _handle_state(self):
 
@@ -56,19 +57,19 @@ class Lexer:
         # {
         if self.current_letter == "{":
             self.token = Token.being_object()
-            self.should_continue = False
+            self.has_token = True
         # }
         elif self.current_letter == "}":
             self.token = Token.end_object()
-            self.should_continue = False
+            self.has_token = True
         # [
         elif self.current_letter == "[":
             self.token = Token.begin_array()
-            self.should_continue = False
+            self.has_token = True
         # ]
         elif self.current_letter == "]":
             self.token = Token.end_array()
-            self.should_continue = False
+            self.has_token = True
         # string
         elif self.current_letter == "'" or self.current_letter == "\"":
             self.state = State.STRING
@@ -76,11 +77,11 @@ class Lexer:
         # ,
         elif self.current_letter == ",":
             self.token = Token.value_separator()
-            self.should_continue = False
+            self.has_token = True
         # :
         elif self.current_letter == ":":
             self.token = Token.key_value_separator()
-            self.should_continue = False
+            self.has_token = True
         # If matching false
         elif self.current_letter == "f":
             self.state = State.FALSE
@@ -110,19 +111,16 @@ class Lexer:
         else:
             raise LexerException(self.current_letter)
 
-        self._iterate()
-
     def _string_state(self):
         
         self.sub_lexer.take_letter(self.current_letter)
         
         if self.sub_lexer.is_completed:
             self.token = Token.string(self.sub_lexer.to_string())
-            self.should_continue = False
+            self.has_token = True
             self.state = State.START
 
         # self.current_letter = next(self.current_iter)
-        self._iterate()
 
     def _true_state(self):
 
@@ -130,10 +128,8 @@ class Lexer:
 
         if self.sub_lexer.is_completed:
             self.state = State.START
-            self.should_continue = False
+            self.has_token = True
             self.token = Token.boolean(True)
-
-        self._iterate()
 
     def _false_state(self):
 
@@ -141,10 +137,8 @@ class Lexer:
 
         if self.sub_lexer.is_completed:
             self.state = State.START
-            self.should_continue = False
+            self.has_token = True
             self.token = Token.boolean(False)
-
-        self._iterate()
 
     def _null_state(self):
 
@@ -152,10 +146,8 @@ class Lexer:
 
         if self.sub_lexer.is_completed:
             self.state = State.START
-            self.should_continue = False
+            self.has_token = True
             self.token = Token.null()
-
-        self._iterate()
 
     def _number_state(self):
 
@@ -168,7 +160,7 @@ class Lexer:
                 or self.current_letter == " ":
             self.token = Token.number(self.sub_lexer.to_number())
             self.state = State.START
-            self.should_continue = False
+            self.has_token = True
             return
         # - after e
         elif self.current_letter == "-":
@@ -196,12 +188,3 @@ class Lexer:
         # unexpected letter
         else:
             raise LexerException(self.current_letter)
-
-        self._iterate()
-
-    def _iterate(self):
-        try:
-            self.current_letter = next(self.current_iter)
-        except StopIteration as e:
-            self.is_finished = True
-

@@ -10,10 +10,12 @@ composer = Composer()
 print("Input Json")
 print(json)
 
-while not lexer.is_finished:
-    lexer.extract_token()
-    composer.take_token(lexer.token)
-    print(composer)
+for letter in json:
+    lexer.take_letter(letter)
+    
+    if lexer.has_token:
+        composer.take_token(lexer.token)
+        print(composer)
 
 root = composer.root()
 
