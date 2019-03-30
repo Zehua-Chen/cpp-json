@@ -2,7 +2,16 @@ from lexer import Lexer, Token, LexerException
 from composer import Composer
 
 
-json = "{ 'a': true, 'b': ['a', 'a'], 'c': '12' }"
+json = """
+{ 
+  'a': true, 
+  'aa': false,
+  'aaa': null,
+  'b': ['a', 'a'], 
+  'c': '12', 
+  'd': 22.2 
+}
+"""
     
 lexer = Lexer(json)
 composer = Composer()

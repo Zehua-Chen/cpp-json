@@ -30,11 +30,14 @@ class Lexer:
         # end of file
         self.is_finished = False
         self.has_token = False
-        
+
+        self._primitive = ""
+        self._primitive_index = 0
+
     def take_letter(self, letter: str):
         self.has_token = False
         self.current_letter = letter
-        
+
         self._handle_state()
 
     def _handle_state(self):
@@ -85,16 +88,20 @@ class Lexer:
         # If matching false
         elif self.current_letter == "f":
             self.state = State.FALSE
-            self.sub_lexer = PrimitiveLexer(1, "false")
+            # self.sub_lexer = PrimitiveLexer(1, "false")
+            self._primitive = "false"
+            self._primitive_index = 1
         # if matching true
         elif self.current_letter == "t":
             self.state = State.TRUE
-            self.sub_lexer = PrimitiveLexer(1, "true")
+            # self.sub_lexer = PrimitiveLexer(1, "true")
+            self._primitive = "true"
+            self._primitive_index = 1
         # if matching null
         elif self.current_letter == "n":
             self.state = State.NULL
-            # self.state_data = "null", 1
-            self.sub_lexer = PrimitiveLexer(1, "null")
+            self._primitive = "null"
+            self._primitive_index = 1
         elif self.current_letter == " " \
                 or self.current_letter == "\t" \
                 or self.current_letter == "\n":
@@ -112,9 +119,9 @@ class Lexer:
             raise LexerException(self.current_letter)
 
     def _string_state(self):
-        
+
         self.sub_lexer.take_letter(self.current_letter)
-        
+
         if self.sub_lexer.is_completed:
             self.token = Token.string(self.sub_lexer.to_string())
             self.has_token = True
@@ -123,31 +130,40 @@ class Lexer:
         # self.current_letter = next(self.current_iter)
 
     def _true_state(self):
-
-        self.sub_lexer.take_letter(self.current_letter)
-
-        if self.sub_lexer.is_completed:
-            self.state = State.START
-            self.has_token = True
-            self.token = Token.boolean(True)
+        
+        if self._primitive[self._primitive_index] == self.current_letter:
+            if self._primitive_index == len(self._primitive) - 1:
+                self.token = Token.boolean(True)
+                self.has_token = True
+                self.state = State.START
+            else:
+                self._primitive_index += 1
+        else:
+            pass
 
     def _false_state(self):
 
-        self.sub_lexer.take_letter(self.current_letter)
-
-        if self.sub_lexer.is_completed:
-            self.state = State.START
-            self.has_token = True
-            self.token = Token.boolean(False)
+        if self._primitive[self._primitive_index] == self.current_letter:
+            if self._primitive_index == len(self._primitive) - 1:
+                self.token = Token.boolean(False)
+                self.has_token = True
+                self.state = State.START
+            else:
+                self._primitive_index += 1
+        else:
+            pass
 
     def _null_state(self):
 
-        self.sub_lexer.take_letter(self.current_letter)
-
-        if self.sub_lexer.is_completed:
-            self.state = State.START
-            self.has_token = True
-            self.token = Token.null()
+        if self._primitive[self._primitive_index] == self.current_letter:
+            if self._primitive_index == len(self._primitive) - 1:
+                self.token = Token.null()
+                self.has_token = True
+                self.state = State.START
+            else:
+                self._primitive_index += 1
+        else:
+            pass
 
     def _number_state(self):
 
