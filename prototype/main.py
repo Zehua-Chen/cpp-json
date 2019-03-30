@@ -21,10 +21,8 @@ print(json)
 
 for letter in json:
     lexer.take_letter(letter)
-    
     if lexer.has_token:
         composer.take_token(lexer.token)
-        print(composer)
 
 root = composer.root()
 

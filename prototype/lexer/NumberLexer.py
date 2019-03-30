@@ -8,9 +8,9 @@ class NumberLexer:
         AFTER_DEC_POINT = 1
         AFTER_E = 2
 
-    def __init__(self, sign):
+    def __init__(self, sign = 1, pre_dot = 0):
         self.sign = sign
-        self.pre_dot = 0
+        self.pre_dot = pre_dot
         self.after_dec_point = 0
         self.distance_after_dec_point = 0
         self.scale = 0

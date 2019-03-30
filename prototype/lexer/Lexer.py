@@ -113,7 +113,8 @@ class Lexer:
         # number
         elif self.current_letter.isnumeric():
             self.state = State.NUMBER
-            self.sub_lexer = NumberLexer(1)
+            self.sub_lexer = NumberLexer(
+                sign=1, pre_dot=int(self.current_letter))
         # unexpected characters
         else:
             raise LexerException(self.current_letter)
@@ -130,7 +131,7 @@ class Lexer:
         # self.current_letter = next(self.current_iter)
 
     def _true_state(self):
-        
+
         if self._primitive[self._primitive_index] == self.current_letter:
             if self._primitive_index == len(self._primitive) - 1:
                 self.token = Token.boolean(True)
@@ -139,7 +140,7 @@ class Lexer:
             else:
                 self._primitive_index += 1
         else:
-            pass
+            raise LexerException(self.current_letter)
 
     def _false_state(self):
 
@@ -151,7 +152,7 @@ class Lexer:
             else:
                 self._primitive_index += 1
         else:
-            pass
+            raise LexerException(self.current_letter)
 
     def _null_state(self):
 
@@ -163,16 +164,18 @@ class Lexer:
             else:
                 self._primitive_index += 1
         else:
-            pass
+            raise LexerException(self.current_letter)
 
     def _number_state(self):
 
-        # print("number state, letter = {}".format(self.current_letter))
+        print("number state, letter = {}".format(self.current_letter))
 
         # End number
         if self.current_letter == "," \
                 or self.current_letter == "}" \
                 or self.current_letter == "]" \
+                or self.current_letter == "\n" \
+                or self.current_letter == "\r" \
                 or self.current_letter == " ":
             self.token = Token.number(self.sub_lexer.to_number())
             self.state = State.START
@@ -192,8 +195,6 @@ class Lexer:
                 raise LexerException(self.current_letter)
         # . dot
         elif self.current_letter == ".":
-            # self.state_data.state = NumberState.AFTER_DOT
-            # self.state_data.distance_after_dot = 1
             self.sub_lexer.go_after_dec_point()
         # e
         elif self.current_letter == "e" or self.current_letter == "E":
