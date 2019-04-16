@@ -40,7 +40,6 @@ int main()
 
 * No syntax validation;
 * Only string to json, and not the other way around;
-* `BasicValue<CharT>` is a little big (64 byte when `CharT` is `char` and compiled with clang++ on macOS)
 * `BasicValue<CharT>` does not have iterators
 * `BasicValue<CharT>` only have basic data access methods;
 
