@@ -10,7 +10,6 @@
 
 #include "Json/Assembler.hpp"
 #include "Json/BasicValue.hpp"
-#include "Json/Tokenizer.hpp"
 #include <utility>
 
 // Declarations

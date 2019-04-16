@@ -5,14 +5,13 @@
 //  Created by Zehua Chen on 1/4/19.
 //  Copyright © 2018 Zehua Chen. All rights reserved.
 //
-
 #pragma once
 
 #include <string_view>
 
 // Keywords declarations
 
-namespace json::keywords
+namespace json::keywords::letters
 {
 template<typename CharT>
 inline constexpr CharT leftCurlyBrace{};

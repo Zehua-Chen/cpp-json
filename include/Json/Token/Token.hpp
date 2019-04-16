@@ -33,10 +33,10 @@ struct Token
         comment,
         undefined,
     };
-    
+
     using StringData = std::basic_string<CharT>;
     using NumberData = float;
-    
+
     using Data = std::variant<StringData, NumberData>;
 
     /**
@@ -55,47 +55,47 @@ struct Token
      * @param other another token
      */
     Token(Token<CharT> &&other);
-    
+
     /**
      * Create a token of a specific type
      * @type type to create the token with.
      */
     Token(const Type &type);
-    
+
     /**
      * Create a string token
      * @str the string to create the token with
      */
     Token(const std::basic_string<CharT> &str);
-    
+
     /**
      * Create a number token
      * @num the number to create the token with
      */
     Token(const float &num);
-    
+
     /**
      * Get a reference to the string data if the type is string or comment
      * @returns a reference to the string data
      */
     StringData &string();
-    
+
     /**
      * Get a reference to the number data;
      * @returns a reference to the number data
      */
     NumberData &number();
-    
+
     /**
      * Become a string token
      */
     void formString();
-    
+
     /**
      * Become a comment token
      */
     void formComment();
-    
+
     /**
      * Become a number token
      */
@@ -117,7 +117,7 @@ struct Token
      * Type of the token
      */
     Type type;
-    
+
     /**
      * Data of the token
      * Undefined unless type is string, comment or number
@@ -286,7 +286,6 @@ Token<CharT>::Token(const float &num)
     : type(Type::number)
     , data(num)
 {
-    
 }
 
 /**
