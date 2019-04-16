@@ -10,3 +10,5 @@ dependencies/
 .vscode
 
 __pycache__
+
+json/
