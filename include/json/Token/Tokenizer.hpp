@@ -39,22 +39,12 @@ public:
     operator bool();
 
 private:
-    enum class _State
-    {
-        start,
-        string,
-        finished
-    };
 
     void _string(CharT boundary);
 
     Token<CharT> _token;
-    _State _state;
     IterT _begin;
     IterT _end;
-
-    // State data
-    std::basic_string<CharT> _stringBuffer;
 };
 } // namespace json::token
 
@@ -64,8 +54,7 @@ namespace json::token
 {
 template<typename CharT, typename IterT>
 Tokenizer<CharT, IterT>::Tokenizer(IterT begin, IterT end)
-    : _state(_State::start)
-    , _begin(begin)
+    : _begin(begin)
     , _end(end)
 {
 }
@@ -115,21 +104,79 @@ void Tokenizer<CharT, IterT>::extract()
 template<typename CharT, typename IterT>
 void Tokenizer<CharT, IterT>::_string(CharT boundary)
 {
+    enum class State
+    {
+        regular,
+        escape
+    };
+    
+    using namespace json::utils;
     using TType = typename Token<CharT>::Type;
-
+    
+    State state = State::regular;
+    std::basic_string<CharT> buffer;
+    
     while (_begin != _end)
     {
         CharT letter = *_begin;
         ++_begin;
-
-        if (letter == boundary)
+        
+        switch (state)
         {
-            _token.type = TType::string;
-            _token.data = std::move(_stringBuffer);
-            return;
+        case State::regular:
+            // reach end of string
+            if (letter == boundary)
+            {
+                _token.type = TType::string;
+                _token.data = std::move(buffer);
+                return;
+            }
+            
+            // handle letters that are contents of a string
+            switch (letter)
+            {
+            case letters::solidus<CharT>:
+                state = State::escape;
+                break;
+            default:
+                buffer += letter;
+            }
+            
+            break;
+        case State::escape:
+            switch (letter)
+            {
+            case letters::b<CharT>:
+                state = State::regular;
+                buffer += '\b';
+                break;
+            case letters::f<CharT>:
+                state = State::regular;
+                buffer += '\f';
+                break;
+            case letters::n<CharT>:
+                state = State::regular;
+                buffer += '\n';
+                break;
+            case letters::r<CharT>:
+                state = State::regular;
+                buffer += '\r';
+                break;
+            case letters::t<CharT>:
+                state = State::regular;
+                buffer += '\t';
+                break;
+            case letters::solidus<CharT>:
+                state = State::regular;
+                buffer += '\\';
+                break;
+            case letters::backSolidus<CharT>:
+                state = State::regular;
+                buffer += '/';
+                break;
+            }
+            break;
         }
-
-        _stringBuffer += letter;
     }
 }
 

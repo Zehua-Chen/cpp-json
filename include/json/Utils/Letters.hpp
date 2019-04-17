@@ -45,4 +45,25 @@ inline constexpr CharT singleQuote{ '\'' };
 
 template<typename CharT>
 inline constexpr CharT doubleQuote{ '\"' };
+
+template<typename CharT>
+inline constexpr CharT solidus{ '\\' };
+
+template<typename CharT>
+inline constexpr CharT backSolidus{ '/' };
+
+template<typename CharT>
+inline constexpr CharT b{ 'b' };
+
+template<typename CharT>
+inline constexpr CharT f{ 'f' };
+
+template<typename CharT>
+inline constexpr CharT n{ 'n' };
+
+template<typename CharT>
+inline constexpr CharT r{ 'r' };
+
+template<typename CharT>
+inline constexpr CharT t{ 't' };
 } // namespace json::utils

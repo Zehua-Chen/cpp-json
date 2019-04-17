@@ -53,4 +53,42 @@ TEST(TokenizerTest, String)
         
         EXPECT_EQ(tokens, expected);
     }
+    
+    // String with quotes
+    {
+        string_view json = "'\"live\"', \"'long'\"";
+        
+        vector<Token<char>> tokens = tokenize(json);
+        vector<Token<char>> expected {
+            { "\"live\"" },
+            { TType::valueSeparator },
+            { "'long'" }
+        };
+        
+        EXPECT_EQ(tokens, expected);
+    }
+    
+    // String with escape characters
+    {
+        string_view json = "'\\ba\\fb\\nc\\rd\\t'";
+        
+        vector<Token<char>> tokens = tokenize(json);
+        vector<Token<char>> expected {
+            { "\ba\fb\nc\rd\t" }
+        };
+        
+        EXPECT_EQ(tokens, expected);
+    }
+    
+    // String with solidus
+    {
+        string_view json = "'\\\\ /'";
+        
+        vector<Token<char>> tokens = tokenize(json);
+        vector<Token<char>> expected {
+            { "\\ /" }
+        };
+        
+        EXPECT_EQ(tokens, expected);
+    }
 }
