@@ -86,7 +86,7 @@ struct Token
      * @returns a reference to the number data
      */
     NumberData &number();
-    
+
     /**
      * Get a reference to the boolean data;
      * @returns a reference to the boolean data
@@ -110,12 +110,18 @@ struct Token
      * @param number the number to give to the token
      */
     void formNumber(NumberData number);
-    
+
     /**
      * Become a bolean
      * @param boolean the value to give to the token
      */
     void formBoolean(BooleanData boolean);
+    
+    /**
+     * Determine if a token is the end of string
+     * @returns if the token is end of stirng
+     */
+    bool isEndOfString();
 
     /**
      * See if two tokens are equal
@@ -161,11 +167,10 @@ namespace json::token
  * @param out the out stream
  * @param token the token to print
  */
-std::ostream &
-operator<<(std::ostream &out, const Token<char> &token)
+inline std::ostream &operator<<(std::ostream &out, const Token<char> &token)
 {
     using std::get;
-    
+
     switch (token.type)
     {
     case Token<char>::Type::string:
@@ -214,7 +219,7 @@ operator<<(std::ostream &out, const Token<char> &token)
  */
 template<typename CharT>
 Token<CharT>::Token()
-    : type(Type::undefined)
+    : type(Type::uninitialized)
 {
 }
 
@@ -339,6 +344,12 @@ void Token<CharT>::formBoolean(BooleanData boolean)
     data.template emplace<2>(boolean);
 }
 
+template<typename CharT>
+bool Token<CharT>::isEndOfString()
+{
+    return type == Type::endOfString;
+}
+
 /**
  * Get a reference to the string data if the type is string or comment
  * @returns a reference to the string data
@@ -376,17 +387,7 @@ typename Token<CharT>::BooleanData &Token<CharT>::boolean()
 template<typename CharT>
 bool Token<CharT>::operator==(const Token<CharT> &other) const
 {
-    if (other.type != type)
-    {
-        return false;
-    }
-
-    if (other.data != data)
-    {
-        return false;
-    }
-
-    return true;
+    return (other.type == type) && (other.data == data);
 }
 
 /**
@@ -396,16 +397,6 @@ bool Token<CharT>::operator==(const Token<CharT> &other) const
 template<typename CharT>
 bool Token<CharT>::operator!=(const Token<CharT> &other) const
 {
-    if (other.type != type)
-    {
-        return true;
-    }
-
-    if (other.data != data)
-    {
-        return true;
-    }
-
-    return false;
+    return (other.type != type) || (other.data != data);
 }
 } // namespace json::token

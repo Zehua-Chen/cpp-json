@@ -1,7 +1,8 @@
 add_executable(
     test_token
     testmain.cpp
-    TokenTest.cpp)
+    TokenTest.cpp
+    TokenizerTest.cpp)
     
 target_link_libraries(
     test_token
