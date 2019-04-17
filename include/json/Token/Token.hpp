@@ -30,8 +30,9 @@ struct Token
         boolean,
         null,
         comment,
+        valueSeparator,
+        keyValueSeparator,
         uninitialized,
-        endOfString,
     };
 
     using StringData = std::basic_string<CharT>;
@@ -116,12 +117,6 @@ struct Token
      * @param boolean the value to give to the token
      */
     void formBoolean(BooleanData boolean);
-    
-    /**
-     * Determine if a token is the end of string
-     * @returns if the token is end of stirng
-     */
-    bool isEndOfString();
 
     /**
      * See if two tokens are equal
@@ -170,44 +165,48 @@ namespace json::token
 inline std::ostream &operator<<(std::ostream &out, const Token<char> &token)
 {
     using std::get;
+    using TType = Token<char>::Type;
 
     switch (token.type)
     {
-    case Token<char>::Type::string:
+    case TType::string:
         out << "string=";
         out << get<0>(token.data);
         break;
-    case Token<char>::Type::number:
+    case TType::number:
         out << "number";
         out << get<1>(token.data);
         break;
-    case Token<char>::Type::boolean:
+    case TType::boolean:
         out << "boolean";
         break;
-    case Token<char>::Type::null:
+    case TType::null:
         out << "null";
         break;
-    case Token<char>::Type::beginObject:
+    case TType::beginObject:
         out << "beginObject";
         break;
-    case Token<char>::Type::endObject:
+    case TType::endObject:
         out << "endObject";
         break;
-    case Token<char>::Type::beginArray:
+    case TType::beginArray:
         out << "beginArray";
         break;
-    case Token<char>::Type::endArray:
+    case TType::endArray:
         out << "endArray";
         break;
-    case Token<char>::Type::comment:
+    case TType::comment:
         out << "comment";
         out << get<0>(token.data);
         break;
-    case Token<char>::Type::uninitialized:
+    case TType::uninitialized:
         out << "?";
         break;
-    case Token<char>::Type::endOfString:
-        out << "eos";
+    case TType::valueSeparator:
+        out << "','";
+        break;
+    case TType::keyValueSeparator:
+        out << "':'";
         break;
     }
 
@@ -342,12 +341,6 @@ void Token<CharT>::formBoolean(BooleanData boolean)
 {
     type = Type::boolean;
     data.template emplace<2>(boolean);
-}
-
-template<typename CharT>
-bool Token<CharT>::isEndOfString()
-{
-    return type == Type::endOfString;
 }
 
 /**
