@@ -8,13 +8,13 @@
 
 #pragma once
 
-namespace json::utils
+namespace json::utils::letters
 {
 template<typename CharT>
 inline constexpr CharT leftCurleyBrace{ '{' };
 
 template<typename CharT>
-inline constexpr CharT rightCurleyBrace{ '{' };
+inline constexpr CharT rightCurleyBrace{ '}' };
 
 template<typename CharT>
 inline constexpr CharT leftSquareBracket{ '[' };
@@ -35,5 +35,5 @@ template<typename CharT>
 inline constexpr CharT endline{ '\n' };
 
 template<typename CharT>
-inline constexpr CharT endline{ ' ' };
+inline constexpr CharT space{ ' ' };
 } // namespace json::utils

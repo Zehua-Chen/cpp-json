@@ -9,6 +9,7 @@
 #pragma once
 
 #include "json/Token/Token.hpp"
+#include "json/Utils/Letters.hpp"
 
 namespace json::token
 {
@@ -40,6 +41,7 @@ private:
     enum class _State
     {
         start,
+        finished
     };
 
     void _start();
@@ -66,19 +68,43 @@ Tokenizer<CharT, IterT>::Tokenizer(IterT begin, IterT end)
 template<typename CharT, typename IterT>
 void Tokenizer<CharT, IterT>::extract()
 {
-    while (_begin != _end)
+    switch (_state)
     {
-        switch (_state)
-        {
-        case _State::start:
-            return _start();
-        }
+    case _State::start:
+        return _start();
+    case _State::finished:
+        break;
     }
 }
 
 template<typename CharT, typename IterT>
 void Tokenizer<CharT, IterT>::_start()
 {
+    using namespace utils;
+    using TType = typename Token<CharT>::Type;
+    
+    switch (*_begin)
+    {
+    case letters::leftCurleyBrace<CharT>:
+        _token.type = TType::beginObject;
+        break;
+    case letters::rightCurleyBrace<CharT>:
+        _token.type = TType::endObject;
+        break;
+    case letters::leftSquareBracket<CharT>:
+        _token.type = TType::beginArray;
+        break;
+    case letters::rightSquareBracket<CharT>:
+        _token.type = TType::endArray;
+        break;
+    case letters::comma<CharT>:
+        _token.type = TType::valueSeparator;
+        break;
+    case letters::colon<CharT>:
+        _token.type = TType::keyValueSeparator;
+        break;
+    }
+    
     ++_begin;
 }
 
