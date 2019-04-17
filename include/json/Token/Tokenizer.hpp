@@ -40,7 +40,7 @@ public:
 
 private:
 
-    void _string(CharT boundary);
+    void _string();
 
     Token<CharT> _token;
     IterT _begin;
@@ -94,15 +94,14 @@ void Tokenizer<CharT, IterT>::extract()
         case letters::colon<CharT>:
             _token.type = TType::keyValueSeparator;
             return;
-        case letters::singleQuote<CharT>:
         case letters::doubleQuote<CharT>:
-            return _string(letter);
+            return _string();
         }
     }
 }
 
 template<typename CharT, typename IterT>
-void Tokenizer<CharT, IterT>::_string(CharT boundary)
+void Tokenizer<CharT, IterT>::_string()
 {
     enum class State
     {
@@ -124,20 +123,18 @@ void Tokenizer<CharT, IterT>::_string(CharT boundary)
         switch (state)
         {
         case State::regular:
-            // reach end of string
-            if (letter == boundary)
+            switch (letter)
             {
+            // end of string
+            case letters::doubleQuote<CharT>:
                 _token.type = TType::string;
                 _token.data = std::move(buffer);
                 return;
-            }
-            
-            // handle letters that are contents of a string
-            switch (letter)
-            {
+            // start of escape sequence
             case letters::solidus<CharT>:
                 state = State::escape;
                 break;
+            // regular text
             default:
                 buffer += letter;
             }

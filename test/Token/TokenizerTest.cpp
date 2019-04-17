@@ -42,26 +42,22 @@ TEST(TokenizerTest, String)
 {
     // Just string
     {
-        string_view json = "'abc', \"abc\"";
+        string_view json = "\"abc\"";
         
         vector<Token<char>> tokens = tokenize(json);
         vector<Token<char>> expected {
             { "abc" },
-            { TType::valueSeparator },
-            { "abc" }
         };
         
         EXPECT_EQ(tokens, expected);
     }
     
-    // String with quotes
+    // String with single quotes
     {
-        string_view json = "'\"live\"', \"'long'\"";
+        string_view json = "\"'long'\"";
         
         vector<Token<char>> tokens = tokenize(json);
         vector<Token<char>> expected {
-            { "\"live\"" },
-            { TType::valueSeparator },
             { "'long'" }
         };
         
@@ -70,7 +66,7 @@ TEST(TokenizerTest, String)
     
     // String with escape characters
     {
-        string_view json = "'\\ba\\fb\\nc\\rd\\t'";
+        string_view json = "\"\\ba\\fb\\nc\\rd\\t\"";
         
         vector<Token<char>> tokens = tokenize(json);
         vector<Token<char>> expected {
@@ -82,7 +78,7 @@ TEST(TokenizerTest, String)
     
     // String with solidus
     {
-        string_view json = "'\\\\ /'";
+        string_view json = "\"\\\\ /\"";
         
         vector<Token<char>> tokens = tokenize(json);
         vector<Token<char>> expected {
