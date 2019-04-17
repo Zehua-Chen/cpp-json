@@ -380,7 +380,15 @@ typename Token<CharT>::BooleanData &Token<CharT>::boolean()
 template<typename CharT>
 bool Token<CharT>::operator==(const Token<CharT> &other) const
 {
-    return (other.type == type) && (other.data == data);
+    switch (type)
+    {
+    case Type::string:
+    case Type::boolean:
+    case Type::number:
+        return (other.type == type) && (other.data == data);
+    default:
+        return type == other.type;
+    }
 }
 
 /**

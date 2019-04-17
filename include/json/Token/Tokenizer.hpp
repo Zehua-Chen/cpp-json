@@ -10,6 +10,7 @@
 
 #include "json/Token/Token.hpp"
 #include "json/Utils/Letters.hpp"
+#include <string>
 
 namespace json::token
 {
@@ -41,15 +42,19 @@ private:
     enum class _State
     {
         start,
+        string,
         finished
     };
 
-    void _start();
+    void _string(CharT boundary);
 
     Token<CharT> _token;
     _State _state;
     IterT _begin;
     IterT _end;
+
+    // State data
+    std::basic_string<CharT> _stringBuffer;
 };
 } // namespace json::token
 
@@ -68,44 +73,64 @@ Tokenizer<CharT, IterT>::Tokenizer(IterT begin, IterT end)
 template<typename CharT, typename IterT>
 void Tokenizer<CharT, IterT>::extract()
 {
-    switch (_state)
+    using namespace json::utils;
+    using TType = typename Token<CharT>::Type;
+
+    while (_begin != _end)
     {
-    case _State::start:
-        return _start();
-    case _State::finished:
-        break;
+        CharT letter = *_begin;
+        ++_begin;
+
+        switch (letter)
+        {
+        case letters::space<CharT>:
+        case letters::carriageReturn<CharT>:
+        case letters::tab<CharT>:
+            continue;
+        case letters::leftCurleyBrace<CharT>:
+            _token.type = TType::beginObject;
+            return;
+        case letters::rightCurleyBrace<CharT>:
+            _token.type = TType::endObject;
+            return;
+        case letters::leftSquareBracket<CharT>:
+            _token.type = TType::beginArray;
+            return;
+        case letters::rightSquareBracket<CharT>:
+            _token.type = TType::endArray;
+            return;
+        case letters::comma<CharT>:
+            _token.type = TType::valueSeparator;
+            return;
+        case letters::colon<CharT>:
+            _token.type = TType::keyValueSeparator;
+            return;
+        case letters::singleQuote<CharT>:
+        case letters::doubleQuote<CharT>:
+            return _string(letter);
+        }
     }
 }
 
 template<typename CharT, typename IterT>
-void Tokenizer<CharT, IterT>::_start()
+void Tokenizer<CharT, IterT>::_string(CharT boundary)
 {
-    using namespace utils;
     using TType = typename Token<CharT>::Type;
-    
-    switch (*_begin)
+
+    while (_begin != _end)
     {
-    case letters::leftCurleyBrace<CharT>:
-        _token.type = TType::beginObject;
-        break;
-    case letters::rightCurleyBrace<CharT>:
-        _token.type = TType::endObject;
-        break;
-    case letters::leftSquareBracket<CharT>:
-        _token.type = TType::beginArray;
-        break;
-    case letters::rightSquareBracket<CharT>:
-        _token.type = TType::endArray;
-        break;
-    case letters::comma<CharT>:
-        _token.type = TType::valueSeparator;
-        break;
-    case letters::colon<CharT>:
-        _token.type = TType::keyValueSeparator;
-        break;
+        CharT letter = *_begin;
+        ++_begin;
+
+        if (letter == boundary)
+        {
+            _token.type = TType::string;
+            _token.data = std::move(_stringBuffer);
+            return;
+        }
+
+        _stringBuffer += letter;
     }
-    
-    ++_begin;
 }
 
 template<typename CharT, typename IterT>

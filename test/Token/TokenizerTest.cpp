@@ -27,7 +27,7 @@ static vector<Token<char>> tokenize(string_view js)
 
 TEST(TokenizerTest, NonContextual)
 {
-    string_view json = "{}[],:";
+    string_view json = "{ }\r[]\t,\n:";
     vector<Token<char>> tokens = tokenize(json);
     vector<Token<char>> expected{
         { TType::beginObject },    { TType::endObject },
@@ -36,4 +36,21 @@ TEST(TokenizerTest, NonContextual)
     };
 
     EXPECT_EQ(tokens, expected);
+}
+
+TEST(TokenizerTest, String)
+{
+    // Just string
+    {
+        string_view json = "'abc', \"abc\"";
+        
+        vector<Token<char>> tokens = tokenize(json);
+        vector<Token<char>> expected {
+            { "abc" },
+            { TType::valueSeparator },
+            { "abc" }
+        };
+        
+        EXPECT_EQ(tokens, expected);
+    }
 }

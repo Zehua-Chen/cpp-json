@@ -35,5 +35,14 @@ template<typename CharT>
 inline constexpr CharT endline{ '\n' };
 
 template<typename CharT>
+inline constexpr CharT tab{ '\t' };
+
+template<typename CharT>
 inline constexpr CharT space{ ' ' };
+
+template<typename CharT>
+inline constexpr CharT singleQuote{ '\'' };
+
+template<typename CharT>
+inline constexpr CharT doubleQuote{ '\"' };
 } // namespace json::utils
