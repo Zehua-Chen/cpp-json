@@ -27,17 +27,18 @@ struct Token
         endArray,
         string,
         number,
-        booleanTrue,
-        booleanFalse,
+        boolean,
         null,
         comment,
-        undefined,
+        uninitialized,
+        endOfString,
     };
 
     using StringData = std::basic_string<CharT>;
-    using NumberData = float;
+    using NumberData = double;
+    using BooleanData = bool;
 
-    using Data = std::variant<StringData, NumberData>;
+    using Data = std::variant<StringData, NumberData, BooleanData>;
 
     /**
      * Create a token with type initialized to undefined.
@@ -85,21 +86,36 @@ struct Token
      * @returns a reference to the number data
      */
     NumberData &number();
+    
+    /**
+     * Get a reference to the boolean data;
+     * @returns a reference to the boolean data
+     */
+    BooleanData &boolean();
 
     /**
      * Become a string token
+     * @param buffer the buffer to give to the token
      */
-    void formString();
+    void formString(StringData &&buffer);
 
     /**
      * Become a comment token
+     * @param buffer the buffer to give to the token
      */
-    void formComment();
+    void formComment(StringData &&buffer);
 
     /**
      * Become a number token
+     * @param number the number to give to the token
      */
-    void formNumber();
+    void formNumber(NumberData number);
+    
+    /**
+     * Become a bolean
+     * @param boolean the value to give to the token
+     */
+    void formBoolean(BooleanData boolean);
 
     /**
      * See if two tokens are equal
@@ -145,57 +161,48 @@ namespace json::token
  * @param out the out stream
  * @param token the token to print
  */
-template<typename CharT>
-std::basic_ostream<CharT> &
-operator<<(std::basic_ostream<CharT> &out, const Token<CharT> &token)
+std::ostream &
+operator<<(std::ostream &out, const Token<char> &token)
 {
     using std::get;
-    using std::string_view;
-
-    const auto print = [&](string_view text) {
-        for (const auto letter : text)
-        {
-            out << out.widen(letter);
-        }
-    };
-
+    
     switch (token.type)
     {
-    case Token<CharT>::Type::string:
-        print("string=");
+    case Token<char>::Type::string:
+        out << "string=";
         out << get<0>(token.data);
         break;
-    case Token<CharT>::Type::number:
-        print("number=");
+    case Token<char>::Type::number:
+        out << "number";
         out << get<1>(token.data);
         break;
-    case Token<CharT>::Type::booleanTrue:
-        print("number=true");
+    case Token<char>::Type::boolean:
+        out << "boolean";
         break;
-    case Token<CharT>::Type::booleanFalse:
-        print("number=false");
+    case Token<char>::Type::null:
+        out << "null";
         break;
-    case Token<CharT>::Type::null:
-        print("null");
+    case Token<char>::Type::beginObject:
+        out << "beginObject";
         break;
-    case Token<CharT>::Type::beginObject:
-        print("beginObject");
+    case Token<char>::Type::endObject:
+        out << "endObject";
         break;
-    case Token<CharT>::Type::endObject:
-        print("endObject");
+    case Token<char>::Type::beginArray:
+        out << "beginArray";
         break;
-    case Token<CharT>::Type::beginArray:
-        print("beginArray");
+    case Token<char>::Type::endArray:
+        out << "endArray";
         break;
-    case Token<CharT>::Type::endArray:
-        print("endArray");
-        break;
-    case Token<CharT>::Type::comment:
-        print("comment=");
+    case Token<char>::Type::comment:
+        out << "comment";
         out << get<0>(token.data);
         break;
-    case Token<CharT>::Type::undefined:
-        print("?");
+    case Token<char>::Type::uninitialized:
+        out << "?";
+        break;
+    case Token<char>::Type::endOfString:
+        out << "eos";
         break;
     }
 
@@ -290,32 +297,46 @@ Token<CharT>::Token(const float &num)
 
 /**
  * Become a string token
+ * @param buffer the buffer to give to the token
  */
 template<typename CharT>
-void Token<CharT>::formString()
+void Token<CharT>::formString(StringData &&buffer)
 {
     type = Type::string;
-    data.template emplace<0>();
+    data.template emplace<0>(std::move(buffer));
 }
 
 /**
  * Become a comment token
+ * @param buffer the buffer to give to the token
  */
 template<typename CharT>
-void Token<CharT>::formComment()
+void Token<CharT>::formComment(StringData &&buffer)
 {
     type = Type::comment;
-    data.template emplace<0>();
+    data.template emplace<0>(std::move(buffer));
 }
 
 /**
  * Become a number token
+ * @param number the buffer to give to the token
  */
 template<typename CharT>
-void Token<CharT>::formNumber()
+void Token<CharT>::formNumber(NumberData number)
 {
     type = Type::number;
-    data.template emplace<1>(0.0f);
+    data.template emplace<1>(number);
+}
+
+/**
+ * Become a bolean
+ * @param boolean the value to give to the token
+ */
+template<typename CharT>
+void Token<CharT>::formBoolean(BooleanData boolean)
+{
+    type = Type::boolean;
+    data.template emplace<2>(boolean);
 }
 
 /**
@@ -336,6 +357,16 @@ template<typename CharT>
 typename Token<CharT>::NumberData &Token<CharT>::number()
 {
     return std::get<1>(data);
+}
+
+/**
+ * Get a reference to the number data;
+ * @returns a reference to the number data
+ */
+template<typename CharT>
+typename Token<CharT>::BooleanData &Token<CharT>::boolean()
+{
+    return std::get<2>(data);
 }
 
 /**
