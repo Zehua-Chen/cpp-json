@@ -10,7 +10,10 @@
 
 #include "json/Token/Token.hpp"
 #include "json/Utils/Letters.hpp"
+#include "json/Utils/Convert.hpp"
 #include <string>
+#include <bitset>
+#include <iostream>
 
 namespace json::token
 {
@@ -106,12 +109,16 @@ void Tokenizer<CharT, IterT>::_string()
     enum class State
     {
         regular,
-        escape
+        escape,
+        hex,
     };
     
     using namespace json::utils;
     using TType = typename Token<CharT>::Type;
     
+    int8_t hexCounter = 0;
+    int8_t hexAppendCount = 0;
+    int32_t hexValue = 0;
     State state = State::regular;
     std::basic_string<CharT> buffer;
     
@@ -145,34 +152,83 @@ void Tokenizer<CharT, IterT>::_string()
             {
             case letters::b<CharT>:
                 state = State::regular;
-                buffer += '\b';
+                buffer += letters::backspace<CharT>;
                 break;
             case letters::f<CharT>:
                 state = State::regular;
-                buffer += '\f';
+                buffer += letters::formfeed<CharT>;
                 break;
             case letters::n<CharT>:
                 state = State::regular;
-                buffer += '\n';
+                buffer += letters::endline<CharT>;
                 break;
             case letters::r<CharT>:
                 state = State::regular;
-                buffer += '\r';
+                buffer += letters::carriageReturn<CharT>;
                 break;
             case letters::t<CharT>:
                 state = State::regular;
-                buffer += '\t';
+                buffer += letters::tab<CharT>;
                 break;
             case letters::solidus<CharT>:
                 state = State::regular;
-                buffer += '\\';
+                buffer += letters::solidus<CharT>;
                 break;
             case letters::backSolidus<CharT>:
                 state = State::regular;
-                buffer += '/';
+                buffer += letters::backSolidus<CharT>;
+            case letters::doubleQuote<CharT>:
+                state = State::regular;
+                buffer += letters::doubleQuote<CharT>;
+                break;
+            case letters::u<CharT>:
+                state = State::hex;
                 break;
             }
             break;
+        case State::hex:
+        {
+            ++hexCounter;
+            // stop after enough hex
+            auto currentHexValue = convert::toHex(letter);
+            
+            // TODO:
+            // handle error if currentHexValue is -1
+            
+            // utf8
+            if constexpr (sizeof(CharT) == 1)
+            {
+                hexValue <<= 4;
+                hexValue |= currentHexValue;
+                
+                ++hexAppendCount;
+                
+                if (hexAppendCount == 2)
+                {
+                    buffer += hexValue;
+                    
+                    hexValue = 0;
+                    hexAppendCount = 0;
+                }
+            } 
+            // utf16
+            else if (sizeof(CharT) == 2)
+            {
+                
+            }
+            // utf32
+            else if (sizeof(CharT) == 4)
+            {
+                
+            }
+            
+            if (hexCounter == 4)
+            {
+                state = State::regular;
+                hexCounter = 0;
+            }
+            break;
+        }
         }
     }
 }

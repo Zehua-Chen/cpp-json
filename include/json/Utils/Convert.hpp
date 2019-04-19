@@ -13,6 +13,7 @@ int8_t toHex(CharT letter)
     case '1':
     case '2':
     case '3':
+    case '4':
     case '5':
     case '6':
     case '7':
@@ -34,7 +35,7 @@ int8_t toHex(CharT letter)
     case 'F':
         return letter - 55;
     default:
-        return 0;
+        return -1;
     }
 }
 }

@@ -54,11 +54,11 @@ TEST(TokenizerTest, String)
     
     // String with single quotes
     {
-        string_view json = "\"'long'\"";
+        string_view json = "\"'lo\\\"ng'\"";
         
         vector<Token<char>> tokens = tokenize(json);
         vector<Token<char>> expected {
-            { "'long'" }
+            { "'lo\"ng'" }
         };
         
         EXPECT_EQ(tokens, expected);
@@ -87,4 +87,44 @@ TEST(TokenizerTest, String)
         
         EXPECT_EQ(tokens, expected);
     }
+    
+    // String with unicode
+    // A: 0x41
+    // y: 0x79
+    
+    // utf8 string with hexes
+    {
+        string_view json = "\"\\u4179\"";
+        
+        vector<Token<char>> tokens = tokenize(json);
+        vector<Token<char>> expected {
+            { "Ay" }
+        };
+        
+        EXPECT_EQ(tokens, expected);
+    }
+    
+    // utf16 string with hexes
+    // {
+    //     string_view json = "\"\\uffff\"";
+        
+    //     vector<Token<char>> tokens = tokenize(json);
+    //     vector<Token<char>> expected {
+    //         {}
+    //     };
+        
+    //     EXPECT_EQ(tokens, expected);
+    // }
+    
+    // utf32 string with hexes
+    // {
+    //     string_view json = "\"\\uffff\"";
+        
+    //     vector<Token<char>> tokens = tokenize(json);
+    //     vector<Token<char>> expected {
+    //         {}
+    //     };
+        
+    //     EXPECT_EQ(tokens, expected);
+    // }
 }

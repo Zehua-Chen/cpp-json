@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
+project("json-cpp")
 
 option(JSONCPP_DEV "set to 1 to also setup testing" 0)
 
@@ -23,9 +24,6 @@ if(JSONCPP_DEV EQUAL 1)
     # add test targets
     add_subdirectory(test)
 endif()
-
-set(JSONCPP_HEADERS
-    "include/json/Value/BasicValue.hpp")
     
 add_library(jsoncpp INTERFACE)
 
@@ -38,3 +36,4 @@ target_compile_features(
     jsoncpp
     INTERFACE
         cxx_std_17)
+        

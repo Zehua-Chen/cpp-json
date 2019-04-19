@@ -38,6 +38,12 @@ template<typename CharT>
 inline constexpr CharT tab{ '\t' };
 
 template<typename CharT>
+inline constexpr CharT formfeed{ '\f' };
+
+template<typename CharT>
+inline constexpr CharT backspace{ '\b' };
+
+template<typename CharT>
 inline constexpr CharT space{ ' ' };
 
 template<typename CharT>
@@ -66,4 +72,7 @@ inline constexpr CharT r{ 'r' };
 
 template<typename CharT>
 inline constexpr CharT t{ 't' };
+
+template<typename CharT>
+inline constexpr CharT u{ 'u' };
 } // namespace json::utils
