@@ -140,7 +140,7 @@ void Tokenizer<CharT, IterT>::_string()
                 _token.data = std::move(buffer);
                 return;
             // start of escape sequence
-            case letters::solidus<CharT>:
+            case letters::backSolidus<CharT>:
                 state = State::escape;
                 break;
             // regular text
@@ -179,6 +179,7 @@ void Tokenizer<CharT, IterT>::_string()
             case letters::backSolidus<CharT>:
                 state = State::regular;
                 buffer += letters::backSolidus<CharT>;
+                break;
             case letters::doubleQuote<CharT>:
                 state = State::regular;
                 buffer += letters::doubleQuote<CharT>;

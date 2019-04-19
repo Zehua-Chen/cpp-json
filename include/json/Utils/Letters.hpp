@@ -53,10 +53,10 @@ template<typename CharT>
 inline constexpr CharT doubleQuote{ '\"' };
 
 template<typename CharT>
-inline constexpr CharT solidus{ '\\' };
+inline constexpr CharT backSolidus{ '\\' };
 
 template<typename CharT>
-inline constexpr CharT backSolidus{ '/' };
+inline constexpr CharT solidus{ '/' };
 
 template<typename CharT>
 inline constexpr CharT b{ 'b' };
