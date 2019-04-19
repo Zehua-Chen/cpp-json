@@ -1,52 +1,52 @@
 #include "gtest/gtest.h"
 #include "json/Utils/Convert.hpp"
 
-using json::utils::convert::toHex;
+using namespace json::utils::convert;
 
 TEST(ConverTest, ToHex)
 {
     // utf8
-    {
-        auto value = toHex('0');
+    {   
+        int8_t value = integer::fromHex<int8_t>('0');
         EXPECT_EQ(value, 0);
         
-        value = toHex('8');
+        value = integer::fromHex<int8_t>('8');
         EXPECT_EQ(value, 8);
         
-        value = toHex('f');
+        value = integer::fromHex<int8_t>('f');
         EXPECT_EQ(value, 15);
         
-        value = toHex('F');
+        value = integer::fromHex<int8_t>('F');
         EXPECT_EQ(value, 15);
     }
     
     // utf16
     {
-        auto value = toHex(u'0');
+        auto value = integer::fromHex<int8_t>(u'0');
         EXPECT_EQ(value, 0);
         
-        value = toHex(u'8');
+        value = integer::fromHex<int8_t>(u'8');
         EXPECT_EQ(value, 8);
         
-        value = toHex(u'f');
+        value = integer::fromHex<int8_t>(u'f');
         EXPECT_EQ(value, 15);
         
-        value = toHex(u'F');
+        value = integer::fromHex<int8_t>(u'F');
         EXPECT_EQ(value, 15);
     }
     
     // utf32
     {
-        auto value = toHex(U'0');
+        auto value = integer::fromHex<int8_t>(U'0');
         EXPECT_EQ(value, 0);
         
-        value = toHex(U'8');
+        value = integer::fromHex<int8_t>(U'8');
         EXPECT_EQ(value, 8);
         
-        value = toHex(U'f');
+        value = integer::fromHex<int8_t>(U'f');
         EXPECT_EQ(value, 15);
         
-        value = toHex(U'F');
+        value = integer::fromHex<int8_t>(U'F');
         EXPECT_EQ(value, 15);
     }
 }

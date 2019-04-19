@@ -114,6 +114,8 @@ void Tokenizer<CharT, IterT>::_string()
     };
     
     using namespace json::utils;
+    using namespace json::utils::convert;
+    
     using TType = typename Token<CharT>::Type;
     
     int8_t hexCounter = 0;
@@ -190,7 +192,7 @@ void Tokenizer<CharT, IterT>::_string()
         {
             ++hexCounter;
             // stop after enough hex
-            auto currentHexValue = convert::toHex(letter);
+            auto currentHexValue = integer::fromHex<int8_t>(letter);
             
             // TODO:
             // handle error if currentHexValue is -1

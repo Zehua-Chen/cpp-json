@@ -2,10 +2,18 @@
 
 #include <stdint.h>
 
-namespace json::utils::convert
+namespace json::utils::convert::integer
 {
-template<typename CharT>
-int8_t toHex(CharT letter)
+template<typename IntT, typename CharT>
+IntT fromHex(CharT letter);
+}
+
+// Implementations
+
+namespace json::utils::convert::integer
+{
+template<typename IntT, typename CharT>
+IntT fromHex(CharT letter)
 {
     switch (letter)
     {
