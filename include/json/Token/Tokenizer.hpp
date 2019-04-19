@@ -213,15 +213,21 @@ void Tokenizer<CharT, IterT>::_string()
                     hexAppendCount = 0;
                 }
             } 
-            // utf16
-            else if (sizeof(CharT) == 2)
+            // utf16 and utf32
+            else
             {
+                hexValue <<= 4;
+                hexValue |= currentHexValue;
                 
-            }
-            // utf32
-            else if (sizeof(CharT) == 4)
-            {
+                ++hexAppendCount;
                 
+                if (hexAppendCount == 4)
+                {
+                    buffer += hexValue;
+                    
+                    hexValue = 0;
+                    hexAppendCount = 0;
+                }
             }
             
             if (hexCounter == 4)
