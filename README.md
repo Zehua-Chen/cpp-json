@@ -42,7 +42,7 @@ endif()
 target_link_libraries(
     your_target
     PRIVATE
-    jsoncpp)
+        jsoncpp)
 ````
 
 ### Other Build Systems

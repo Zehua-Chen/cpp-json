@@ -5,6 +5,10 @@
 \usepackage{tabu}
 \usepackage[scaled=0.92]{helvet}
 
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning}
+
 \setlength{\parindent}{0pt}
 \renewcommand{\familydefault}{\sfdefault}
 
@@ -25,6 +29,21 @@
 
 \begin{document}
   \maketitle
+  
+  \section{Diagram}
+  
+    \begin{figure}[H]
+      \centering
+      \begin{tikzpicture}[node distance=2cm, on grid]
+        % States
+        \node[state, initial] (entry) {Start};
+        \node[state, above right of=entry] (obj_start) {\objectstart};
+        \node[state, below right of=entry] (array_start) {\arraystart};
+        % Edges
+        \draw[->] (entry) edge [bend left, above] node {a} (obj_start);
+        \draw[->] (entry) edge [bend right, below] node {b} (array_start);
+      \end{tikzpicture}
+    \end{figure}
   
   \section{States}
   
