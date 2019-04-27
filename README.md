@@ -31,12 +31,11 @@ FetchContent_Declare(
 # see if jsoncpp has been downloaded
 FetchContent_GetProperties(jsoncpp)
 
-if(NOT googletest_POPULATED)
+if(NOT jsoncpp_POPULATED)
     # download json cpp if not
-    FetchContent_Populate(
-        googletest)
+    FetchContent_Populate(jsoncpp)
     # add jsoncpp's CMakeLists as a sub directory
-    add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+    add_subdirectory(${jsoncpp_SOURCE_DIR} ${jsoncpp_BINARY_DIR})
 endif()
 
 target_link_libraries(
