@@ -124,3 +124,11 @@ TEST(TokenizerTest, String)
         EXPECT_EQ(tokens, expected);
     }
 }
+
+TEST(TokenizerTest, Number)
+{
+    // integer
+    {
+        
+    }
+}
