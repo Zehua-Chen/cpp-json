@@ -1,5 +1,5 @@
 \documentclass[11pt, letterpaper]{article}
-\usepackage[margin=1in]{geometry}
+\usepackage[margin=0.5in]{geometry}
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{tabu}
@@ -34,14 +34,64 @@
   
     \begin{figure}[H]
       \centering
-      \begin{tikzpicture}[node distance=2cm, on grid]
+      \begin{tikzpicture}[
+        node distance=2.5cm, 
+        on grid, 
+        initial text=$ $, 
+        ->,
+        >=stealth,
+        every state/.style={thick}]
         % States
-        \node[state, initial] (entry) {Start};
-        \node[state, above right of=entry] (obj_start) {\objectstart};
-        \node[state, below right of=entry] (array_start) {\arraystart};
+        \node[state, initial, initial where=right] (entry) {Start};
+        \node[state, left of=entry, accepting] (finish) {Finish};
+        
+        \node[state, above right of=entry, orange] (obj_start) {\objectstart};
+        \node[state, right of=obj_start, blue] (obj_ready) {\objectready};
+        \node[state, right of=obj_ready, green] (obj_has_key_string) {\objecthaskeystring};
+        \node[state, right of=obj_has_key_string, brown] (obj_has_key) {\objecthaskey};
+        \node[state, right of=obj_has_key, purple] (obj_has_value) {\objecthasvalue};
+        
+        \node[state, below right of=entry, teal] (array_start) {\arraystart};
+        \node[state, right of=array_start, cyan] (array_ready) {\arrayready};
+        \node[state, right of=array_ready, pink] (array_has_value) {\arrayhasvalue};
         % Edges
-        \draw[->] (entry) edge [bend left, above] node {a} (obj_start);
-        \draw[->] (entry) edge [bend right, below] node {b} (array_start);
+        \draw[->] (entry) edge node[left]{\tiny begin object} (obj_start);
+        \draw[->] (entry) edge node[above]{\tiny primitive} (finish);
+        
+        \draw[->, orange] (obj_start) edge [bend left, above] node[above]{\tiny string} (obj_has_key_string);
+        \draw[->, orange] (obj_start) edge [bend left, above] node[above]{\tiny end object, object context} (obj_has_value);
+        \draw[->, orange] (obj_start) edge [above] node[above]{\tiny end object, array context} (array_has_value);
+        \draw[->, orange] (obj_start) edge [bend right] node[above]{\tiny end object, void context} (finish);
+        
+        \draw[->, blue] (obj_ready) edge [above] node[above]{\tiny string} (obj_has_key_string);
+        
+        \draw[->, brown] (obj_has_key_string) edge node[above]{\footnotesize :} (obj_has_key);
+        
+        \draw[->, brown] (obj_has_key) edge node[above]{\tiny primitive} (obj_has_value);
+        \draw[->, brown] (obj_has_key) edge[bend right] node[above]{\tiny begin object} (obj_start);
+        \draw[->, brown] (obj_has_key) edge node[above]{\tiny begin array} (array_start);
+        
+        \draw[->, purple] (obj_has_value) edge[bend right] node[above]{\tiny end object, void context} (finish);
+        \draw[->, purple] (obj_has_value) edge node[above]{\tiny end object, array context} (array_has_value);
+        \draw[->, purple] (obj_has_value) edge[loop right] node[right]{\tiny end object, array context} (obj_has_value);
+        \draw[->, purple] (obj_has_value) edge[bend right] node[below]{\footnotesize ,} (obj_ready);
+        
+        \draw[->, teal] (array_start) edge node{\tiny begin object} (obj_start);
+        \draw[->, teal] (array_start) edge[bend right] node[below]{\tiny primitive or end array, array context} (array_has_value);
+        \draw[->, teal] (array_start) edge node{\tiny end array, object context} (obj_has_value);
+        \draw[->, teal] (array_start) edge[bend left] node{\tiny end array, void context} (finish);
+        \draw[->, teal] (array_start) edge[loop below] node{\tiny begin array} (array_start);
+        
+        \draw[->, cyan] (array_ready) edge node[above]{\tiny begin array} (array_start);
+        \draw[->, cyan] (array_ready) edge node[below]{\tiny begin object} (obj_start);
+        \draw[->, cyan] (array_ready) edge node[above]{\tiny primitive} (array_has_value);
+        
+        \draw[->, pink] (array_has_value) edge[loop right] node[right]{\tiny end array, array context} (array_has_value);
+        \draw[->, pink] (array_has_value) edge[bend right] node[right]{\tiny end array, object context} (obj_has_value);
+        \draw[->, pink] (array_has_value) edge[bend left] node[below]{\tiny end array, void context} (finish);
+        \draw[->, pink] (array_has_value) edge[bend left] node[above]{\footnotesize , } (array_ready);
+        
+        \draw[->] (entry) edge node[left]{\tiny begin\_array} (array_start);
       \end{tikzpicture}
     \end{figure}
   
