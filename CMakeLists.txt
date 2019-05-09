@@ -22,7 +22,7 @@ if(JSONCPP_DEV EQUAL 1)
     endif()
     
     # add test targets
-    add_subdirectory(test)
+    add_subdirectory(unittests)
 endif()
     
 add_library(jsoncpp INTERFACE)
@@ -36,4 +36,3 @@ target_compile_features(
     jsoncpp
     INTERFACE
         cxx_std_17)
-        

@@ -3,7 +3,7 @@
 
 using namespace json::utils::convert;
 
-TEST(ConverTest, ToHex)
+TEST(ConvertTest, FromHex)
 {
     // utf8
     {   
@@ -48,5 +48,26 @@ TEST(ConverTest, ToHex)
         
         value = integer::fromHex<int8_t>(U'F');
         EXPECT_EQ(value, 15);
+    }
+}
+
+TEST(ConverTest, FromDec)
+{
+    // utf8
+    {
+        auto value = integer::fromDec<int>('3');
+        EXPECT_EQ(value, 3);
+    }
+
+    // utf16
+    {
+        auto value = integer::fromDec<int>(u'3');
+        EXPECT_EQ(value, 3);
+    }
+
+    // utf32
+    {
+        auto value = integer::fromDec<int>(U'3');
+        EXPECT_EQ(value, 3);
     }
 }
