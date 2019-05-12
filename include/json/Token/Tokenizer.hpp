@@ -9,11 +9,10 @@
 #pragma once
 
 #include "json/Token/Token.hpp"
-#include "json/Utils/Letters.hpp"
 #include "json/Utils/Convert.hpp"
-#include <string>
+#include "json/Utils/Letters.hpp"
 #include <bitset>
-#include <iostream>
+#include <string>
 
 namespace json::token
 {
@@ -42,8 +41,8 @@ public:
     operator bool();
 
 private:
-
     void _string();
+    void _number();
 
     Token<CharT> _token;
     IterT _begin;
@@ -71,34 +70,54 @@ void Tokenizer<CharT, IterT>::extract()
     while (_begin != _end)
     {
         CharT letter = *_begin;
-        ++_begin;
 
         switch (letter)
         {
-        case letters::space<CharT>:
-        case letters::carriageReturn<CharT>:
-        case letters::tab<CharT>:
+        case ' ':
+        case '\r':
+        case '\t':
+        case '\n':
+            ++_begin;
             continue;
-        case letters::leftCurleyBrace<CharT>:
+        case '{':
             _token.type = TType::beginObject;
+            ++_begin;
             return;
-        case letters::rightCurleyBrace<CharT>:
+        case '}':
             _token.type = TType::endObject;
+            ++_begin;
             return;
-        case letters::leftSquareBracket<CharT>:
+        case '[':
             _token.type = TType::beginArray;
+            ++_begin;
             return;
-        case letters::rightSquareBracket<CharT>:
+        case ']':
             _token.type = TType::endArray;
+            ++_begin;
             return;
-        case letters::comma<CharT>:
+        case ',':
             _token.type = TType::valueSeparator;
+            ++_begin;
             return;
-        case letters::colon<CharT>:
+        case ':':
             _token.type = TType::keyValueSeparator;
+            ++_begin;
             return;
-        case letters::doubleQuote<CharT>:
+        case '\"':
+            ++_begin;
             return _string();
+        case '-':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            return _number();
         }
     }
 }
@@ -112,42 +131,42 @@ void Tokenizer<CharT, IterT>::_string()
         escape,
         hex,
     };
-    
+
     using namespace json::utils;
     using namespace json::utils::convert;
-    
+
     using TType = typename Token<CharT>::Type;
-    
+
     int8_t hexCounter = 0;
     int8_t hexAppendCount = 0;
     int32_t hexValue = 0;
     State state = State::regular;
     std::basic_string<CharT> buffer;
-    
+
     while (_begin != _end)
     {
         CharT letter = *_begin;
         ++_begin;
-        
+
         switch (state)
         {
         case State::regular:
             switch (letter)
             {
             // end of string
-            case letters::doubleQuote<CharT>:
+            case '\"':
                 _token.type = TType::string;
                 _token.data = std::move(buffer);
                 return;
             // start of escape sequence
-            case letters::backSolidus<CharT>:
+            case '\\':
                 state = State::escape;
                 break;
             // regular text
             default:
                 buffer += letter;
             }
-            
+
             break;
         case State::escape:
             switch (letter)
@@ -194,43 +213,43 @@ void Tokenizer<CharT, IterT>::_string()
             ++hexCounter;
             // stop after enough hex
             auto currentHexValue = integer::fromHex<int8_t>(letter);
-            
+
             // TODO:
             // handle error if currentHexValue is -1
-            
+
             // utf8
             if constexpr (sizeof(CharT) == 1)
             {
                 hexValue <<= 4;
                 hexValue |= currentHexValue;
-                
+
                 ++hexAppendCount;
-                
+
                 if (hexAppendCount == 2)
                 {
                     buffer += hexValue;
-                    
+
                     hexValue = 0;
                     hexAppendCount = 0;
                 }
-            } 
+            }
             // utf16 and utf32
             else
             {
                 hexValue <<= 4;
                 hexValue |= currentHexValue;
-                
+
                 ++hexAppendCount;
-                
+
                 if (hexAppendCount == 4)
                 {
                     buffer += hexValue;
-                    
+
                     hexValue = 0;
                     hexAppendCount = 0;
                 }
             }
-            
+
             if (hexCounter == 4)
             {
                 state = State::regular;
@@ -240,6 +259,93 @@ void Tokenizer<CharT, IterT>::_string()
         }
         }
     }
+}
+
+template<typename CharT, typename IterT>
+void Tokenizer<CharT, IterT>::_number()
+{
+    // Number format:
+    // -010.2e+3
+    enum class State
+    {
+        undefined,
+        beforeDecimalPoint,
+        afterDecimalPoint,
+        afterE,
+    };
+
+    State state = State::undefined;
+    double value = 0.0;
+    double sign = 1;
+
+    while (_begin != _end)
+    {
+        CharT letter = *_begin;
+
+        switch (letter)
+        {
+        case ' ':
+        case '\t':
+        case '\r':
+        case '\n':
+            _token.formNumber(value * sign);
+            return;
+        }
+
+        switch (state)
+        {
+        case State::undefined:
+            switch (letter)
+            {
+            case '-':
+                sign = -1;
+                ++_begin;
+                break;
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                break;
+            default:
+                // TODO: Error handling
+                break;
+            }
+            state = State::beforeDecimalPoint;
+            break;
+        case State::beforeDecimalPoint:
+            switch (letter)
+            {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                value *= 10.0;
+                value += utils::convert::integer::fromDec<double>(letter);
+                ++_begin;
+                break;
+            default:
+                // TODO: Error handling
+                break;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    _token.formNumber(value * sign);
 }
 
 template<typename CharT, typename IterT>

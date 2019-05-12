@@ -74,7 +74,7 @@ struct Token
      * Create a number token
      * @num the number to create the token with
      */
-    Token(const float &num);
+    Token(const NumberData &num);
 
     /**
      * Get a reference to the string data if the type is string or comment
@@ -293,7 +293,7 @@ Token<CharT>::Token(const std::basic_string<CharT> &str)
  * @num the number to create the token with
  */
 template<typename CharT>
-Token<CharT>::Token(const float &num)
+Token<CharT>::Token(const NumberData &num)
     : type(Type::number)
     , data(num)
 {

@@ -1,9 +1,12 @@
 #include "json/Token/Tokenizer.hpp"
 #include "gtest/gtest.h"
+#include <iostream>
 #include <string_view>
 #include <vector>
 
 using std::basic_string_view;
+using std::cout;
+using std::endl;
 using std::string_view;
 using std::vector;
 
@@ -105,9 +108,7 @@ TEST(TokenizerTest, String)
         basic_string_view<char16_t> json = u"\"\\u1189\"";
 
         vector<Token<char16_t>> tokens = tokenize(json);
-        vector<Token<char16_t>> expected{ 
-            { u"ᆉ" } 
-        };
+        vector<Token<char16_t>> expected{ { u"ᆉ" } };
 
         EXPECT_EQ(tokens, expected);
     }
@@ -117,9 +118,7 @@ TEST(TokenizerTest, String)
         basic_string_view<char32_t> json = U"\"\\u1189\"";
 
         vector<Token<char32_t>> tokens = tokenize(json);
-        vector<Token<char32_t>> expected {
-            {  U"ᆉ" }
-        };
+        vector<Token<char32_t>> expected{ { U"ᆉ" } };
 
         EXPECT_EQ(tokens, expected);
     }
@@ -127,8 +126,23 @@ TEST(TokenizerTest, String)
 
 TEST(TokenizerTest, Number)
 {
-    // integer
+    // positive integer
     {
-        
+        string_view json = "123";
+        vector<Token<char>> tokens = tokenize(json);
+        vector<Token<char>> expected{ { 123.0 } };
+
+        ASSERT_GT(tokens.size(), size_t{ 0 });
+        EXPECT_FLOAT_EQ(tokens[0].number(), expected[0].number());
+    }
+
+    // negative integer
+    {
+        string_view json = "-123";
+        vector<Token<char>> tokens = tokenize(json);
+        vector<Token<char>> expected{ { -123.0 } };
+
+        ASSERT_GT(tokens.size(), size_t{ 0 });
+        EXPECT_FLOAT_EQ(tokens[0].number(), expected[0].number());
     }
 }

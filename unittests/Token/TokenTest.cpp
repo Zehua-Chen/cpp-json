@@ -10,8 +10,8 @@
 #include "gtest/gtest.h"
 #include <string>
 
-using std::string;
 using std::get;
+using std::string;
 
 using namespace std::string_literals;
 
