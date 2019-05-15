@@ -12,6 +12,7 @@
 #include "json/Utils/Convert.hpp"
 #include "json/Utils/Letters.hpp"
 #include <bitset>
+#include <cmath>
 #include <string>
 
 namespace json::token
@@ -212,7 +213,7 @@ void Tokenizer<CharT, IterT>::_string()
         {
             ++hexCounter;
             // stop after enough hex
-            auto currentHexValue = integer::fromHex<int8_t>(letter);
+            auto currentHexValue = number::fromHex<int8_t>(letter);
 
             // TODO:
             // handle error if currentHexValue is -1
@@ -264,6 +265,7 @@ void Tokenizer<CharT, IterT>::_string()
 template<typename CharT, typename IterT>
 void Tokenizer<CharT, IterT>::_number()
 {
+    using namespace utils::convert;
     // Number format:
     // -010.2e+3
     enum class State
@@ -272,11 +274,20 @@ void Tokenizer<CharT, IterT>::_number()
         beforeDecimalPoint,
         afterDecimalPoint,
         afterE,
+        afterESign,
     };
 
     State state = State::undefined;
     double value = 0.0;
     double sign = 1;
+    double postDecimalScale = 0.1;
+    double scaleSign = 1.0;
+    double scale = 0.0;
+
+    const auto exportNumber = [&]() {
+        scale *= scaleSign;
+        return value * sign * std::pow(10, scale);
+    };
 
     while (_begin != _end)
     {
@@ -285,67 +296,101 @@ void Tokenizer<CharT, IterT>::_number()
         switch (letter)
         {
         case ' ':
+        case ',':
         case '\t':
         case '\r':
         case '\n':
-            _token.formNumber(value * sign);
+            _token.formNumber(exportNumber());
             return;
-        }
-
-        switch (state)
-        {
-        case State::undefined:
-            switch (letter)
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            switch (state)
             {
-            case '-':
-                sign = -1;
-                ++_begin;
-                break;
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                break;
-            default:
-                // TODO: Error handling
-                break;
-            }
-            state = State::beforeDecimalPoint;
-            break;
-        case State::beforeDecimalPoint:
-            switch (letter)
-            {
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
+            case State::undefined:
                 value *= 10.0;
-                value += utils::convert::integer::fromDec<double>(letter);
+                value += number::fromDec<double>(letter);
+                state = State::beforeDecimalPoint;
+                ++_begin;
+                break;
+            case State::beforeDecimalPoint:
+                value *= 10.0;
+                value += number::fromDec<double>(letter);
+                ++_begin;
+                break;
+            case State::afterDecimalPoint:
+                value += number::fromDec<double>(letter) * postDecimalScale;
+                postDecimalScale /= 10.0;
+                ++_begin;
+                break;
+            case State::afterE:
+                state = State::afterESign;
+                break;
+            case State::afterESign:
+                scale *= 10;
+                scale += number::fromDec<double>(letter);
                 ++_begin;
                 break;
             default:
-                // TODO: Error handling
+                ++_begin;
                 break;
             }
+            break;
+        case 'e':
+        case 'E':
+            switch (state)
+            {
+            case State::undefined:
+            case State::beforeDecimalPoint:
+            case State::afterDecimalPoint:
+                state = State::afterE;
+                break;
+            default:
+                break;
+            }
+            ++_begin;
+            break;
+        case '.':
+            switch (state)
+            {
+            case State::undefined:
+            case State::beforeDecimalPoint:
+                state = State::afterDecimalPoint;
+                break;
+            default:
+                break;
+            }
+            ++_begin;
+            break;
+        case '-':
+            switch (state)
+            {
+            case State::undefined:
+                sign = -1;
+                state = State::beforeDecimalPoint;
+                break;
+            case State::afterE:
+                scaleSign = -1;
+                state = State::afterESign;
+                break;
+            default:
+                break;
+            }
+            ++_begin;
             break;
         default:
             break;
         }
     }
 
-    _token.formNumber(value * sign);
+    _token.formNumber(exportNumber());
 }
 
 template<typename CharT, typename IterT>

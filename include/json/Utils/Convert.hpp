@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-namespace json::utils::convert::integer
+namespace json::utils::convert::number
 {
 template<typename IntT, typename CharT>
 IntT fromHex(CharT letter);
@@ -13,7 +13,7 @@ IntT fromDec(CharT letter);
 
 // Implementations
 
-namespace json::utils::convert::integer
+namespace json::utils::convert::number
 {
 template<typename IntT, typename CharT>
 IntT fromHex(CharT letter)

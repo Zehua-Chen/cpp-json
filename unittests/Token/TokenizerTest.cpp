@@ -14,6 +14,7 @@ using json::token::Token;
 using json::token::Tokenizer;
 
 using TType = Token<char>::Type;
+using Tokens = vector<Token<char>>;
 
 template<typename CharT>
 static vector<Token<CharT>> tokenize(basic_string_view<CharT> js)
@@ -35,12 +36,10 @@ static vector<Token<CharT>> tokenize(basic_string_view<CharT> js)
 TEST(TokenizerTest, NonContextual)
 {
     string_view json = "{ }\r[]\t,\n:";
-    vector<Token<char>> tokens = tokenize(json);
-    vector<Token<char>> expected{
-        { TType::beginObject },    { TType::endObject },
-        { TType::beginArray },     { TType::endArray },
-        { TType::valueSeparator }, { TType::keyValueSeparator }
-    };
+    Tokens tokens = tokenize(json);
+    Tokens expected{ { TType::beginObject },    { TType::endObject },
+                     { TType::beginArray },     { TType::endArray },
+                     { TType::valueSeparator }, { TType::keyValueSeparator } };
 
     EXPECT_EQ(tokens, expected);
 }
@@ -51,8 +50,8 @@ TEST(TokenizerTest, String)
     {
         string_view json = "\"abc\"";
 
-        vector<Token<char>> tokens = tokenize(json);
-        vector<Token<char>> expected{
+        Tokens tokens = tokenize(json);
+        Tokens expected{
             { "abc" },
         };
 
@@ -63,8 +62,8 @@ TEST(TokenizerTest, String)
     {
         string_view json = "\"'lo\\\"ng'\"";
 
-        vector<Token<char>> tokens = tokenize(json);
-        vector<Token<char>> expected{ { "'lo\"ng'" } };
+        Tokens tokens = tokenize(json);
+        Tokens expected{ { "'lo\"ng'" } };
 
         EXPECT_EQ(tokens, expected);
     }
@@ -73,8 +72,8 @@ TEST(TokenizerTest, String)
     {
         string_view json = "\"\\ba\\fb\\nc\\rd\\t\"";
 
-        vector<Token<char>> tokens = tokenize(json);
-        vector<Token<char>> expected{ { "\ba\fb\nc\rd\t" } };
+        Tokens tokens = tokenize(json);
+        Tokens expected{ { "\ba\fb\nc\rd\t" } };
 
         EXPECT_EQ(tokens, expected);
     }
@@ -83,8 +82,8 @@ TEST(TokenizerTest, String)
     {
         string_view json = "\"\\\\ /\"";
 
-        vector<Token<char>> tokens = tokenize(json);
-        vector<Token<char>> expected{ { "\\ /" } };
+        Tokens tokens = tokenize(json);
+        Tokens expected{ { "\\ /" } };
 
         EXPECT_EQ(tokens, expected);
     }
@@ -97,8 +96,8 @@ TEST(TokenizerTest, String)
     {
         string_view json = "\"\\u4179\"";
 
-        vector<Token<char>> tokens = tokenize(json);
-        vector<Token<char>> expected{ { "Ay" } };
+        Tokens tokens = tokenize(json);
+        Tokens expected{ { "Ay" } };
 
         EXPECT_EQ(tokens, expected);
     }
@@ -129,20 +128,63 @@ TEST(TokenizerTest, Number)
     // positive integer
     {
         string_view json = "123";
-        vector<Token<char>> tokens = tokenize(json);
-        vector<Token<char>> expected{ { 123.0 } };
+        Tokens tokens = tokenize(json);
+        Tokens expected{ { 123.0 } };
 
-        ASSERT_GT(tokens.size(), size_t{ 0 });
+        ASSERT_EQ(tokens.size(), expected.size());
         EXPECT_FLOAT_EQ(tokens[0].number(), expected[0].number());
     }
 
     // negative integer
     {
         string_view json = "-123";
-        vector<Token<char>> tokens = tokenize(json);
-        vector<Token<char>> expected{ { -123.0 } };
+        Tokens tokens = tokenize(json);
+        Tokens expected{ { -123.0 } };
 
-        ASSERT_GT(tokens.size(), size_t{ 0 });
+        ASSERT_EQ(tokens.size(), expected.size());
         EXPECT_FLOAT_EQ(tokens[0].number(), expected[0].number());
+    }
+
+    // float point number
+    {
+        string_view json = "-123.123";
+        Tokens tokens = tokenize(json);
+        Tokens expected{ { -123.123 } };
+
+        ASSERT_EQ(tokens.size(), expected.size());
+        EXPECT_FLOAT_EQ(tokens[0].number(), expected[0].number());
+    }
+
+    // float point number with scale
+    {
+        string_view json = "-123.1e-2";
+        Tokens tokens = tokenize(json);
+        Tokens expected{ { -123.1e-2 } };
+
+        ASSERT_EQ(tokens.size(), expected.size());
+        EXPECT_FLOAT_EQ(tokens[0].number(), expected[0].number());
+    }
+
+    // two numbers
+    {
+        string_view json = "-123e0,-123e-1 123e2";
+
+        Tokens tokens = tokenize(json);
+        Tokens expected{
+            { -123.0e0 }, { TType::valueSeparator }, { -123.0e-1 }, { 123.0e2 }
+        };
+
+        ASSERT_EQ(tokens.size(), expected.size());
+
+        for (size_t i = 0; i < tokens.size(); ++i)
+        {
+            const auto &actual = tokens[i];
+            const auto &e = expected[i];
+
+            if (actual.type == TType::number)
+            {
+                EXPECT_FLOAT_EQ(actual.number(), e.number());
+            }
+        }
     }
 }

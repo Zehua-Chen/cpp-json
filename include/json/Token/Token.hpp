@@ -80,19 +80,19 @@ struct Token
      * Get a reference to the string data if the type is string or comment
      * @returns a reference to the string data
      */
-    StringData &string();
+    const StringData &string() const;
 
     /**
      * Get a reference to the number data;
      * @returns a reference to the number data
      */
-    NumberData &number();
+    const NumberData &number() const;
 
     /**
      * Get a reference to the boolean data;
      * @returns a reference to the boolean data
      */
-    BooleanData &boolean();
+    const BooleanData &boolean() const;
 
     /**
      * Become a string token
@@ -348,7 +348,7 @@ void Token<CharT>::formBoolean(BooleanData boolean)
  * @returns a reference to the string data
  */
 template<typename CharT>
-typename Token<CharT>::StringData &Token<CharT>::string()
+const typename Token<CharT>::StringData &Token<CharT>::string() const
 {
     return std::get<0>(data);
 }
@@ -358,7 +358,7 @@ typename Token<CharT>::StringData &Token<CharT>::string()
  * @returns a reference to the number data
  */
 template<typename CharT>
-typename Token<CharT>::NumberData &Token<CharT>::number()
+const typename Token<CharT>::NumberData &Token<CharT>::number() const
 {
     return std::get<1>(data);
 }
@@ -368,7 +368,7 @@ typename Token<CharT>::NumberData &Token<CharT>::number()
  * @returns a reference to the number data
  */
 template<typename CharT>
-typename Token<CharT>::BooleanData &Token<CharT>::boolean()
+const typename Token<CharT>::BooleanData &Token<CharT>::boolean() const
 {
     return std::get<2>(data);
 }
