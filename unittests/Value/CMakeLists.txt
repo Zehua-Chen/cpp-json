@@ -1,10 +1,11 @@
 add_executable(
     test_value
     testmain.cpp
-    BasicArrayTest.cpp
-    BasicObjectTest.cpp
-    BasicPrimitiveTest.cpp
-    BasicValueTest.cpp)
+    ArrayTest.cpp
+    ObjectTest.cpp
+    PrimitiveTest.cpp
+    ValueTest.cpp
+    KeyTest.cpp)
     
 target_link_libraries(
     test_value
