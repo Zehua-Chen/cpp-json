@@ -188,3 +188,29 @@ TEST(TokenizerTest, Number)
         }
     }
 }
+
+TEST(TokenizerTest, Bool)
+{
+    string_view json = "true false";
+
+    Tokens tokens = tokenize(json);
+    Tokens expected{
+        { TType::boolean, true },
+        { TType::boolean, false }
+    };
+
+    EXPECT_EQ(tokens, expected);
+}
+
+TEST(TokenizerTest, Null)
+{
+    string_view json = "null null";
+
+    Tokens tokens = tokenize(json);
+    Tokens expected{
+        { TType::null },
+        { TType::null }
+    };
+
+    EXPECT_EQ(tokens, expected);
+}

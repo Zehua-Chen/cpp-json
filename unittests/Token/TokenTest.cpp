@@ -25,6 +25,17 @@ TEST(TokenTest, CopyConstructor)
     EXPECT_EQ(token2.string(), token1.string());
 }
 
+TEST(TokenTest, PerfectForwarding)
+{
+    string data = "aaa";
+    Token<char> copy{ Token<char>::Type::string, data };
+    Token<char> moved{ Token<char>::Type::string, std::move(data) };
+
+    ASSERT_EQ(copy.string(), "aaa");
+    ASSERT_EQ(moved.string(), "aaa");
+    ASSERT_EQ(data.empty(), true);
+}
+
 TEST(TokenTest, MoveConstructor)
 {
     Token<char> token1{ "something" };
