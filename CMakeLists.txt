@@ -1,53 +1,38 @@
-cmake_minimum_required(VERSION 3.0)
-
+cmake_minimum_required(VERSION 3.11)
 project("json-cpp")
 
-add_subdirectory(dependencies/googletest/googletest)
+option(JSONCPP_DEV "set to 1 to also setup testing" 0)
 
-set(
-    HEADERS
-    "include/Json/Assembler.hpp"
-    "include/Json/BasicValue.hpp"
-    "include/Json/Json.hpp"
-    "include/Json/Keywords.hpp"
-    "include/Json/Parse.hpp"
-    "include/Json/Token.hpp"
-    "include/Json/Tokenizer.hpp")
-
-add_executable(
-    test
-    "test/AssemblerTest.cpp"
-    "test/testmain.cpp"
-    "test/BasicObjectTest.cpp"
-    "test/BasicArrayTest.cpp"
-    "test/BasicPrimitiveTest.cpp"
-    "test/BasicValueTest.cpp"
-    "test/EncodingTest.cpp"
-    "test/ParseTest.cpp"
-    "test/TokenTest.cpp"
-    "test/TokenizerTest.cpp"
-    ${HEADERS})
+if(JSONCPP_DEV EQUAL 1)
+    include(FetchContent)
     
-target_link_libraries(
-    test
-    PRIVATE 
-      gtest)
-    
-# Gtest's include already added through linking with gtest
-target_include_directories(
-    test
-    PRIVATE
-      "include/")
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG release-1.8.1)
 
-set_target_properties(
-    test
-    PROPERTIES
-      CXX_STANDARD 17)
-      
-# If build test as shared library
-if (BUILD_SHARED_LIBS)
-    target_compile_definitions(
-        test
-        PRIVATE
-          GTEST_LINKED_AS_SHARED_LIBRARY=1)
+    FetchContent_GetProperties(googletest)
+    
+    if(NOT googletest_POPULATED)
+        # get google test if goole test not added
+        FetchContent_Populate(
+            googletest)
+            
+        add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+    endif()
+    
+    # add test targets
+    add_subdirectory(unittests)
 endif()
+    
+add_library(jsoncpp INTERFACE)
+
+target_include_directories(
+    jsoncpp
+    INTERFACE
+        "./include/")
+        
+target_compile_features(
+    jsoncpp
+    INTERFACE
+        cxx_std_17)

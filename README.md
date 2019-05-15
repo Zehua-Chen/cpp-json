@@ -12,13 +12,49 @@ Json parser designed to handle different string encoding of C++:
 
 ## Usage
 
+You are welcome to add the build system you use! Just open a pull request!
+
+### CMake
+
+* Download the repository (ex. `FetchContent`)
+* Link the `jsoncpp` library target to your targets
+
+````cmake
+include(FetchContent)
+
+# declare jsoncpp
+FetchContent_Declare(
+    jsoncpp
+    GIT_REPOSITORY https://github.com/Zehua-Chen/json-cpp
+    GIT_TAG version)
+
+# see if jsoncpp has been downloaded
+FetchContent_GetProperties(jsoncpp)
+
+if(NOT jsoncpp_POPULATED)
+    # download json cpp if not
+    FetchContent_Populate(jsoncpp)
+    # add jsoncpp's CMakeLists as a sub directory
+    add_subdirectory(${jsoncpp_SOURCE_DIR} ${jsoncpp_BINARY_DIR})
+endif()
+
+target_link_libraries(
+    your_target
+    PRIVATE
+        jsoncpp)
+````
+
+### Other Build Systems
+
 * Download the repository
 * Add "./include" to your include path
-* Include the umbrella header `Json.hpp` and start parsing json!
+* Include the umbrella header `json.hpp` and start parsing json!
+
+## Quick Start
 
 ````cpp
 
-#include "Json/Json.hpp"
+#include "json/json.hpp"
 #include <string>
 #include <iostream>
 
@@ -38,20 +74,19 @@ int main()
 
 ## Known Limitations
 
-* No syntax validation;
 * Only string to json, and not the other way around;
-* `BasicValue<CharT>` is a little big (64 byte when `CharT` is `char` and compiled with clang++ on macOS)
 * `BasicValue<CharT>` does not have iterators
 * `BasicValue<CharT>` only have basic data access methods;
 
-## Testing
+## Development
 
 ### Setup
 
-* Navigate to `scripts` folder and run `setup-dev.js` using `node`;
-    * You should see a `dependencies` folder afterwards;
-* Make a `build` folder and generate a native build file using `cmake`
-    * To compile google test as a shared library, add `-DBUILD_SHARED_LIBS=1` to `cmake` when generating the solution.
+* When generating build files using cmake, define `JSONCPP_DEV` to be 1
+
+````
+cmake .. -G Ninja -DJSONCPP_DEV=1
+````
     
 #### Windows
 
