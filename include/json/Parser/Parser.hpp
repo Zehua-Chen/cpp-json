@@ -8,37 +8,23 @@
 
 #pragma once
 
-#include "json/Value/BasicValue.hpp"
-
-namespace json::parser
+namespace json
 {
-template<typename CharT, typename TokenizerT, typename ComposerT>
+template<typename CharT>
 class Parser
 {
-public:
-    Parser();
-
+public: 
     template<typename IterT>
-    BasicValue<CharT> parse(IterT begin, IterT end);
-
-private:
-    TokenizerT _tokenizer;
-    ComposerT _composer;
+    void parse(IterT begin, IterT end);
 };
-} // namespace json::parser
-
-// Implementations
-
-namespace json::parser
-{
-template<typename CharT, typename TokenizerT, typename ComposerT>
-template<typename IterT>
-BasicValue<CharT>
-Parser<CharT, TokenizerT, ComposerT>::parse(IterT begin, IterT end)
-{
-    while (begin != end)
-    {
-        _tokenizer.take(begin);
-    }
 }
-} // namespace json::parser
+
+namespace json
+{
+template<typename CharT>
+template<typename IterT>
+void Parser<CharT>::parse(IterT begin, IterT end)
+{
+
+}
+}
