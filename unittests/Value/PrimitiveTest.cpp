@@ -22,11 +22,24 @@ using Value = json::BasicValue<char>;
 
 TEST(PrimitiveTest, String)
 {
-    Value value;
-    value.string("a");
+    // Initialize using literal
+    {
+        Value value;
+        value.string("a");
 
-    EXPECT_EQ(value.type(), Value::Type::string);
-    EXPECT_EQ(value.string(), "a");
+        EXPECT_EQ(value.type(), Value::Type::string);
+        EXPECT_EQ(value.string(), "a");
+    }
+    
+    // Initialize using STL string
+    {
+        string str = "a";
+        Value value;
+        value.string(str);
+
+        EXPECT_EQ(value.type(), Value::Type::string);
+        EXPECT_EQ(value.string(), "a");
+    }
 }
 
 TEST(PrimitiveTest, Number)

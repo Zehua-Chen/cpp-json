@@ -191,15 +191,31 @@ TEST(TokenizerTest, Number)
 
 TEST(TokenizerTest, Bool)
 {
-    string_view json = "true false";
+    // utf8
+    {
+        string_view json = "true false";
 
-    Tokens tokens = tokenize(json);
-    Tokens expected{
-        { TType::boolean, true },
-        { TType::boolean, false }
-    };
+        Tokens tokens = tokenize(json);
+        Tokens expected{
+            { TType::boolean, true },
+            { TType::boolean, false }
+        };
 
-    EXPECT_EQ(tokens, expected);
+        EXPECT_EQ(tokens, expected);
+    }
+    
+    // utf16
+    {
+        std::basic_string_view<char16_t> json = u"true false";
+
+        vector<Token<char16_t>> tokens = tokenize(json);
+        vector<Token<char16_t>> expected{
+            { Token<char16_t>::Type::boolean, true },
+            { Token<char16_t>::Type::boolean, false }
+        };
+
+        EXPECT_EQ(tokens, expected);
+    }
 }
 
 TEST(TokenizerTest, Null)
