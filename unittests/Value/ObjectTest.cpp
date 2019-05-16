@@ -22,14 +22,14 @@ using json::BasicValue;
 using Value = BasicValue<char>;
 using VType = Value::Type;
 
-TEST(BasicObjectTest, Construction)
+TEST(ObjectTest, Construction)
 {
     Value object{ VType::object };
     EXPECT_EQ(object.type(), BasicValue<char>::Type::object);
     EXPECT_TRUE(object.isObject());
 }
 
-TEST(BasicObjectTest, CopyConstruction)
+TEST(ObjectTest, CopyConstruction)
 {
     Value object{ VType::object };
     Value name{ "jackson" };
@@ -38,10 +38,11 @@ TEST(BasicObjectTest, CopyConstruction)
     
     BasicValue<char> copy = object;
     
+    ASSERT_EQ(copy["name"].type(), VType::string);
     EXPECT_EQ(object["name"].string(), copy["name"].string());
 }
 
-TEST(BasicObjectTest, MoveConstruction)
+TEST(ObjectTest, MoveConstruction)
 {
     Value object{ VType::object };
     Value name{ "jackson" };
@@ -51,11 +52,13 @@ TEST(BasicObjectTest, MoveConstruction)
     BasicValue<char> moved = std::move(object);
     
     ASSERT_EQ(moved.type(), VType::object);
+    ASSERT_EQ(moved["name"].type(), VType::string);
     EXPECT_EQ(moved["name"].string(), "jackson");
+
     EXPECT_EQ(object.size(), size_t(0));
 }
 
-TEST(BasicObjectTest, CopyAssignment)
+TEST(ObjectTest, CopyAssignment)
 {
     Value object{ VType::object };
     Value name{ "jackson" };
@@ -75,7 +78,7 @@ TEST(BasicObjectTest, CopyAssignment)
     EXPECT_EQ(object["name"].string(), copy["name"].string());
 }
 
-TEST(BasicObjectTest, MoveAssignment)
+TEST(ObjectTest, MoveAssignment)
 {
     Value object{ VType::object };
     Value name{ "jackson" };
@@ -91,7 +94,7 @@ TEST(BasicObjectTest, MoveAssignment)
     EXPECT_EQ(object.size(), size_t(0));
 }
 
-TEST(BasicObjectTest, ReadWriteWithMethods)
+TEST(ObjectTest, ReadWriteWithMethods)
 {
     Value object{ VType::object };
     Value name{ "jackson" };
@@ -104,7 +107,7 @@ TEST(BasicObjectTest, ReadWriteWithMethods)
     EXPECT_EQ(object.get("name").string(), name.string());
 }
 
-TEST(BasicObjectTest, ReadWriteWithSubscripts)
+TEST(ObjectTest, ReadWriteWithSubscripts)
 {
     Value object{ VType::object };
     Value name{ "jackson" };
@@ -125,7 +128,7 @@ TEST(BasicObjectTest, ReadWriteWithSubscripts)
     EXPECT_EQ(object.get("name").string(), newName.string());
 }
 
-TEST(BasicObjectTest, Erase)
+TEST(ObjectTest, Erase)
 {
     Value object{ VType::object };
     Value name{ "jackson" };

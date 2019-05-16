@@ -59,8 +59,12 @@ public:
      */
     BasicValue(Type type);
 
-    BasicValue(const String &str);
+    BasicValue(const CharT *str);
+    explicit BasicValue(const String &str);
     BasicValue(String &&str);
+
+    BasicValue(const double &number);
+    BasicValue(const bool &boolean);
 
     /**
      * Copy constructor
@@ -220,13 +224,25 @@ public:
      */
     BasicValue<CharT> &operator[](size_t index);
 
-    /// Primitive Modifiers
+    /// String Modifiers
 
     /**
      * Set the value of the primitive to a string value.
      * @value the value to set
      */
-    void string(const std::basic_string<CharT> &text);
+    void string(const CharT *str);
+
+    /**
+     * Set the value of the primitive to a string value.
+     * @value the value to set
+     */
+    void string(const std::basic_string<CharT> &str);
+
+    /**
+     * Set the value of the primitive to a string value.
+     * @value the value to move from
+     */
+    void string(std::basic_string<CharT> &&text);
 
     /// Primitive accessors
 
@@ -242,39 +258,19 @@ public:
      */
     String &string();
 
+    void number(const Number &number);
+    Number &number();
+    const Number &number() const;
+
+    void boolean(const Boolean &boolean);
+    Boolean &boolean();
+    const Boolean &boolean() const;
+
 private:
     Data _data;
 };
 
 /// Factory Methods
-
-/**
- * Make a null primitive.
- * @returns a null primitive.
- */
-template<typename CharT = char>
-BasicValue<CharT> makeNull();
-
-/**
- * Make an number.
- * @returns an empty array.
- */
-template<typename CharT = char>
-BasicValue<CharT> makeNumber(double number);
-
-/**
- * Make an boolean.
- * @returns an empty array.
- */
-template<typename CharT = char>
-BasicValue<CharT> makeBoolean(bool boolean);
-
-/**
- * Make an boolean.
- * @returns an empty array.
- */
-template<typename CharT = char>
-BasicValue<CharT> makeString(std::basic_string_view<CharT> text);
 
 /**
  * Make an empty object.
@@ -338,6 +334,12 @@ BasicValue<CharT>::BasicValue(Type type)
 }
 
 template<typename CharT>
+BasicValue<CharT>::BasicValue(const CharT *str)
+{
+    _data.template emplace<String>(str);
+}
+
+template<typename CharT>
 BasicValue<CharT>::BasicValue(const String &str)
 {
     _data.template emplace<String>(str);
@@ -347,6 +349,18 @@ template<typename CharT>
 BasicValue<CharT>::BasicValue(String &&str)
 {
     _data.template emplace<String>(std::move(str));
+}
+
+template<typename CharT>
+BasicValue<CharT>::BasicValue(const double &number)
+{
+    _data.template emplace<Number>(number);
+}
+
+template<typename CharT>
+BasicValue<CharT>::BasicValue(const bool &boolean)
+{
+    _data.template emplace<Boolean>(boolean);
 }
 
 /**
@@ -633,10 +647,29 @@ BasicValue<CharT> &BasicValue<CharT>::operator[](size_t index)
  * @value the value to set
  */
 template<typename CharT>
-void BasicValue<CharT>::string(const String &text)
+void BasicValue<CharT>::string(const CharT *str)
 {
-    String &data = std::get<String>(_data);
-    data = text;
+    _data.template emplace<String>(str);
+}
+
+/**
+ * Set the value of the primitive to a string value.
+ * @value the value to set
+ */
+template<typename CharT>
+void BasicValue<CharT>::string(const String &str)
+{
+    _data.template emplace<String>(str);
+}
+
+/**
+ * Set the value of the primitive to a string value.
+ * @value the value to move from
+ */
+template<typename CharT>
+void BasicValue<CharT>::string(std::basic_string<CharT> &&str)
+{
+    _data.template emplace<String>(std::move(str));
 }
 
 /// Primitive accessors
@@ -661,6 +694,42 @@ typename BasicValue<CharT>::String &BasicValue<CharT>::string()
     return std::get<String>(_data);
 }
 
+template<typename CharT>
+void BasicValue<CharT>::number(const Number &number)
+{
+    _data.template emplace<Number>(number);
+}
+
+template<typename CharT>
+typename BasicValue<CharT>::Number &BasicValue<CharT>::number()
+{
+    return std::get<Number>(_data);
+}
+
+template<typename CharT>
+const typename BasicValue<CharT>::Number &BasicValue<CharT>::number() const
+{
+    return std::get<Number>(_data);
+}
+
+template<typename CharT>
+void BasicValue<CharT>::boolean(const Boolean &boolean)
+{
+    _data.template emplace<Boolean>(boolean);
+}
+
+template<typename CharT>
+typename BasicValue<CharT>::Boolean &BasicValue<CharT>::boolean()
+{
+    return std::get<Boolean>(_data);
+}
+
+template<typename CharT>
+const typename BasicValue<CharT>::Boolean &BasicValue<CharT>::boolean() const
+{
+    return std::get<Boolean>(_data);
+}
+
 /// Factory Methods
 
 /**
@@ -682,15 +751,4 @@ BasicValue<CharT> makeArray()
 {
     return { BasicValue<CharT>::Type::array };
 }
-
-/**
- * Make a null primitive.
- * @returns a null primitive.
- */
-template<typename CharT>
-BasicValue<CharT> makeNull()
-{
-    return { BasicValue<CharT>::Type::primitive };
-}
-
 } // namespace json
