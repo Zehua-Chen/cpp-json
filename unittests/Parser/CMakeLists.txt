@@ -1,7 +1,7 @@
 add_executable(
     test_parser
     testmain.cpp
-    ComposerTest.cpp)
+    ParserTest.cpp)
     
 target_link_libraries(
     test_parser
