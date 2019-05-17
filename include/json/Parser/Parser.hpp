@@ -31,6 +31,12 @@ private:
             , value{ args... }
         {
         }
+
+        _Scope(_Scope &&other)
+            : name{ std::move(other.name) }
+            , value{ std::move(other.value) }
+        {
+        }
     };
 
     enum class _State
@@ -129,7 +135,7 @@ typename Parser<CharT>::_Context Parser<CharT>::_context()
         return _Context::none;
     }
 
-    _Scope parent = _stack[_stack.size() - 2];
+    _Scope &parent = _stack[_stack.size() - 2];
 
     switch (parent.value.type())
     {
@@ -264,7 +270,7 @@ void Parser<CharT>::_objectHasKey(const token::Token<CharT> &token)
 template<typename CharT>
 void Parser<CharT>::_objectHasValue(const token::Token<CharT> &token)
 {
-    _Scope top = _stack.back();
+    _Scope top = std::move(_stack.back());
     _stack.pop_back();
 
     _Scope &parent = _stack.back();
@@ -318,14 +324,109 @@ void Parser<CharT>::_objectReady(const token::Token<CharT> &token)
 template<typename CharT>
 void Parser<CharT>::_arrayStart(const token::Token<CharT> &token)
 {
+    switch(token.type)
+    {
+    case _TType::string:
+        _stack.emplace_back(std::move(_key), token.string());
+        _state = _State::arrayHasValue;
+        return;
+    case _TType::number:
+        _stack.emplace_back(std::move(_key), token.number());
+        _state = _State::arrayHasValue;
+        return;
+    case _TType::boolean:
+        _stack.emplace_back(std::move(_key), token.boolean());
+        _state = _State::arrayHasValue;
+        return;
+    case _TType::null:
+        _stack.emplace_back(std::move(_key));
+        _state = _State::arrayHasValue;
+        return;
+    case _TType::beginObject:
+        _stack.emplace_back(std::move(_key), _VType::object);
+        _state = _State::objectStart;
+        return;
+    case _TType::beginArray:
+        _stack.emplace_back(std::move(_key), _VType::array);
+        _state = _State::arrayStart;
+        return;
+    default:
+        // TODO: Handle error
+        return;
+    }
 }
 template<typename CharT>
 void Parser<CharT>::_arrayHasValue(const token::Token<CharT> &token)
 {
+    _Scope top = std::move(_stack.back());
+    _stack.pop_back();
+
+    _Scope &parent = _stack.back();
+    parent.value.append(std::move(top.value));
+
+    switch(token.type)
+    {
+    case _TType::endArray:
+    {
+        switch (_context())
+        {
+        case _Context::object:
+            _state = _State::objectHasValue;
+            break;
+        case _Context::array:
+            _state = _State::arrayHasValue;
+            break;
+        case _Context::none:
+            _state = _State::finished;
+            break;
+        case _Context::undefined:
+            // TODO: Handle error
+            break;
+        }
+
+        return;
+    }
+    case _TType::valueSeparator:
+        _state = _State::arrayReady;
+        return;
+    default:
+        // TODO: Handle error
+        return;
+    }
 }
 template<typename CharT>
 void Parser<CharT>::_arrayReady(const token::Token<CharT> &token)
 {
+    switch(token.type)
+    {
+    case _TType::string:
+        _stack.emplace_back(std::move(_key), token.string());
+        _state = _State::arrayHasValue;
+        return;
+    case _TType::number:
+        _stack.emplace_back(std::move(_key), token.number());
+        _state = _State::arrayHasValue;
+        return;
+    case _TType::boolean:
+        _stack.emplace_back(std::move(_key), token.boolean());
+        _state = _State::arrayHasValue;
+        return;
+    case _TType::null:
+        _stack.emplace_back(std::move(_key));
+        _state = _State::arrayHasValue;
+        return;
+    case _TType::beginObject:
+        _stack.emplace_back(std::move(_key), _VType::object);
+        _state = _State::objectStart;
+        return;
+    case _TType::beginArray:
+        _stack.emplace_back(std::move(_key), _VType::array);
+        _state = _State::arrayStart;
+        return;
+    default:
+        // TODO: Handle error
+        return;
+    }
 }
 
 } // namespace json::parser

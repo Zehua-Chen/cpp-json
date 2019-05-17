@@ -8,6 +8,11 @@ target_link_libraries(
     PRIVATE
         gtest
         jsoncpp)
+
+target_compile_definitions(
+    test_parser 
+    PRIVATE
+        PATH_TESTFILE="${CMAKE_SOURCE_DIR}/unittests/resources/1.jsonc")
         
 set_target_properties(
     test_parser

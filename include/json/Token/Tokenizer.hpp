@@ -308,6 +308,8 @@ void Tokenizer<CharT, IterT>::_number()
 
         switch (letter)
         {
+        case ']':
+        case '}':
         case ' ':
         case ',':
         case '\t':
@@ -411,7 +413,7 @@ void Tokenizer<CharT, IterT>::_true()
     const char letters[] = { 't', 'r', 'u', 'e' };
     int i = 0;
 
-    while (_begin < _end)
+    while (_begin != _end)
     {
         CharT letter = *_begin;
 
@@ -439,7 +441,7 @@ void Tokenizer<CharT, IterT>::_false()
     const char letters[] = { 'f', 'a', 'l', 's', 'e' };
     int i = 0;
 
-    while (_begin < _end)
+    while (_begin != _end)
     {
         CharT letter = *_begin;
 
@@ -467,7 +469,7 @@ void Tokenizer<CharT, IterT>::_null()
     const char letters[] = { 'n', 'u', 'l', 'l' };
     int i = 0;
 
-    while (_begin < _end)
+    while (_begin != _end)
     {
         CharT letter = *_begin;
 
