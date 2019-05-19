@@ -1,19 +1,20 @@
 add_executable(
-    test_value
+    test_parser
     testmain.cpp
-    ArrayTest.cpp
-    ObjectTest.cpp
-    PrimitiveTest.cpp
-    ValueTest.cpp
-    KeyTest.cpp)
+    ParserTest.cpp)
     
 target_link_libraries(
-    test_value
+    test_parser
     PRIVATE
         gtest
         jsoncpp)
+
+target_compile_definitions(
+    test_parser 
+    PRIVATE
+        PATH_TESTFILE="${CMAKE_SOURCE_DIR}/unittests/resources/1.jsonc")
         
 set_target_properties(
-    test_value
+    test_parser
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

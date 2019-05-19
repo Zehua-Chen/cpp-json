@@ -64,6 +64,9 @@ struct Token
      */
     Token(const Type &type);
 
+    template<typename DataT>
+    Token(const Type &type, DataT &&data);
+
     /**
      * Create a string token
      * @str the string to create the token with
@@ -179,6 +182,7 @@ inline std::ostream &operator<<(std::ostream &out, const Token<char> &token)
         break;
     case TType::boolean:
         out << "boolean";
+        out << std::boolalpha << "=" << token.boolean();
         break;
     case TType::null:
         out << "null";
@@ -275,6 +279,14 @@ Token<CharT>::Token(const Type &type)
     default:
         break;
     }
+}
+
+template<typename CharT>
+template<typename DataT>
+Token<CharT>::Token(const Type &type, DataT &&data)
+    : type(type)
+    , data(std::forward<DataT>(data))
+{
 }
 
 /**

@@ -17,80 +17,88 @@ using std::string_view;
 using std::cout;
 using std::endl;
 
-using namespace json;
+using json::BasicValue;
 
-TEST(BasicObjectTest, Construction)
+using Value = BasicValue<char>;
+using VType = Value::Type;
+
+TEST(ObjectTest, Construction)
 {
-    auto object = makeObject();
+    Value object{ VType::object };
     EXPECT_EQ(object.type(), BasicValue<char>::Type::object);
     EXPECT_TRUE(object.isObject());
 }
 
-TEST(BasicObjectTest, CopyConstruction)
+TEST(ObjectTest, CopyConstruction)
 {
-    auto object = makeObject();
-    auto name = makePrimitive();
+    Value object{ VType::object };
+    Value name{ "jackson" };
     
-    name.string("jackson");
     object["name"] = name;
     
     BasicValue<char> copy = object;
     
+    ASSERT_EQ(copy["name"].type(), VType::string);
     EXPECT_EQ(object["name"].string(), copy["name"].string());
 }
 
-TEST(BasicObjectTest, MoveConstruction)
+TEST(ObjectTest, MoveConstruction)
 {
-    auto object = makeObject();
-    auto name = makePrimitive();
-    
-    name.string("jackson");
+    Value object{ VType::object };
+    Value name{ "jackson" };
+
     object["name"] = name;
     
     BasicValue<char> moved = std::move(object);
     
+    ASSERT_EQ(moved.type(), VType::object);
+    ASSERT_EQ(moved["name"].type(), VType::string);
     EXPECT_EQ(moved["name"].string(), "jackson");
+
     EXPECT_EQ(object.size(), size_t(0));
 }
 
-TEST(BasicObjectTest, CopyAssignment)
+TEST(ObjectTest, CopyAssignment)
 {
-    auto object = makeObject();
-    auto name = makePrimitive();
+    Value object{ VType::object };
+    Value name{ "jackson" };
     
-    name.string("jackson");
     object["name"] = name;
     
-    auto copy = makeObject();
-    copy["random data"] = makePrimitive();
+    Value copy{ VType::object };
+    copy["random data"] = Value{};
     
     copy = object;
     
+    ASSERT_EQ(object.type(), VType::object);
+    ASSERT_EQ(copy.type(), VType::object);
+    ASSERT_EQ(copy["name"].type(), VType::string);
+    ASSERT_EQ(object["name"].type(), VType::string);
+
     EXPECT_EQ(object["name"].string(), copy["name"].string());
 }
 
-TEST(BasicObjectTest, MoveAssignment)
+TEST(ObjectTest, MoveAssignment)
 {
-    auto object = makeObject();
-    auto name = makePrimitive();
+    Value object{ VType::object };
+    Value name{ "jackson" };
     
     name.string("jackson");
     object["name"] = name;
     
-    auto moved = makeObject();
-    moved["random data"] = makePrimitive();
+    Value moved{ VType::object };
+    moved["random data"] = Value{};
     moved = std::move(object);
     
     EXPECT_EQ(moved["name"].string(), "jackson");
     EXPECT_EQ(object.size(), size_t(0));
 }
 
-TEST(BasicObjectTest, ReadWriteWithMethods)
+TEST(ObjectTest, ReadWriteWithMethods)
 {
-    auto object = makeObject();
-    auto name = makePrimitive();
+    Value object{ VType::object };
+    Value name{ "jackson" };
 
-    name.string("jackson");
     object.set("name", name);
 
     ASSERT_TRUE(object.size() == 1);
@@ -99,12 +107,11 @@ TEST(BasicObjectTest, ReadWriteWithMethods)
     EXPECT_EQ(object.get("name").string(), name.string());
 }
 
-TEST(BasicObjectTest, ReadWriteWithSubscripts)
+TEST(ObjectTest, ReadWriteWithSubscripts)
 {
-    auto object = makeObject();
-    auto name = makePrimitive();
+    Value object{ VType::object };
+    Value name{ "jackson" };
 
-    name.string("jackson");
     object["name"] = name;
 
     ASSERT_TRUE(object.size() == 1);
@@ -112,8 +119,7 @@ TEST(BasicObjectTest, ReadWriteWithSubscripts)
 
     EXPECT_EQ(object.get("name").string(), name.string());
 
-    auto newName = makePrimitive();
-    name.string("peter");
+    Value newName{ "peter" };
     object["name"] = newName;
 
     ASSERT_TRUE(object.size() == 1);
@@ -122,12 +128,10 @@ TEST(BasicObjectTest, ReadWriteWithSubscripts)
     EXPECT_EQ(object.get("name").string(), newName.string());
 }
 
-TEST(BasicObjectTest, Erase)
+TEST(ObjectTest, Erase)
 {
-    auto object = makeObject();
-    
-    auto name = makePrimitive();
-    name.string("jackson");
+    Value object{ VType::object };
+    Value name{ "jackson" };
     
     object["name"] = name;
     

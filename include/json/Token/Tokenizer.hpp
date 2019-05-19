@@ -44,6 +44,9 @@ public:
 private:
     void _string();
     void _number();
+    void _true();
+    void _false();
+    void _null();
 
     Token<CharT> _token;
     IterT _begin;
@@ -119,6 +122,16 @@ void Tokenizer<CharT, IterT>::extract()
         case '8':
         case '9':
             return _number();
+        case 't':
+            return _true();
+        case 'f':
+            return _false();
+        case 'n':
+            return _null();
+        default:
+            // TODO: Error handling
+            ++_begin;
+            break;
         }
     }
 }
@@ -295,13 +308,14 @@ void Tokenizer<CharT, IterT>::_number()
 
         switch (letter)
         {
+        case ']':
+        case '}':
         case ' ':
         case ',':
         case '\t':
         case '\r':
         case '\n':
-            _token.formNumber(exportNumber());
-            return;
+            return _token.formNumber(exportNumber());
         case '0':
         case '1':
         case '2':
@@ -391,6 +405,91 @@ void Tokenizer<CharT, IterT>::_number()
     }
 
     _token.formNumber(exportNumber());
+}
+
+template<typename CharT, typename IterT>
+void Tokenizer<CharT, IterT>::_true()
+{
+    const char letters[] = { 't', 'r', 'u', 'e' };
+    int i = 0;
+
+    while (_begin != _end)
+    {
+        CharT letter = *_begin;
+
+        if (letter != static_cast<CharT>(letters[i]))
+        {
+            // TODO: Error handling
+        }
+
+        if (i == 3)
+        {
+            ++_begin;
+            return _token.formBoolean(true);
+        }
+
+        ++i;
+        ++_begin;
+    }
+
+    // TODO: Error handling
+}
+
+template<typename CharT, typename IterT>
+void Tokenizer<CharT, IterT>::_false()
+{
+    const char letters[] = { 'f', 'a', 'l', 's', 'e' };
+    int i = 0;
+
+    while (_begin != _end)
+    {
+        CharT letter = *_begin;
+
+        if (letter != static_cast<CharT>(letters[i]))
+        {
+            // TODO: Error handling
+        }
+
+        if (i == 4)
+        {
+            ++_begin;
+            return _token.formBoolean(false);
+        }
+
+        ++i;
+        ++_begin;
+    }
+
+    // TODO: Error handling
+}
+
+template<typename CharT, typename IterT>
+void Tokenizer<CharT, IterT>::_null()
+{
+    const char letters[] = { 'n', 'u', 'l', 'l' };
+    int i = 0;
+
+    while (_begin != _end)
+    {
+        CharT letter = *_begin;
+
+        if (letter != static_cast<CharT>(letters[i]))
+        {
+            // TODO: Error handling
+        }
+
+        if (i == 3)
+        {
+            _token.type = Token<CharT>::Type::null;
+            ++_begin;
+            return;
+        }
+
+        ++i;
+        ++_begin;
+    }
+
+    // TODO: Error handling
 }
 
 template<typename CharT, typename IterT>
