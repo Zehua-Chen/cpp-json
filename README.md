@@ -8,6 +8,9 @@
     * `char16_t`;
     * `char32_t`;
     * `wchar_t`;
+* STL-like design
+    * Inputs string are passed as iterators
+    * Char type support implemented through template, like `basic_string<CharT>`;
 
 ## Requirements
 
