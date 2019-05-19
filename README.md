@@ -1,10 +1,13 @@
 # Json Library
 
-Json parser designed to handle different string encoding of C++:
-* `char`;
-* `char16_t`;
-* `char32_t`;
-* `wchar_t`;
+## Features
+
+* Full Json standard compatibilty;
+* Works with
+    * `char`;
+    * `char16_t`;
+    * `char32_t`;
+    * `wchar_t`;
 
 ## Requirements
 
@@ -74,6 +77,7 @@ int main()
 
 ## Known Limitations
 
+* No error resporting
 * Only string to json, and not the other way around;
 * `BasicValue<CharT>` does not have iterators
 * `BasicValue<CharT>` only have basic data access methods;
