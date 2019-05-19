@@ -1,0 +1,404 @@
+[
+  {
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 0,
+      "Rock": 0,
+      "Scissors": 0,
+      "Speed": 0
+    },
+    "Destination": 0,
+    "Health": 100,
+    "Location": 0,
+    "Movement Counter": 7,
+    "Name": "Player1",
+    "Paper": 1,
+    "Rock": 1,
+    "Scissors": 1,
+    "Speed": 0,
+    "Stance": "Invalid Stance",
+    "Type": "Player"
+  },
+  {
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 0,
+      "Rock": 0,
+      "Scissors": 0,
+      "Speed": 0
+    },
+    "Destination": 0,
+    "Health": 100,
+    "Location": 0,
+    "Movement Counter": 7,
+    "Name": "Player2",
+    "Paper": 1,
+    "Rock": 1,
+    "Scissors": 1,
+    "Speed": 0,
+    "Stance": "Invalid Stance",
+    "Type": "Player"
+  },
+  {
+    "Attack": 0,
+    "Base Health": 4,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 20,
+      "Paper": 0,
+      "Rock": 0,
+      "Scissors": 0,
+      "Speed": 0
+    },
+    "Destination": 0,
+    "Health": 4,
+    "Location": 0,
+    "Movement Counter": 7,
+    "Name": "Health 0",
+    "Speed": -33,
+    "Stance": "Rock",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 1,
+    "Base Health": 4,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 1,
+      "Rock": 0,
+      "Scissors": 0,
+      "Speed": 0
+    },
+    "Destination": 1,
+    "Health": 4,
+    "Location": 1,
+    "Movement Counter": 7,
+    "Name": "Rock 1",
+    "Speed": -7,
+    "Stance": "Rock",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 2,
+    "Base Health": 8,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 0,
+      "Rock": 0,
+      "Scissors": 0,
+      "Speed": 1
+    },
+    "Destination": 3,
+    "Health": 8,
+    "Location": 3,
+    "Movement Counter": 7,
+    "Name": "Paper 3",
+    "Speed": -53,
+    "Stance": "Paper",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 4,
+    "Base Health": 16,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 4,
+      "Rock": 0,
+      "Scissors": 0,
+      "Speed": 0
+    },
+    "Destination": 4,
+    "Health": 16,
+    "Location": 4,
+    "Movement Counter": 7,
+    "Name": "Rock 4",
+    "Speed": -21,
+    "Stance": "Rock",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 1,
+    "Base Health": 4,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 0,
+      "Rock": 0,
+      "Scissors": 1,
+      "Speed": 0
+    },
+    "Destination": 6,
+    "Health": 4,
+    "Location": 6,
+    "Movement Counter": 7,
+    "Name": "Paper 6",
+    "Speed": -7,
+    "Stance": "Paper",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 4,
+    "Base Health": 16,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 0,
+      "Rock": 0,
+      "Scissors": 4,
+      "Speed": 0
+    },
+    "Destination": 8,
+    "Health": 16,
+    "Location": 8,
+    "Movement Counter": 7,
+    "Name": "Scissors 8",
+    "Speed": -33,
+    "Stance": "Scissors",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 1,
+    "Base Health": 4,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 0,
+      "Rock": 1,
+      "Scissors": 0,
+      "Speed": 0
+    },
+    "Destination": 10,
+    "Health": 4,
+    "Location": 10,
+    "Movement Counter": 7,
+    "Name": "Scissors 10",
+    "Speed": -7,
+    "Stance": "Scissors",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 4,
+    "Base Health": 16,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 4,
+      "Rock": 0,
+      "Scissors": 0,
+      "Speed": 0
+    },
+    "Destination": 11,
+    "Health": 16,
+    "Location": 11,
+    "Movement Counter": 7,
+    "Name": "Rock 11",
+    "Speed": -53,
+    "Stance": "Rock",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 2,
+    "Base Health": 8,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 0,
+      "Rock": 2,
+      "Scissors": 0,
+      "Speed": 0
+    },
+    "Destination": 13,
+    "Health": 8,
+    "Location": 13,
+    "Movement Counter": 7,
+    "Name": "Rock 13",
+    "Speed": -21,
+    "Stance": "Rock",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 4,
+    "Base Health": 16,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 0,
+      "Rock": 0,
+      "Scissors": 4,
+      "Speed": 0
+    },
+    "Destination": 15,
+    "Health": 16,
+    "Location": 15,
+    "Movement Counter": 7,
+    "Name": "Rock 15",
+    "Speed": -33,
+    "Stance": "Rock",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 2,
+    "Base Health": 8,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 0,
+      "Rock": 2,
+      "Scissors": 0,
+      "Speed": 0
+    },
+    "Destination": 16,
+    "Health": 8,
+    "Location": 16,
+    "Movement Counter": 7,
+    "Name": "Rock 16",
+    "Speed": -21,
+    "Stance": "Rock",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 4,
+    "Base Health": 16,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 0,
+      "Rock": 4,
+      "Scissors": 0,
+      "Speed": 0
+    },
+    "Destination": 17,
+    "Health": 16,
+    "Location": 17,
+    "Movement Counter": 7,
+    "Name": "Scissors 17",
+    "Speed": -33,
+    "Stance": "Scissors",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 2,
+    "Base Health": 8,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 2,
+      "Rock": 0,
+      "Scissors": 0,
+      "Speed": 0
+    },
+    "Destination": 18,
+    "Health": 8,
+    "Location": 18,
+    "Movement Counter": 7,
+    "Name": "Paper 18",
+    "Speed": -21,
+    "Stance": "Paper",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 2,
+    "Base Health": 8,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 0,
+      "Rock": 0,
+      "Scissors": 2,
+      "Speed": 0
+    },
+    "Destination": 20,
+    "Health": 8,
+    "Location": 20,
+    "Movement Counter": 7,
+    "Name": "Paper 20",
+    "Speed": -21,
+    "Stance": "Paper",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 4,
+    "Base Health": 16,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 0,
+      "Rock": 0,
+      "Scissors": 0,
+      "Speed": 2
+    },
+    "Destination": 21,
+    "Health": 16,
+    "Location": 21,
+    "Movement Counter": 7,
+    "Name": "Scissors 21",
+    "Speed": -53,
+    "Stance": "Scissors",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 2,
+    "Base Health": 8,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 2,
+      "Rock": 0,
+      "Scissors": 0,
+      "Speed": 0
+    },
+    "Destination": 22,
+    "Health": 8,
+    "Location": 22,
+    "Movement Counter": 7,
+    "Name": "Scissors 22",
+    "Speed": -21,
+    "Stance": "Scissors",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 3,
+    "Base Health": 12,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 0,
+      "Rock": 1,
+      "Scissors": 2,
+      "Speed": 0
+    },
+    "Destination": 23,
+    "Health": 12,
+    "Location": 23,
+    "Movement Counter": 7,
+    "Name": "Scissors 23",
+    "Speed": -33,
+    "Stance": "Scissors",
+    "Type": "Monster"
+  },
+  {
+    "Attack": 5,
+    "Base Health": 30,
+    "Dead": false,
+    "Death Effects": {
+      "Health": 0,
+      "Paper": 3,
+      "Rock": 3,
+      "Scissors": 3,
+      "Speed": 0
+    },
+    "Destination": 24,
+    "Health": 30,
+    "Location": 24,
+    "Movement Counter": 7,
+    "Name": "Paper 24",
+    "Speed": -73,
+    "Stance": "Paper",
+    "Type": "Monster"
+  }
+]
