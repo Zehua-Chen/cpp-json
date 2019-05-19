@@ -1,0 +1,33 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabu}
+\usepackage[scaled=0.92]{helvet}
+
+\usepackage{float}
+\usepackage{xcolor}
+
+\setlength{\parindent}{0pt}
+\renewcommand{\familydefault}{\sfdefault}
+
+\title{Json Tokenizer Design}
+\author{Zehua Chen}
+\date{\today}
+
+\begin{document}
+  \maketitle
+
+  \section{Number Tokenizer}
+
+    Numbers are divided into the following segments:
+    \begin{enumerate}
+      \item Sign;
+      \item Before decimal point;
+      \item Decimal point
+      \item After decimal point;
+      \item E 
+      \item E sign 
+      \item E scale
+    \end{enumerate}
+\end{document}
