@@ -1,8 +1,8 @@
 #pragma once
 
-#include "json/Token/Token.hpp"
-#include "json/Token/Tokenizer.hpp"
-#include "json/Value/BasicValue.hpp"
+#include "json/token/token.h"
+#include "json/token/tokenizer.h"
+#include "json/value/basic_value.h"
 #include <string>
 #include <vector>
 

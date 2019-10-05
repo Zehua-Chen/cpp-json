@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "json/Value/BasicKey.hpp"
+#include "json/value/basic_key.h"
 #include <iostream>
 #include <utility>
 #include <string>
@@ -195,7 +195,7 @@ public:
      * @value the value to add
      */
     void append(const BasicValue<CharT> &value);
-    
+
     /**
      * Add new element to the array.
      * @value the value to add
@@ -610,7 +610,7 @@ void BasicValue<CharT>::erase(const size_t index)
     Array &data = std::get<Array>(_data);
     auto position = data.begin();
     std::advance(position, index);
-    
+
     data.erase(position);
 }
 

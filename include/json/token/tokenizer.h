@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include "json/Token/Token.hpp"
-#include "json/Utils/Convert.hpp"
-#include "json/Utils/Letters.hpp"
+#include "json/token/token.h"
+#include "json/utils/convert.h"
+#include "json/utils/letters.h"
 #include <bitset>
 #include <cmath>
 #include <string>

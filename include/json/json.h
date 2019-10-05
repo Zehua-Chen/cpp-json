@@ -1,7 +1,7 @@
 #pragma once
 
-#include "json/Value/BasicValue.hpp"
-#include "json/Parser/Parser.hpp"
+#include "json/value/basic_value.h"
+#include "json/parser/parser.h"
 
 namespace json
 {
@@ -19,7 +19,7 @@ BasicValue<CharT> parse(IterT begin, IterT end)
 {
     token::Tokenizer<CharT, IterT> tokenizer{ begin, end };
     parser::Parser<CharT> parser;
-    
+
     while(tokenizer)
     {
         tokenizer.extract();
