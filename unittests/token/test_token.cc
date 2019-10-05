@@ -28,8 +28,8 @@ TEST(TokenTest, CopyConstructor)
 TEST(TokenTest, PerfectForwarding)
 {
     string data = "aaa";
-    Token<char> copy{ Token<char>::Type::string, data };
-    Token<char> moved{ Token<char>::Type::string, std::move(data) };
+    Token<char> copy{ Token<char>::Type::kString, data };
+    Token<char> moved{ Token<char>::Type::kString, std::move(data) };
 
     ASSERT_EQ(copy.string(), "aaa");
     ASSERT_EQ(moved.string(), "aaa");
@@ -49,16 +49,16 @@ TEST(TokenTest, CompareSame)
 {
     // Begin Object
     {
-        Token<char> token1 = { Token<char>::Type::beginObject };
-        Token<char> token2 = { Token<char>::Type::beginObject };
+        Token<char> token1 = { Token<char>::Type::kBeginObject };
+        Token<char> token2 = { Token<char>::Type::kBeginObject };
 
         EXPECT_EQ(token1, token2);
     }
 
     // Begin Array
     {
-        Token<char> token1 = { Token<char>::Type::beginArray };
-        Token<char> token2 = { Token<char>::Type::beginArray };
+        Token<char> token1 = { Token<char>::Type::kBeginArray };
+        Token<char> token2 = { Token<char>::Type::kBeginArray };
 
         EXPECT_EQ(token1, token2);
     }
@@ -86,16 +86,16 @@ TEST(TokenTest, CompareDifferent)
 {
     // Object
     {
-        Token<char> token1 = { Token<char>::Type::beginObject };
-        Token<char> token2 = { Token<char>::Type::endObject };
+        Token<char> token1 = { Token<char>::Type::kBeginObject };
+        Token<char> token2 = { Token<char>::Type::kEndObject };
 
         EXPECT_NE(token1, token2);
     }
 
     // Array
     {
-        Token<char> token1{ Token<char>::Type::beginArray };
-        Token<char> token2{ Token<char>::Type::endArray };
+        Token<char> token1{ Token<char>::Type::kBeginArray };
+        Token<char> token2{ Token<char>::Type::kEndArray };
 
         EXPECT_NE(token1, token2);
     }
@@ -103,7 +103,7 @@ TEST(TokenTest, CompareDifferent)
     // String and null
     {
         Token<char> token1{ "a" };
-        Token<char> token2{ Token<char>::Type::null };
+        Token<char> token2{ Token<char>::Type::kNull };
 
         EXPECT_NE(token1, token2);
     }

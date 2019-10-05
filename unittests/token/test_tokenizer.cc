@@ -26,7 +26,7 @@ static vector<Token<CharT>> tokenize(basic_string_view<CharT> js)
 
     while (tokenizer)
     {
-        tokenizer.extract();
+        tokenizer.Extract();
         output.push_back(tokenizer.token());
     }
 
@@ -37,9 +37,9 @@ TEST(TokenizerTest, NonContextual)
 {
     string_view json = "{ }\r[]\t,\n:";
     Tokens tokens = tokenize(json);
-    Tokens expected{ { TType::beginObject },    { TType::endObject },
-                     { TType::beginArray },     { TType::endArray },
-                     { TType::valueSeparator }, { TType::keyValueSeparator } };
+    Tokens expected{ { TType::kBeginObject },    { TType::kEndObject },
+                     { TType::kBeginArray },     { TType::kEndArray },
+                     { TType::kValueSeparator }, { TType::kKeyValueSeparator } };
 
     EXPECT_EQ(tokens, expected);
 }
@@ -171,7 +171,7 @@ TEST(TokenizerTest, Number)
 
         Tokens tokens = tokenize(json);
         Tokens expected{
-            { -123.0e0 }, { TType::valueSeparator }, { -123.0e-1 }, { 123.0e2 }
+            { -123.0e0 }, { TType::kValueSeparator }, { -123.0e-1 }, { 123.0e2 }
         };
 
         ASSERT_EQ(tokens.size(), expected.size());
@@ -181,7 +181,7 @@ TEST(TokenizerTest, Number)
             const auto &actual = tokens[i];
             const auto &e = expected[i];
 
-            if (actual.type == TType::number)
+            if (actual.type == TType::kNumber)
             {
                 EXPECT_FLOAT_EQ(actual.number(), e.number());
             }
@@ -197,8 +197,8 @@ TEST(TokenizerTest, Bool)
 
         Tokens tokens = tokenize(json);
         Tokens expected{
-            { TType::boolean, true },
-            { TType::boolean, false }
+            { TType::kBoolean, true },
+            { TType::kBoolean, false }
         };
 
         EXPECT_EQ(tokens, expected);
@@ -210,8 +210,8 @@ TEST(TokenizerTest, Bool)
 
         vector<Token<char16_t>> tokens = tokenize(json);
         vector<Token<char16_t>> expected{
-            { Token<char16_t>::Type::boolean, true },
-            { Token<char16_t>::Type::boolean, false }
+            { Token<char16_t>::Type::kBoolean, true },
+            { Token<char16_t>::Type::kBoolean, false }
         };
 
         EXPECT_EQ(tokens, expected);
@@ -224,8 +224,8 @@ TEST(TokenizerTest, Null)
 
     Tokens tokens = tokenize(json);
     Tokens expected{
-        { TType::null },
-        { TType::null }
+        { TType::kNull },
+        { TType::kNull }
     };
 
     EXPECT_EQ(tokens, expected);
