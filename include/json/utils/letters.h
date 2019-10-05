@@ -8,71 +8,70 @@
 
 #pragma once
 
-namespace json::utils::letters
-{
-template<typename CharT>
-inline constexpr CharT leftCurleyBrace{ '{' };
+namespace json::utils::letters {
+template <typename CharT>
+inline constexpr CharT kLeftCurleyBrace{'{'};
 
-template<typename CharT>
-inline constexpr CharT rightCurleyBrace{ '}' };
+template <typename CharT>
+inline constexpr CharT kRightCurleyBrace{'}'};
 
-template<typename CharT>
-inline constexpr CharT leftSquareBracket{ '[' };
+template <typename CharT>
+inline constexpr CharT kLeftSquareBracket{'['};
 
-template<typename CharT>
-inline constexpr CharT rightSquareBracket{ ']' };
+template <typename CharT>
+inline constexpr CharT kRightSquareBracket{']'};
 
-template<typename CharT>
-inline constexpr CharT comma{ ',' };
+template <typename CharT>
+inline constexpr CharT kComma{','};
 
-template<typename CharT>
-inline constexpr CharT colon{ ':' };
+template <typename CharT>
+inline constexpr CharT kColon{':'};
 
-template<typename CharT>
-inline constexpr CharT carriageReturn{ '\r' };
+template <typename CharT>
+inline constexpr CharT kCarriageReturn{'\r'};
 
-template<typename CharT>
-inline constexpr CharT endline{ '\n' };
+template <typename CharT>
+inline constexpr CharT kEndline{'\n'};
 
-template<typename CharT>
-inline constexpr CharT tab{ '\t' };
+template <typename CharT>
+inline constexpr CharT kTab{'\t'};
 
-template<typename CharT>
-inline constexpr CharT formfeed{ '\f' };
+template <typename CharT>
+inline constexpr CharT kFormfeed{'\f'};
 
-template<typename CharT>
-inline constexpr CharT backspace{ '\b' };
+template <typename CharT>
+inline constexpr CharT kBackspace{'\b'};
 
-template<typename CharT>
-inline constexpr CharT space{ ' ' };
+template <typename CharT>
+inline constexpr CharT kSpace{' '};
 
-template<typename CharT>
-inline constexpr CharT singleQuote{ '\'' };
+template <typename CharT>
+inline constexpr CharT kSingleQuote{'\''};
 
-template<typename CharT>
-inline constexpr CharT doubleQuote{ '\"' };
+template <typename CharT>
+inline constexpr CharT kDoubleQuote{'\"'};
 
-template<typename CharT>
-inline constexpr CharT backSolidus{ '\\' };
+template <typename CharT>
+inline constexpr CharT kBackSolidus{'\\'};
 
-template<typename CharT>
-inline constexpr CharT solidus{ '/' };
+template <typename CharT>
+inline constexpr CharT kSolidus{'/'};
 
-template<typename CharT>
-inline constexpr CharT b{ 'b' };
+template <typename CharT>
+inline constexpr CharT kB{'b'};
 
-template<typename CharT>
-inline constexpr CharT f{ 'f' };
+template <typename CharT>
+inline constexpr CharT kF{'f'};
 
-template<typename CharT>
-inline constexpr CharT n{ 'n' };
+template <typename CharT>
+inline constexpr CharT kN{'n'};
 
-template<typename CharT>
-inline constexpr CharT r{ 'r' };
+template <typename CharT>
+inline constexpr CharT kR{'r'};
 
-template<typename CharT>
-inline constexpr CharT t{ 't' };
+template <typename CharT>
+inline constexpr CharT kT{'t'};
 
-template<typename CharT>
-inline constexpr CharT u{ 'u' };
-} // namespace json::utils
+template <typename CharT>
+inline constexpr CharT kU{'u'};
+}  // namespace json::utils::letters
