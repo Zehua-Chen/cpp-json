@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "json/Value/BasicKey.hpp"
+#include "json/value/basic_key.h"
 #include <unordered_map>
 
 using std::hash;

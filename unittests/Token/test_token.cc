@@ -6,7 +6,7 @@
 //  Copyright © 2018 Zehua Chen. All rights reserved.
 //
 
-#include "json/Token/Token.hpp"
+#include "json/token/token.h"
 #include "gtest/gtest.h"
 #include <string>
 

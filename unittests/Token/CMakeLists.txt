@@ -1,15 +1,15 @@
 add_executable(
     test_token
-    testmain.cpp
-    TokenTest.cpp
-    TokenizerTest.cpp)
-    
+    testmain.cc
+    test_token.cc
+    test_tokenizer.cc)
+
 target_link_libraries(
     test_token
     PRIVATE
         gtest
         jsoncpp)
-        
+
 set_target_properties(
     test_token
     PROPERTIES

@@ -1,14 +1,14 @@
 add_executable(
     test_utils
-    testmain.cpp
-    ConvertTest.cpp)
-    
+    testmain.cc
+    test_convert.cc)
+
 target_link_libraries(
     test_utils
     PRIVATE
         gtest
         jsoncpp)
-        
+
 set_target_properties(
     test_utils
     PROPERTIES

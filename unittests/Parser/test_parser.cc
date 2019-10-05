@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "json/json.hpp"
+#include "json/json.h"
 #include <string_view>
 #include <fstream>
 #include <iterator>
@@ -32,12 +32,12 @@ TEST(ParserTest, Object)
 
     ASSERT_TRUE(value.contains("e"));
     const Value &nested = value["e"];
-    
+
     ASSERT_TRUE(nested.contains("f"));
     EXPECT_EQ(nested["f"].string(), "g");
 }
 
-TEST(ParserTest, Array) 
+TEST(ParserTest, Array)
 {
     string_view json
         = "[true, [123, 223], false]";
@@ -56,7 +56,7 @@ TEST(ParserTest, Array)
     EXPECT_FLOAT_EQ(nested[1].number(), 223.0);
 }
 
-TEST(ParserTest, File) 
+TEST(ParserTest, File)
 {
     std::ifstream file{ PATH_TESTFILE };
 
@@ -66,7 +66,7 @@ TEST(ParserTest, File)
     std::istreambuf_iterator<char> end;
 
     Value value = json::parse(begin, end);
-    
+
     ASSERT_EQ(value.type(), Value::Type::array);
 
     const Value &last = value[value.size() - 1];

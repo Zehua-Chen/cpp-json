@@ -6,7 +6,7 @@
 //  Copyright © 2018 Zehua Chen. All rights reserved.
 //
 
-#include "json/Value/BasicValue.hpp"
+#include "json/value/basic_value.h"
 #include "gtest/gtest.h"
 #include <string>
 
@@ -27,11 +27,11 @@ TEST(BasicArrayTest, CopyConstruction)
 {
     Value array{ VType::array };
     Value element{ "element 1" };
-    
+
     array.append(element);
-    
+
     Value copy = array;
-    
+
     EXPECT_EQ(copy[0].string(), array[0].string());
     EXPECT_EQ(copy.size(), array.size());
 }
@@ -40,11 +40,11 @@ TEST(BasicArrayTest, MoveConstruction)
 {
     Value array{ VType::array };
     Value element{ "element 1" };
-    
+
     array.append(element);
-    
+
     Value moved = std::move(array);
-    
+
     EXPECT_EQ(moved[0].string(), "element 1");
     EXPECT_EQ(array.size(), size_t(0));
 }
@@ -53,13 +53,13 @@ TEST(BasicArrayTest, CopyAssignment)
 {
     Value array{ VType::array };
     Value element{ "element 1" };
-    
+
     array.append(element);
-    
+
     Value copy{ VType::array };
     copy.append(Value{});
     copy = array;
-    
+
     EXPECT_EQ(copy[0].string(), array[0].string());
     EXPECT_EQ(copy.size(), array.size());
 }
@@ -68,13 +68,13 @@ TEST(BasicArrayTest, MoveAssignment)
 {
     Value array{ VType::array };
     Value element{ "element 1" };
-    
+
     array.append(element);
-    
+
     Value moved{ VType::array };
     moved.append(Value{});
     moved = std::move(array);
-    
+
     EXPECT_EQ(moved[0].string(), "element 1");
     EXPECT_EQ(array.size(), size_t(0));
 }
@@ -108,11 +108,11 @@ TEST(BasicArrayTest, Erase)
 
     array.append(element1);
     array.append(element2);
-    
+
     ASSERT_EQ(array.size(), size_t{ 2 });
-    
+
     array.erase(1);
-    
+
     ASSERT_EQ(array.size(), size_t{ 1 });
     EXPECT_EQ(array[0].string(), "element 1");
 }

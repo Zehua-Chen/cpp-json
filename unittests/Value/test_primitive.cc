@@ -6,7 +6,7 @@
 //  Copyright © 2018 Zehua Chen. All rights reserved.
 //
 
-#include "json/Value/BasicValue.hpp"
+#include "json/value/basic_value.h"
 #include "gtest/gtest.h"
 #include <iostream>
 #include <string>
@@ -30,7 +30,7 @@ TEST(PrimitiveTest, String)
         EXPECT_EQ(value.type(), Value::Type::string);
         EXPECT_EQ(value.string(), "a");
     }
-    
+
     // Initialize using STL string
     {
         string str = "a";

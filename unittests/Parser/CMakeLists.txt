@@ -1,8 +1,8 @@
 add_executable(
     test_parser
-    testmain.cpp
-    ParserTest.cpp)
-    
+    testmain.cc
+    test_parser.cc)
+
 target_link_libraries(
     test_parser
     PRIVATE
@@ -10,10 +10,10 @@ target_link_libraries(
         jsoncpp)
 
 target_compile_definitions(
-    test_parser 
+    test_parser
     PRIVATE
         PATH_TESTFILE="${CMAKE_SOURCE_DIR}/unittests/resources/1.jsonc")
-        
+
 set_target_properties(
     test_parser
     PROPERTIES

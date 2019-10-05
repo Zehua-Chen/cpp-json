@@ -6,7 +6,7 @@
 //  Copyright © 2018 Zehua Chen. All rights reserved.
 //
 
-#include "json/Value/BasicValue.hpp"
+#include "json/value/basic_value.h"
 #include "gtest/gtest.h"
 #include <iostream>
 #include <string>
@@ -33,11 +33,11 @@ TEST(ObjectTest, CopyConstruction)
 {
     Value object{ VType::object };
     Value name{ "jackson" };
-    
+
     object["name"] = name;
-    
+
     BasicValue<char> copy = object;
-    
+
     ASSERT_EQ(copy["name"].type(), VType::string);
     EXPECT_EQ(object["name"].string(), copy["name"].string());
 }
@@ -48,9 +48,9 @@ TEST(ObjectTest, MoveConstruction)
     Value name{ "jackson" };
 
     object["name"] = name;
-    
+
     BasicValue<char> moved = std::move(object);
-    
+
     ASSERT_EQ(moved.type(), VType::object);
     ASSERT_EQ(moved["name"].type(), VType::string);
     EXPECT_EQ(moved["name"].string(), "jackson");
@@ -62,14 +62,14 @@ TEST(ObjectTest, CopyAssignment)
 {
     Value object{ VType::object };
     Value name{ "jackson" };
-    
+
     object["name"] = name;
-    
+
     Value copy{ VType::object };
     copy["random data"] = Value{};
-    
+
     copy = object;
-    
+
     ASSERT_EQ(object.type(), VType::object);
     ASSERT_EQ(copy.type(), VType::object);
     ASSERT_EQ(copy["name"].type(), VType::string);
@@ -82,14 +82,14 @@ TEST(ObjectTest, MoveAssignment)
 {
     Value object{ VType::object };
     Value name{ "jackson" };
-    
+
     name.string("jackson");
     object["name"] = name;
-    
+
     Value moved{ VType::object };
     moved["random data"] = Value{};
     moved = std::move(object);
-    
+
     EXPECT_EQ(moved["name"].string(), "jackson");
     EXPECT_EQ(object.size(), size_t(0));
 }
@@ -132,12 +132,12 @@ TEST(ObjectTest, Erase)
 {
     Value object{ VType::object };
     Value name{ "jackson" };
-    
+
     object["name"] = name;
-    
+
     ASSERT_TRUE(object.contains("name"));
-    
+
     object.erase("name");
-    
+
     ASSERT_FALSE(object.contains("name"));
 }

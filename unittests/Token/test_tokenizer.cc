@@ -1,4 +1,4 @@
-#include "json/Token/Tokenizer.hpp"
+#include "json/token/tokenizer.h"
 #include "gtest/gtest.h"
 #include <iostream>
 #include <string_view>
@@ -203,7 +203,7 @@ TEST(TokenizerTest, Bool)
 
         EXPECT_EQ(tokens, expected);
     }
-    
+
     // utf16
     {
         std::basic_string_view<char16_t> json = u"true false";
