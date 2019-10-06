@@ -10,16 +10,18 @@
 
 #include <bitset>
 #include <cmath>
+#include <istream>
 #include <string>
 #include "json/token/token.h"
 #include "json/utils/convert.h"
 #include "json/utils/letters.h"
 
 namespace json::token {
-template <typename CharT, typename IterT>
+template <typename CharT>
 class Tokenizer {
  public:
-  Tokenizer(IterT begin, IterT end);
+  using InputStream = std::basic_istream<CharT>;
+  Tokenizer(InputStream &input_stream);
 
   /**
    * Take an input iterator to extract letter to process
@@ -29,15 +31,13 @@ class Tokenizer {
    */
   void Extract();
 
-  bool IsAtEndOfString();
+  bool Done();
 
   /**
    * Get a reference to the current token
    * @returns a reference to the current token
    */
   Token<CharT> &token();
-
-  operator bool();
 
  private:
   void String();
@@ -47,59 +47,65 @@ class Tokenizer {
   void Null();
 
   Token<CharT> token_;
-  IterT begin_;
-  IterT end_;
+  InputStream &input_stream_;
 };
 }  // namespace json::token
 
 // Implementations
 
 namespace json::token {
-template <typename CharT, typename IterT>
-Tokenizer<CharT, IterT>::Tokenizer(IterT begin, IterT end)
-    : begin_(begin), end_(end) {}
+template <typename CharT>
+Tokenizer<CharT>::Tokenizer(InputStream &input_stream)
+    : input_stream_(input_stream) {}
 
-template <typename CharT, typename IterT>
-void Tokenizer<CharT, IterT>::Extract() {
+template <typename CharT>
+bool Tokenizer<CharT>::Done() {
+  // can't directly use eof() method here.
+  // eof() would only return true after eof has been read.
+  // However, this method is supposed to return true when it sees eof()
+  return input_stream_.peek() == std::char_traits<CharT>::eof();
+}
+
+template <typename CharT>
+void Tokenizer<CharT>::Extract() {
   using namespace json::utils;
   using TType = typename Token<CharT>::Type;
 
-  while (begin_ != end_) {
-    CharT letter = *begin_;
-
+  while (!this->Done()) {
+    CharT letter = input_stream_.peek();
     switch (letter) {
       case ' ':
       case '\r':
       case '\t':
       case '\n':
-        ++begin_;
+        input_stream_.get();
         continue;
       case '{':
         token_.type = TType::kBeginObject;
-        ++begin_;
+        input_stream_.get();
         return;
       case '}':
         token_.type = TType::kEndObject;
-        ++begin_;
+        input_stream_.get();
         return;
       case '[':
         token_.type = TType::kBeginArray;
-        ++begin_;
+        input_stream_.get();
         return;
       case ']':
         token_.type = TType::kEndArray;
-        ++begin_;
+        input_stream_.get();
         return;
       case ',':
         token_.type = TType::kValueSeparator;
-        ++begin_;
+        input_stream_.get();
         return;
       case ':':
         token_.type = TType::kKeyValueSeparator;
-        ++begin_;
+        input_stream_.get();
         return;
       case '\"':
-        ++begin_;
+        input_stream_.get();
         return String();
       case '-':
       case '0':
@@ -121,14 +127,13 @@ void Tokenizer<CharT, IterT>::Extract() {
         return Null();
       default:
         // TODO: Error handling
-        ++begin_;
         break;
     }
   }
 }
 
-template <typename CharT, typename IterT>
-void Tokenizer<CharT, IterT>::String() {
+template <typename CharT>
+void Tokenizer<CharT>::String() {
   enum class State {
     kRegular,
     kEscape,
@@ -146,9 +151,9 @@ void Tokenizer<CharT, IterT>::String() {
   State state = State::kRegular;
   std::basic_string<CharT> buffer;
 
-  while (begin_ != end_) {
-    CharT letter = *begin_;
-    ++begin_;
+  while (!this->Done()) {
+    CharT letter;
+    input_stream_.get(letter);
 
     switch (state) {
       case State::kRegular:
@@ -254,8 +259,8 @@ void Tokenizer<CharT, IterT>::String() {
   }
 }
 
-template <typename CharT, typename IterT>
-void Tokenizer<CharT, IterT>::Number() {
+template <typename CharT>
+void Tokenizer<CharT>::Number() {
   using namespace utils::convert;
   // Number format:
   // -010.2e+3
@@ -279,8 +284,8 @@ void Tokenizer<CharT, IterT>::Number() {
     return value * sign * std::pow(10, scale);
   };
 
-  while (begin_ != end_) {
-    CharT letter = *begin_;
+  while (!this->Done()) {
+    CharT letter = input_stream_.peek();
 
     switch (letter) {
       case ']':
@@ -306,17 +311,17 @@ void Tokenizer<CharT, IterT>::Number() {
             value *= 10.0;
             value += number::FromDec<double>(letter);
             state = State::beforeDecimalPoint;
-            ++begin_;
+            input_stream_.get();
             break;
           case State::beforeDecimalPoint:
             value *= 10.0;
             value += number::FromDec<double>(letter);
-            ++begin_;
+            input_stream_.get();
             break;
           case State::afterDecimalPoint:
             value += number::FromDec<double>(letter) * postDecimalScale;
             postDecimalScale /= 10.0;
-            ++begin_;
+            input_stream_.get();
             break;
           case State::afterE:
             state = State::afterESign;
@@ -324,10 +329,10 @@ void Tokenizer<CharT, IterT>::Number() {
           case State::afterESign:
             scale *= 10;
             scale += number::FromDec<double>(letter);
-            ++begin_;
+            input_stream_.get();
             break;
           default:
-            ++begin_;
+            input_stream_.get();
             break;
         }
         break;
@@ -342,7 +347,8 @@ void Tokenizer<CharT, IterT>::Number() {
           default:
             break;
         }
-        ++begin_;
+
+        input_stream_.get(letter);
         break;
       case '.':
         switch (state) {
@@ -353,7 +359,8 @@ void Tokenizer<CharT, IterT>::Number() {
           default:
             break;
         }
-        ++begin_;
+
+        input_stream_.get(letter);
         break;
       case '-':
         switch (state) {
@@ -368,7 +375,7 @@ void Tokenizer<CharT, IterT>::Number() {
           default:
             break;
         }
-        ++begin_;
+        input_stream_.get();
         break;
       default:
         break;
@@ -378,61 +385,61 @@ void Tokenizer<CharT, IterT>::Number() {
   token_.FormNumber(exportNumber());
 }
 
-template <typename CharT, typename IterT>
-void Tokenizer<CharT, IterT>::True() {
+template <typename CharT>
+void Tokenizer<CharT>::True() {
   const char letters[] = {'t', 'r', 'u', 'e'};
   int i = 0;
 
-  while (begin_ != end_) {
-    CharT letter = *begin_;
+  while (!this->Done()) {
+    CharT letter = input_stream_.peek();
 
     if (letter != static_cast<CharT>(letters[i])) {
       // TODO: Error handling
     }
 
     if (i == 3) {
-      ++begin_;
+      input_stream_.get(letter);
       return token_.FormBoolean(true);
     }
 
     ++i;
-    ++begin_;
+    input_stream_.get(letter);
   }
 
   // TODO: Error handling
 }
 
-template <typename CharT, typename IterT>
-void Tokenizer<CharT, IterT>::False() {
+template <typename CharT>
+void Tokenizer<CharT>::False() {
   const char letters[] = {'f', 'a', 'l', 's', 'e'};
   int i = 0;
 
-  while (begin_ != end_) {
-    CharT letter = *begin_;
+  while (!this->Done()) {
+    CharT letter = input_stream_.peek();
 
     if (letter != static_cast<CharT>(letters[i])) {
       // TODO: Error handling
     }
 
     if (i == 4) {
-      ++begin_;
+      input_stream_.get(letter);
       return token_.FormBoolean(false);
     }
 
     ++i;
-    ++begin_;
+    input_stream_.get(letter);
   }
 
   // TODO: Error handling
 }
 
-template <typename CharT, typename IterT>
-void Tokenizer<CharT, IterT>::Null() {
+template <typename CharT>
+void Tokenizer<CharT>::Null() {
   const char letters[] = {'n', 'u', 'l', 'l'};
   int i = 0;
 
-  while (begin_ != end_) {
-    CharT letter = *begin_;
+  while (!this->Done()) {
+    CharT letter = input_stream_.peek();
 
     if (letter != static_cast<CharT>(letters[i])) {
       // TODO: Error handling
@@ -440,24 +447,19 @@ void Tokenizer<CharT, IterT>::Null() {
 
     if (i == 3) {
       token_.type = Token<CharT>::Type::kNull;
-      ++begin_;
+      input_stream_.get(letter);
       return;
     }
 
     ++i;
-    ++begin_;
+    input_stream_.get(letter);
   }
 
   // TODO: Error handling
 }
 
-template <typename CharT, typename IterT>
-Token<CharT> &Tokenizer<CharT, IterT>::token() {
+template <typename CharT>
+Token<CharT> &Tokenizer<CharT>::token() {
   return token_;
-}
-
-template <typename CharT, typename IterT>
-Tokenizer<CharT, IterT>::operator bool() {
-  return begin_ != end_;
 }
 }  // namespace json::token
