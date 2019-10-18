@@ -2,19 +2,22 @@
 
 ## Features
 
-* Full Json standard compatibilty;
-* Works with
-    * `char`;
-    * `char16_t`;
-    * `char32_t`;
-    * `wchar_t`;
-* STL-like design
-    * Inputs string are passed as iterators
-    * Char type support implemented through template, like `basic_string<CharT>`;
+- Full Json standard compatibilty;
+- Works with
+  - `char`;
+  - `char16_t`;
+  - `char32_t`;
+  - `wchar_t`;
+- `char16_t` and `char32_t` are **only theoratically supported. Being able
+  to successfully compile with these character types requires the respective
+  C++ STL having support for these character types**.
+- STL-like design
+  - Inputs string are passed as iterators
+  - Char type support implemented through template, like `basic_string<CharT>`;
 
 ## Requirements
 
-* C++17 compatible compilers
+- C++17 compatible compilers
 
 ## Usage
 
@@ -22,10 +25,10 @@ You are welcome to add the build system you use! Just open a pull request!
 
 ### CMake
 
-* Download the repository (ex. `FetchContent`)
-* Link the `jsoncpp` library target to your targets
+- Download the repository (ex. `FetchContent`)
+- Link the `jsoncpp` library target to your targets
 
-````cmake
+```cmake
 include(FetchContent)
 
 # declare jsoncpp
@@ -48,17 +51,17 @@ target_link_libraries(
     your_target
     PRIVATE
         jsoncpp)
-````
+```
 
 ### Other Build Systems
 
-* Download the repository
-* Add "./include" to your include path
-* Include the umbrella header `json.hpp` and start parsing json!
+- Download the repository
+- Add "./include" to your include path
+- Include the umbrella header `json.hpp` and start parsing json!
 
 ## Quick Start
 
-````cpp
+```cpp
 
 #include "json/json.hpp"
 #include <string>
@@ -66,35 +69,33 @@ target_link_libraries(
 
 using namespace json;
 
-int main()
-{
-    string json = "{ 'key': 'value' }";
-    Value value = parse(json.begin(), json.end());
-    
-    std::cout << value["key"].string() << std::endl;
-    
-    return 0;
-}
+int main() {
+  string json = "{ 'key': 'value' }";
+  Value value = parse(json.begin(), json.end());
 
-````
+  std::cout << value["key"].string() << std::endl;
+
+  return 0;
+}
+```
 
 ## Known Limitations
 
-* No error resporting
-* Only string to json, and not the other way around;
-* `BasicValue<CharT>` does not have iterators
-* `BasicValue<CharT>` only have basic data access methods;
+- No error resporting
+- Only string to json, and not the other way around;
+- `BasicValue<CharT>` does not have iterators
+- `BasicValue<CharT>` only have basic data access methods;
 
 ## Development
 
 ### Setup
 
-* When generating build files using cmake, define `JSONCPP_DEV` to be 1
+- When generating build files using cmake, define `JSONCPP_DEV` to be 1
 
-````
+```
 cmake .. -G Ninja -DJSONCPP_DEV=1
-````
-    
+```
+
 #### Windows
 
 `ParseTest.cpp` may not work as expected on Windows, as the file path used to access the json file follows Linux/Unix format.
