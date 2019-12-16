@@ -1,31 +1,39 @@
 #pragma once
 
-#include "json/value/basic_value.h"
 #include "json/parser/parser.h"
+#include "json/value/basic_value.h"
+#include <string_view>
 
-namespace json
-{
-template<typename CharT = char, typename IterT>
-BasicValue<CharT> parse(IterT begin, IterT end);
+namespace json {
+template <typename CharT = char>
+BasicValue<CharT> parse(std::basic_istream<CharT> &istream);
+
+template <typename CharT = char>
+BasicValue<CharT> parse(std::basic_string_view<CharT> &str_view);
 
 using Value = BasicValue<char>;
 using Key = BasicKey<char>;
+}  // namespace json
+
+namespace json {
+template <typename CharT>
+BasicValue<CharT> parse(std::basic_istream<CharT> &istream) {
+  token::Tokenizer<CharT> tokenizer{istream};
+  parser::Parser<CharT> parser;
+
+  while (!tokenizer.Done()) {
+    tokenizer.Extract();
+    parser.take(tokenizer.token());
+  }
+
+  return parser.root();
 }
 
-namespace json
-{
-template<typename CharT, typename IterT>
-BasicValue<CharT> parse(IterT begin, IterT end)
-{
-    token::Tokenizer<CharT, IterT> tokenizer{ begin, end };
-    parser::Parser<CharT> parser;
+template <typename CharT>
+BasicValue<CharT> parse(std::basic_string_view<CharT> &str_view) {
+  std::stringstream ss;
+  ss << str_view;
 
-    while(tokenizer)
-    {
-        tokenizer.extract();
-        parser.take(tokenizer.token());
-    }
-
-    return parser.root();
+  return parse(ss);
 }
-}
+}  // namespace json
