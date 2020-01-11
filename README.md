@@ -26,31 +26,31 @@ You are welcome to add the build system you use! Just open a pull request!
 ### CMake
 
 - Download the repository (ex. `FetchContent`)
-- Link the `jsoncpp` library target to your targets
+- Link the `json` library target to your targets
 
 ```cmake
 include(FetchContent)
 
-# declare jsoncpp
+# declare json
 FetchContent_Declare(
-    jsoncpp
-    GIT_REPOSITORY https://github.com/Zehua-Chen/json-cpp
+    json
+    GIT_REPOSITORY https://github.com/Zehua-Chen/cpp-json.git
     GIT_TAG version)
 
-# see if jsoncpp has been downloaded
-FetchContent_GetProperties(jsoncpp)
+# see if json has been downloaded
+FetchContent_GetProperties(json)
 
 if(NOT jsoncpp_POPULATED)
     # download json cpp if not
-    FetchContent_Populate(jsoncpp)
-    # add jsoncpp's CMakeLists as a sub directory
+    FetchContent_Populate(json)
+    # add json's CMakeLists as a sub directory
     add_subdirectory(${jsoncpp_SOURCE_DIR} ${jsoncpp_BINARY_DIR})
 endif()
 
 target_link_libraries(
     your_target
     PRIVATE
-        jsoncpp)
+        json)
 ```
 
 ### Other Build Systems
@@ -98,4 +98,5 @@ cmake .. -G Ninja -DJSONCPP_DEV=1
 
 #### Windows
 
-`ParseTest.cpp` may not work as expected on Windows, as the file path used to access the json file follows Linux/Unix format.
+`ParseTest.cpp` may not work as expected on Windows, as the file path used to
+access the json file follows Linux/Unix format.

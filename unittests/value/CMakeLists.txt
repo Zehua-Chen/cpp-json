@@ -11,7 +11,7 @@ target_link_libraries(
     test_value
     PRIVATE
         gtest
-        jsoncpp)
+        json)
 
 set_target_properties(
     test_value

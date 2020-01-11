@@ -7,7 +7,7 @@ target_link_libraries(
     test_utils
     PRIVATE
         gtest
-        jsoncpp)
+        json)
 
 set_target_properties(
     test_utils

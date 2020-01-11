@@ -7,7 +7,7 @@ target_link_libraries(
     test_parser
     PRIVATE
         gtest
-        jsoncpp)
+        json)
 
 target_compile_definitions(
     test_parser
