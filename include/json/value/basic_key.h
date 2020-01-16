@@ -6,20 +6,64 @@
 #include <variant>
 
 namespace json {
+/**
+ * @brief A key object that can be used to index json objects
+ *
+ * A key can be in two states, with ownership and without ownerships. The ones
+ * do not have ownerships must not outlive the storage that provides the string
+ */
 template <typename CharT>
 class BasicKey {
  public:
+  /**
+   * @brief Type to represent a string, aka. a with-ownership string
+   */
   using String = std::basic_string<CharT>;
+
+  /**
+   * @brief Type to represent a string view, aka. a without-ownership string
+   */
   using StringView = std::basic_string_view<CharT>;
+
+  /**
+   * @brief Type to store the data of the key
+   */
   using Data = std::variant<String, StringView>;
 
+  /**
+   * @brief Construt a key with-ownership
+   * @param key the key to copy from
+   */
   BasicKey(const std::basic_string<CharT> &key);
+
+  /**
+   * @brief Construt a key without-ownership
+   * @param key the key to reference to
+   */
   BasicKey(const CharT *key);
 
+  /**
+   * @brief Determine if the key has ownership to the string
+   * @returns `true` if has ownership, `false` otherwise
+   */
   bool HasOwnership() const;
+
+  /**
+   * @brief Determine if two keys are equal
+   * @returns `true` if equal, false otherwise
+   */
   bool operator==(const BasicKey<CharT> &other) const;
 
+  /**
+   * @brief Returns 0 if has ownership, 1 otherwise
+   * @returns an integer value
+   */
   int index() const;
+
+  /**
+   * @brief Returns a constant reference to the underlying data
+   * @returns a reference to the underlying data
+   */
   const Data &data() const;
 
  private:

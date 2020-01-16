@@ -18,54 +18,126 @@
 #include "json/value/basic_key.h"
 
 namespace json {
+/**
+ * @brief A json value
+ */
 template <typename CharT>
 class BasicValue {
  public:
   /**
-   * Type of the value
+   * @brief Type of the value
    */
   enum class Type : char {
+    /**
+     * @brief null
+     */
     kNull,
+    /**
+     * @brief number
+     */
     kNumber,
+    /**
+     * @brief boolean
+     */
     kBoolean,
+    /**
+     * @brief string
+     */
     kString,
+    /**
+     * @brief object
+     */
     kObject,
+    /**
+     * @brief array
+     */
     kArray,
   };
 
-  /// Aliases
-
+  /**
+   * @brief Key used to index properties in a json object
+   */
   using Key = BasicKey<CharT>;
 
+  /**
+   * @brief Type used to store a null
+   */
   using Null = std::nullptr_t;
+
+  /**
+   * @brief Type used to store a number
+   */
   using Number = double;
+
+  /**
+   * @brief Type used to store a boolean
+   */
   using Boolean = bool;
+
+  /**
+   * @brief Type used to store a string
+   */
   using String = std::basic_string<CharT>;
+
+  /**
+   * @brief Type used to store an object
+   */
   using Object = std::unordered_map<Key, BasicValue<CharT>>;
+
+  /**
+   * @brief Type used to store an array
+   */
   using Array = std::vector<BasicValue<CharT>>;
 
+  /**
+   * @brief Type used to store the data of the json value
+   */
   using Data = std::variant<Null, Number, Boolean, String, Object, Array>;
 
-  /// Constructors, destructors
-
+  /**
+   * @brief Create a null value
+   */
   BasicValue();
 
   /**
-   * Construct json value of the specified type
+   * @brief Construct json value of the specified type
    * @param type type of the json value
    */
   BasicValue(Type type);
 
+  /**
+   * @brief Construct a string value
+   * @param str a string pointer
+   */
   BasicValue(const CharT *str);
+
+  /**
+   * @brief Construct a string value
+   * @param str a reference to a string object
+   */
   explicit BasicValue(const String &str);
+
+  /**
+   * @brief Construct a string value
+   * @param str a r-reference to a string object
+   */
   BasicValue(String &&str);
 
+  /**
+   * @brief Construct a number value
+   * @param number the number the json value would hold
+   */
   BasicValue(const double &number);
+
+  /**
+   * @brief Construct a boolean value
+   * @param boolean the number the json value would hold
+   */
   BasicValue(const bool &boolean);
 
   /**
    * Copy constructor
-   * @other the other value to copy data from
+   * @param other the other value to copy data from
    */
   BasicValue(const BasicValue<CharT> &other);
 
@@ -77,55 +149,47 @@ class BasicValue {
 
   virtual ~BasicValue();
 
-  /// Type accessors
-
   /**
-   * Get the type of object;
+   * @brief Get the type of object;
    * @returns the type of the object
    */
   Type type() const;
 
   /**
-   * Determines if the value is an object.
+   * @brief Determines if the value is an object.
    * @returns true if value is object
    */
   bool IsObject() const;
 
   /**
-   * Determines if the value is an array.
+   * @brief Determines if the value is an array.
    * @returns true if value is array
    */
   bool IsArray() const;
 
   /**
-   * Determines if the value is a primitive.
+   * @brief Determines if the value is a primitive.
    * @returns true if value is primitive
    */
   bool IsPrimitive() const;
 
-  /// Type modifiers
-
-  /// Universal Accessor
-
   /**
-   * Get the size of the value
+   * @brief Get the size of the value
    * @returns type = object: size of unordered map; type = array: size of
    * vector; type = primitive: size of string.
    */
   size_t size() const;
 
-  /// Universal Operators
-
   /**
-   * Copy value from other value
-   * @other the value to copy from
+   * @brief Copy value from other value
+   * @param other the value to copy from
    * @returns a reference to this object
    */
   BasicValue<CharT> &operator=(const BasicValue<CharT> &other);
 
   /**
    * Move value from other value
-   * @other the value to move from
+   * @param other the value to move from
    * @returns a reference to this object
    */
   BasicValue<CharT> &operator=(BasicValue<CharT> &&other);
@@ -133,151 +197,174 @@ class BasicValue {
   /// Object modifiers
 
   /**
-   * Set the a value using the key
+   * @brief Set the a value using the key
+   *
+   * if a value associated with the key already exits,
+   * override the existing value.
+   *
    * @param value the value
    * @param key the key used to set the value
-   * @discussions if a value associated with the key already exits,
-   * override the existing value.
    */
   void Set(const Key &key, BasicValue<CharT> &value);
 
   /**
-   * Erase the value with the key
+   * @brief Erase the value with the key
    * @param key the key associated with the value
    */
   void Erase(const Key &key);
 
-  /// Object accessors
-
   /**
-   * Have a reference to the value associated with the key.
+   * @brief Have a reference to the value associated with the key.
    * @param key the key associated with the value
    * @returns a reference to the value
    */
   BasicValue<CharT> &operator[](const Key &key);
 
   /**
-   * Have a reference to the value associated with the key.
+   * @brief Have a reference to the value associated with the key.
    * @param key the key associated with the value
    * @returns a reference to the value
    */
   BasicValue<CharT> &Get(const Key &key);
 
   /**
-   * Have a constant reference to the value associated with the key.
+   * @brief Have a constant reference to the value associated with the key.
    * @param key the key associated with the value
    * @returns a reference to the value
    */
   const BasicValue<CharT> &operator[](const Key &key) const;
 
   /**
-   * Have a constant reference to the value associated with the key.
+   * @brief Have a constant reference to the value associated with the key.
    * @param key the key associated with the value
    * @returns a reference to the value
    */
   const BasicValue<CharT> &Get(const Key &key) const;
 
   /**
-   * See if the object contains the key
-   * @key the key to lookup
-   * @returns true if there is an eleemnt associated with the key in
+   * @brief See if the object contains the key
+   * @param key the key to lookup
+   * @returns true if there is an element associated with the key in
    * the object.
    */
   bool Contains(const Key &key) const;
 
-  /// Array modifiers
-
   /**
-   * Add new element to the array.
-   * @value the value to add
+   * @brief Add new element to the array.
+   * @param value the value to add
    */
   void Append(const BasicValue<CharT> &value);
 
   /**
-   * Add new element to the array.
-   * @value the value to add
+   * @brief Add new element to the array.
+   * @param value the value to add
    */
   void Append(BasicValue<CharT> &&value);
 
   /**
-   * Erase element in the array, will push elements to remain ordering.
-   * @index the index to erase at.
+   * @brief Erase element in the array, will push elements to remain ordering.
+   * @param index the index to erase at.
    */
   void Erase(const size_t index);
 
-  /// Array accessors
-
   /**
-   * Retreive a constant reference to an element at the index
-   * @index the index of the element
+   * @brief Retreive a constant reference to an element at the index
+   * @param index the index of the element
    * @returns a constant reference to the json object
    */
   const BasicValue<CharT> &operator[](size_t index) const;
 
   /**
-   * Retreive a reference to an element at the index
-   * @index the index of the element
+   * @brief Retreive a reference to an element at the index
+   * @param index the index of the element
    * @returns a reference to the json object
    */
   BasicValue<CharT> &operator[](size_t index);
 
-  /// String Modifiers
-
   /**
-   * Set the value of the primitive to a string value.
-   * @value the value to set
+   * @brief Set the value of the primitive to a string value.
+   * @param str the string to use
    */
   void set_string(const CharT *str);
 
   /**
-   * Set the value of the primitive to a string value.
-   * @value the value to set
+   * @brief Set the value of the primitive to a string value.
+   * @param str the value to set
    */
   void set_string(const std::basic_string<CharT> &str);
 
   /**
-   * Set the value of the primitive to a string value.
-   * @value the value to move from
+   * @brief Set the value of the primitive to a string value.
+   * @param text the value to move from
    */
   void set_string(std::basic_string<CharT> &&text);
 
-  /// Primitive accessors
-
   /**
-   * Retrieve a constant reference to the string represented by the primitive
+   * @brief Retrieve a constant reference to the string represented by the
+   * primitive
    * @returns a constant reference to the string.
    */
   const String &string() const;
 
   /**
-   * Retrieve a reference to the string represented by the primitive
+   * @brief Retrieve a reference to the string represented by the primitive
    * @returns a reference to the string.
    */
   String &string();
 
+  /**
+   * @brief Set the value of the primitive to a number value
+   * @param number the value to use
+   */
   void set_number(const Number &number);
+
+  /**
+   * @brief Retrieve a reference to the number represented by the
+   * primitive
+   * @returns a constant reference to the number.
+   */
   Number &number();
+
+  /**
+   * @brief Retrieve a constant reference to the number represented by the
+   * primitive
+   * @returns a constant reference to the number.
+   */
   const Number &number() const;
 
+  /**
+   * @brief Set the value of the primitive to a boolean
+   * @param boolean the value to use
+   */
   void set_boolean(const Boolean &boolean);
+
+  /**
+   * @brief Retrieve a reference to the boolean represented by the
+   * primitive
+   * @returns a constant reference to the boolean.
+   */
   Boolean &boolean();
+
+  /**
+   * @brief Retrieve a constant reference to the boolean represented by the
+   * primitive
+   * @returns a constant reference to the boolean.
+   */
   const Boolean &boolean() const;
 
  private:
   Data data_;
 };
 
-/// Factory Methods
-
 /**
- * Make an empty object.
+ * @brief Make an empty object.
  * @returns an empty object.
  */
 template <typename CharT = char>
 BasicValue<CharT> MakeObject();
 
 /**
- * Make an empty array.
+ * @brief Make an empty array.
  * @returns an empty array.
  */
 template <typename CharT = char>
@@ -285,18 +372,12 @@ BasicValue<CharT> MakeArray();
 
 }  // namespace json
 
-// Implementation
+// Implementations
 
 namespace json {
-/// Constructor and Destructor
-
 template <typename CharT>
 BasicValue<CharT>::BasicValue() {}
 
-/**
- * Construct json value of the specifiec type
- * @param type type of the json value
- */
 template <typename CharT>
 BasicValue<CharT>::BasicValue(Type type) {
   using std::forward;
@@ -350,18 +431,10 @@ BasicValue<CharT>::BasicValue(const bool &boolean) {
   data_.template emplace<Boolean>(boolean);
 }
 
-/**
- * Copy constructor
- * @other the other value to copy data from
- */
 template <typename CharT>
 BasicValue<CharT>::BasicValue(const BasicValue<CharT> &other)
     : data_(other.data_) {}
 
-/**
- * Move constructor
- * @other the other value to transfer data from
- */
 template <typename CharT>
 BasicValue<CharT>::BasicValue(BasicValue<CharT> &&other)
     : data_(std::move(other.data_)) {}
@@ -369,51 +442,26 @@ BasicValue<CharT>::BasicValue(BasicValue<CharT> &&other)
 template <typename CharT>
 BasicValue<CharT>::~BasicValue() {}
 
-/// Type modifiers
-
-/**
- * Get the type of object.
- * @returns the type of the object
- */
 template <typename CharT>
 typename BasicValue<CharT>::Type BasicValue<CharT>::type() const {
   return static_cast<Type>(data_.index());
 }
 
-/**
- * Determines if the value is an object.
- * @returns true if value is object
- */
 template <typename CharT>
 bool BasicValue<CharT>::IsObject() const {
   return type() == Type::kObject;
 }
 
-/**
- * Determines if the value is an array.
- * @returns true if value is array
- */
 template <typename CharT>
 bool BasicValue<CharT>::IsArray() const {
   return type() == Type::kArray;
 }
 
-/**
- * Determines if the value is a primitive.
- * @returns true if value is primitive
- */
 template <typename CharT>
 bool BasicValue<CharT>::IsPrimitive() const {
   return false;
 }
 
-// Universal accessors
-
-/**
- * Get the size of the value
- * @returns type = object: size of unordered map; type = array: size of
- * vector; type = primitive: size of string.
- */
 template <typename CharT>
 size_t BasicValue<CharT>::size() const {
   using std::get;
@@ -430,13 +478,6 @@ size_t BasicValue<CharT>::size() const {
   }
 }
 
-/// Universal Operators
-
-/**
- * Copy value from other value
- * @other the value to copy from
- * @returns a reference to this object
- */
 template <typename CharT>
 BasicValue<CharT> &BasicValue<CharT>::operator=(
     const BasicValue<CharT> &other) {
@@ -447,11 +488,6 @@ BasicValue<CharT> &BasicValue<CharT>::operator=(
   return *this;
 }
 
-/**
- * Move value from other value
- * @other the value to move from
- * @returns a reference to this object
- */
 template <typename CharT>
 BasicValue<CharT> &BasicValue<CharT>::operator=(BasicValue<CharT> &&other) {
   if (&other != this) {
@@ -461,49 +497,24 @@ BasicValue<CharT> &BasicValue<CharT>::operator=(BasicValue<CharT> &&other) {
   return *this;
 }
 
-/// Object modifiers
-
-/**
- * Set the a value using the key
- * @param value the value
- * @param key the key used to set the value
- * @discussions if a value associated with the key already exits,
- * override the existing value.
- */
 template <typename CharT>
 void BasicValue<CharT>::Set(const Key &key, BasicValue<CharT> &value) {
   Object &data = std::get<Object>(data_);
   data.insert_or_assign(key, value);
 }
 
-/**
- * Erase the value with the key
- * @param key the key associated with the value
- */
 template <typename CharT>
 void BasicValue<CharT>::Erase(const Key &key) {
   Object &data = std::get<Object>(data_);
   data.erase(key);
 }
 
-/// Object accessors
-
-/**
- * Have a reference to the value associated with the key.
- * @param key the key associated with the value
- * @returns a reference to the value
- */
 template <typename CharT>
 BasicValue<CharT> &BasicValue<CharT>::operator[](const Key &key) {
   Object &data = std::get<Object>(data_);
   return data[key];
 }
 
-/**
- * Have a reference to the value associated with the key.
- * @param key the key associated with the value
- * @returns a reference to the value
- */
 template <typename CharT>
 BasicValue<CharT> &BasicValue<CharT>::Get(const Key &key) {
   Object &data = std::get<Object>(data_);
@@ -516,23 +527,12 @@ const BasicValue<CharT> &BasicValue<CharT>::operator[](const Key &key) const {
   return data.find(key)->second;
 }
 
-/**
- * Have a constant reference to the value associated with the key.
- * @param key the key associated with the value
- * @returns a reference to the value
- */
 template <typename CharT>
 const BasicValue<CharT> &BasicValue<CharT>::Get(const Key &key) const {
   Object &data = std::get<Object>(data_);
   return data.find(key)->second;
 }
 
-/**
- * See if the object contains the key
- * @key the key to lookup
- * @returns true if there is an eleemnt associated with the key in
- * the object.
- */
 template <typename CharT>
 bool BasicValue<CharT>::Contains(const Key &key) const {
   const Object &data = std::get<Object>(data_);
@@ -541,32 +541,18 @@ bool BasicValue<CharT>::Contains(const Key &key) const {
   return found != data.end();
 }
 
-/// Array modifiers
-
-/**
- * Add new element to the array.
- * @value the value to add
- */
 template <typename CharT>
 void BasicValue<CharT>::Append(const BasicValue<CharT> &value) {
   Array &data = std::get<Array>(data_);
   data.push_back(value);
 }
 
-/**
- * Add new element to the array.
- * @value the value to add
- */
 template <typename CharT>
 void BasicValue<CharT>::Append(BasicValue<CharT> &&value) {
   Array &data = std::get<Array>(data_);
   data.push_back(std::move(value));
 }
 
-/**
- * Erase element in the array, will push elements to remain ordering.
- * @index the index to erase at.
- */
 template <typename CharT>
 void BasicValue<CharT>::Erase(const size_t index) {
   Array &data = std::get<Array>(data_);
@@ -576,74 +562,38 @@ void BasicValue<CharT>::Erase(const size_t index) {
   data.erase(position);
 }
 
-/// Array accessors
-
-/**
- * Retreive a constant reference to an element at the index
- * @index the index of the element
- * @returns a constant reference to the json object
- */
 template <typename CharT>
 const BasicValue<CharT> &BasicValue<CharT>::operator[](size_t index) const {
   Array &data = std::get<Array>(data_);
   return data[index];
 }
 
-/**
- * Retreive a reference to an element at the index
- * @index the index of the element
- * @returns a reference to the json object
- */
 template <typename CharT>
 BasicValue<CharT> &BasicValue<CharT>::operator[](size_t index) {
   Array &data = std::get<Array>(data_);
   return data[index];
 }
 
-/// Primitive modifiers
-
-/**
- * Set the value of the primitive to a string value.
- * @value the value to set
- */
 template <typename CharT>
 void BasicValue<CharT>::set_string(const CharT *str) {
   data_.template emplace<String>(str);
 }
 
-/**
- * Set the value of the primitive to a string value.
- * @value the value to set
- */
 template <typename CharT>
 void BasicValue<CharT>::set_string(const String &str) {
   data_.template emplace<String>(str);
 }
 
-/**
- * Set the value of the primitive to a string value.
- * @value the value to move from
- */
 template <typename CharT>
 void BasicValue<CharT>::set_string(std::basic_string<CharT> &&str) {
   data_.template emplace<String>(std::move(str));
 }
 
-/// Primitive accessors
-
-/**
- * Retrieve a constant reference to the string represented by the primitive
- * @returns a constant reference to the string.
- */
 template <typename CharT>
 const typename BasicValue<CharT>::String &BasicValue<CharT>::string() const {
   return std::get<String>(data_);
 }
 
-/**
- * Retrieve a reference to the string represented by the primitive
- * @returns a reference to the string.
- */
 template <typename CharT>
 typename BasicValue<CharT>::String &BasicValue<CharT>::string() {
   return std::get<String>(data_);
@@ -679,21 +629,11 @@ const typename BasicValue<CharT>::Boolean &BasicValue<CharT>::boolean() const {
   return std::get<Boolean>(data_);
 }
 
-/// Factory Methods
-
-/**
- * Make an empty object.
- * @returns an empty object.
- */
 template <typename CharT>
 BasicValue<CharT> MakeObject() {
   return {BasicValue<CharT>::Type::kObject};
 }
 
-/**
- * Make an empty array.
- * @returns an empty array.
- */
 template <typename CharT>
 BasicValue<CharT> MakeArray() {
   return {BasicValue<CharT>::Type::kArray};
