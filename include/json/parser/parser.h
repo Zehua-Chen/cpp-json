@@ -5,6 +5,7 @@
 #include "json/token/token.h"
 #include "json/token/tokenizer.h"
 #include "json/value/basic_value.h"
+#include "json/utils/result.h"
 
 namespace json::parser {
 template <typename CharT>
